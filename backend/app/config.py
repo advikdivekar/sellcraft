@@ -1,0 +1,52 @@
+from functools import lru_cache
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="ignore")
+
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "gemma3:4b"
+    ollama_timeout: float = 240.0
+    demo_mode: bool = False
+
+    video_provider: str = "fallback"
+    video_provider_url: str = ""
+    video_provider_api_key: str = ""
+
+    elevenlabs_api_key: str = ""
+    elevenlabs_default_voice_id: str = ""
+
+    sentry_dsn: str = ""
+
+    upload_dir: Path = Path("data/uploads")
+    output_dir: Path = Path("data/outputs")
+    database_url: str = "sqlite:///data/sellcraft.db"
+    max_upload_mb: int = 10
+
+    cors_origins: str = "http://localhost:3000"
+
+    def resolve(self, p: Path) -> Path:
+        return p if p.is_absolute() else BASE_DIR / p
+
+    @property
+    def upload_path(self) -> Path:
+        return self.resolve(self.upload_dir)
+
+    @property
+    def output_path(self) -> Path:
+        return self.resolve(self.output_dir)
+
+    @property
+    def db_path(self) -> Path:
+        raw = self.database_url.removeprefix("sqlite:///")
+        return self.resolve(Path(raw))
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
