@@ -207,7 +207,7 @@ Only one win is possible, but we can enter several categories (confirm in the of
 | Gemma | Gemma via Ollama as the core generator; README + post explain model choice, local run, swap via `OLLAMA_MODEL`; check Gemma terms |
 | Sentry | `sentry-sdk` in FastAPI; traces/spans per job stage (copy, video, TTS, assembly) with latency; LLM token counts + cost ($0 local) as span data; screenshots of traces + one real debugging story in the post; scrub product text/PII (`send_default_pii=False`) |
 | Entire | Capture agent sessions (Entire / DevRelay) during the build and embed/link them in the post |
-| Tinker | Fine-tune a Gemma-family model for listing copy (see section 16); show measured improvement vs. base model |
+| Tinker | Fine-tune a Tinker-supported model (Qwen3-8B; Tinker has no Gemma) for listing copy (section 16); show measured improvement vs. base model |
 | ElevenLabs (bonus) | Voiceover integrated, key backend-only, graceful degradation |
 
 ## 14. Definition of done (MVP)
@@ -219,15 +219,21 @@ Only one win is possible, but we can enter several categories (confirm in the of
 - Local-only demo vs. deploy.
 - Confirm in the official rules whether one project may enter multiple categories.
 
-## 16. Tinker fine-tune plan (stretch, must show measurable improvement)
-**Goal:** fine-tune a Gemma model so listing copy follows the schema and the "never invent facts" rules better than the base model, at equal or lower cost/latency.
+## 16. Tinker fine-tune plan (updated Oct 16)
+**Finding:** Tinker's supported-model table (checked Oct 16, 2026) has **no Gemma**. So the fine-tune is a *separate* small model; the product's default model stays Gemma via Ollama (Gemma prize unaffected). Tinker candidates: **Qwen3-8B** (dense, $0.44 / M training tokens, well supported by llama.cpp/Ollama), Qwen3.5-4B ($0.74), GPT-OSS-20B ($0.40). Recommended: **Qwen3-8B**.
 
-1. **Check availability first:** confirm Tinker supports a Gemma model (else use the closest open model it offers and say so honestly). Claim credits at hacktoberfest.com/my/promos.
-2. **Data:** build a small dataset (~100-300 examples) of product facts + settings → ideal structured copy. Hand-write a seed set, expand with careful generation, then review. Include negative cases (sparse facts → `missing_information`, forbidden words honoured). Hold out ~20% as an eval set. No real customer data.
-3. **Eval harness (build before training):** score base vs. tuned on the held-out set: valid-JSON rate, schema pass rate, **hallucinated-claim rate** (claims not in the facts), forbidden-word violations, missing-info flagged correctly, latency, token cost.
-4. **Train** with Tinker (LoRA), export/serve the tuned weights through Ollama if licence and tooling allow; else document how it would be served.
-5. **Report** a before/after table in the DEV post.
-Risk: time. Gate: only start after Day 2 milestone is done; the app works without it (`OLLAMA_MODEL` just points at the base model).
+**Goal:** a "SellCraft Copy" model that follows the seller-safety rules better than the base model and ideally matches Gemma 12B quality at lower latency: valid JSON, no invented claims, flags missing facts, respects forbidden words, no placeholders.
+
+**Steps (gate: only after the core demo is stable)**
+1. **Eval harness first** (`eval/`): ~60 fact sets (sparse, dense, typos, forbidden words, tempting claims), 20 held out. Metrics reuse code we already have: schema-valid rate, placeholder rate, forbidden-word violations, `risky_terms` per output, missing-info recall, tone check (optional judge), latency, tokens, cost.
+2. **Data (synthetic, no real seller data):** generate ~400 fact sets programmatically (many categories, random omissions). Build targets by **rejection sampling**: sample several candidates from Gemma 12B, keep only those that pass every deterministic check with zero risky terms; hand-edit ~30 gold examples.
+3. **Baselines:** base Qwen3-8B (un-tuned), Gemma 4B, Gemma 12B on the held-out set.
+4. **Train on Tinker:** LoRA SFT, rank 16-32, 2-3 epochs. Rough cost: 500 examples x ~1.2k tokens x 3 epochs ~ 1.8M tokens ~ **$1** at list price (free credits cover it).
+5. **Evaluate** tuned vs baselines; report a before/after table honestly (including if it does *not* beat Gemma 12B).
+6. **Export and serve locally:** download the LoRA/merged weights (Tinker cookbook), convert to GGUF, `ollama create sellcraft-copy`, set `OLLAMA_MODEL`. If export is blocked, offer a clearly-labelled hosted Tinker provider instead.
+7. **Write-up:** before/after table, cost, latency, what failed. Tie to the product: a smaller specialist can cut the 45-60 s copy time.
+
+**Needs from you:** a Tinker API key (claim credits at hacktoberfest.com/my/promos) and a go/no-go on Qwen3-8B. Privacy: training data is synthetic, because it leaves the machine for Tinker.
 
 ## 17. Secrets handling
 ElevenLabs/Sentry/Tinker keys live only in `backend/.env` (gitignored). Never paste keys into chat, commits or the frontend. `.env.example` has placeholders.
