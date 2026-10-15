@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from . import ffmpeg
-from .fallback import FPS
+from .base import FPS
 
 FADE = 0.35
 

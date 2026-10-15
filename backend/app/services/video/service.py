@@ -9,13 +9,14 @@ from . import ffmpeg
 from .assemble import assemble
 from .base import ImageToVideoProvider, size_for
 from .cards import clean_text, render_card
-from .fallback import AnimatedPhotoFallbackProvider
+from .base import ClipResult
+from .provider import StudioAdProvider
 
 
 def get_provider() -> ImageToVideoProvider:
     name = get_settings().video_provider.lower()
     if name in ("fallback", "", "animated_photo"):
-        return AnimatedPhotoFallbackProvider()
+        return StudioAdProvider()
     raise AppError("video_provider_unavailable",
                    f"Video provider '{name}' isn't available. Set VIDEO_PROVIDER=fallback to use the animated-photo ad.", status=503)
 
@@ -26,25 +27,24 @@ def job_dir(job_id: str) -> Path:
     return d
 
 
-def _source_image(job: GenerationJob) -> Path:
-    row = db.get_asset_row(job.product.image_asset_id)
-    if row is None:
-        raise AppError("image_missing", "The product photo is no longer available. Please upload it again.", status=404)
-    return Path(row["path"])
+def _source_images(job: GenerationJob) -> list[Path]:
+    paths = []
+    for aid in job.product.image_asset_ids:
+        row = db.get_asset_row(aid)
+        if row is None:
+            raise AppError("image_missing", "A product photo is no longer available. Please upload it again.", status=404)
+        paths.append(Path(row["path"]))
+    return paths
 
 
-def render_clip(job: GenerationJob) -> tuple[Path, str]:
-    """Stage: generating_video. Returns (clip path, method label)."""
+def render_clip(job: GenerationJob) -> ClipResult:
+    """Stage: generating_video. Studio-enhances the photos and renders the motion clip (no text yet)."""
     provider = get_provider()
     if not provider.available():
         raise AppError("ffmpeg_missing", "FFmpeg isn't installed. Install it (brew install ffmpeg) and retry.", status=503)
-    d = job_dir(job.id)
-    out = d / "clip.mp4"
-    copy = job.copy_output
-    provider.generate(_source_image(job), motion_prompt=copy.video_generation_prompt if copy else "",
-                      style=job.settings.visual_style.value, duration=float(job.settings.duration_seconds),
-                      size=size_for(job.settings.aspect_ratio), out=out)
-    return out, provider.method
+    return provider.generate(_source_images(job), style=job.settings.visual_style.value,
+                             duration=float(job.settings.duration_seconds), size=size_for(job.settings.aspect_ratio),
+                             out_dir=job_dir(job.id))
 
 
 def overlay_plan(copy: CopyOutput, product_name: str) -> dict:

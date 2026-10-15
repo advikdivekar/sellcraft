@@ -15,6 +15,13 @@ CORE_FIELDS: dict[str, str] = {
     "missing_information": "list", "claims_requiring_review": "list",
 }
 
+# The kit is written as independent chunks so they can be generated concurrently (see CopyService.generate).
+LISTING_KEYS = ["product_title", "short_description", "full_description", "key_features", "benefits", "target_audience",
+                "seo_title", "meta_description", "keywords", "tags", "missing_information", "claims_requiring_review"]
+SOCIAL_KEYS = ["social_caption", "hashtags", "ad_headline", "call_to_action"]
+VIDEO_KEYS = ["video_hook", "voiceover_script", "video_storyboard", "video_generation_prompt"]
+assert set(LISTING_KEYS + SOCIAL_KEYS + VIDEO_KEYS) == set(CORE_FIELDS)
+
 PLATFORM_FIELDS: dict[Platform, dict[str, str]] = {
     Platform.instagram: {"hook": "str", "reel_caption": "str", "hashtags": "list", "video_on_screen_text": "list"},
     Platform.facebook: {"primary_text": "str", "headline": "str", "description": "str", "cta": "str"},
@@ -117,6 +124,10 @@ def _obj(fields: dict[str, str]) -> dict:
     return {"type": "object", "required": list(fields), "properties": {k: _type(v) for k, v in fields.items()}}
 
 
+def build_fields_schema(keys: list[str]) -> dict:
+    return _obj({k: CORE_FIELDS[k] for k in keys})
+
+
 def build_schema(platforms: list[Platform], *, section: str | None = None) -> dict:
     if section and section.startswith("platform:"):
         p = Platform(section.split(":", 1)[1])
@@ -132,7 +143,8 @@ def build_schema(platforms: list[Platform], *, section: str | None = None) -> di
 
 
 def build_user_prompt(product: ProductInput, settings: CreativeSettings, *, section: str | None = None,
-                      current: CopyOutput | None = None, instructions: str | None = None) -> str:
+                      current: CopyOutput | None = None, instructions: str | None = None,
+                      fields: list[str] | None = None) -> str:
     parts = [
         "## PRODUCT FACTS\n" + _facts(product),
         "## FORBIDDEN WORDS\n" + (", ".join(product.forbidden_words) or "none"),
@@ -142,8 +154,11 @@ def build_user_prompt(product: ProductInput, settings: CreativeSettings, *, sect
         "## VISUAL STYLE (for the video brief)\n" + STYLE_GUIDE[settings.visual_style],
         "## MARKETING OBJECTIVE\n" + OBJECTIVE_GUIDE[settings.objective],
     ]
-    if section:
-        parts.append(f"## TASK\nRewrite ONLY \"{section}\" in the tone above, using the same facts. "
+    if fields:
+        parts.append("## TASK\nWrite ONLY these JSON fields, using the facts above: " + ", ".join(fields) + ".")
+    elif section:
+        verb = "Rewrite" if current else "Write"
+        parts.append(f"## TASK\n{verb} ONLY \"{section}\" in the tone above, using the same facts. "
                      "Return a JSON object containing just that key.")
         if current:
             parts.append("## CURRENT COPY (for context; keep consistent)\n" + current.model_dump_json(exclude={"platform_outputs"}))

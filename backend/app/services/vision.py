@@ -39,7 +39,7 @@ def get_llm() -> LLMProvider:
     return OllamaProvider(model=s.vision_model or s.ollama_model)
 
 
-def _prepare(path: Path, max_side: int = 1024) -> bytes:
+def _prepare(path: Path, max_side: int = 768) -> bytes:
     with Image.open(path) as im:
         im = im.convert("RGB")
         im.thumbnail((max_side, max_side))
@@ -48,12 +48,12 @@ def _prepare(path: Path, max_side: int = 1024) -> bytes:
         return buf.getvalue()
 
 
-def analyze(path: Path, llm: LLMProvider | None = None) -> dict:
+def analyze(paths: list[Path], llm: LLMProvider | None = None) -> dict:
     if get_settings().demo_mode and llm is None:
         return {"source": "demo", "fields": {}, "note": "Demo Mode can't read photos. Start Ollama to use this."}
     llm = llm or get_llm()
-    res = llm.generate_json(SYSTEM, "Fill in the form from this product photo.", SCHEMA, temperature=0.1,
-                            images=[_prepare(path)])
+    res = llm.generate_json(SYSTEM, "Fill in the form from these photos of ONE product (different angles)." if len(paths) > 1 else "Fill in the form from this product photo.", SCHEMA, temperature=0.1,
+                            images=[_prepare(p) for p in paths[:3]])
     data = normalize(res.data, FIELDS)
     out: dict = {}
     for k, kind in FIELDS.items():

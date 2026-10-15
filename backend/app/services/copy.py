@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 
 from pydantic import ValidationError
@@ -127,23 +128,50 @@ class CopyService:
             log.warning("llm returned bad json; retrying once")
             return self.llm.generate_json(system, user + "\n\nYour previous reply was not valid JSON. Reply with valid JSON only.", schema)
 
+    def _chunks(self, product, settings, note: str = ""):
+        """Independent pieces of the kit. Each is a small JSON generation, so they can run concurrently."""
+        jobs = [("core", prompts.build_fields_schema(keys),
+                 prompts.build_user_prompt(product, settings, fields=keys) + note)
+                for keys in (prompts.LISTING_KEYS, prompts.SOCIAL_KEYS, prompts.VIDEO_KEYS)]
+        for p in settings.platforms:
+            sec = f"platform:{p.value}"
+            jobs.append((sec, prompts.build_schema(settings.platforms, section=sec),
+                         prompts.build_user_prompt(product, settings, section=sec) + note))
+        return jobs
+
+    def _run(self, product, settings, note: str = ""):
+        """Run all chunks in parallel (Ollama serves them together when OLLAMA_NUM_PARALLEL > 1)."""
+        jobs = self._chunks(product, settings, note)
+        with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
+            results = list(pool.map(lambda j: self._call(prompts.SYSTEM_PROMPT, j[2], j[1]), jobs))
+        data: dict = {"platform_outputs": {}}
+        usage = {"prompt_tokens": 0, "completion_tokens": 0, "latency_ms": 0, "chunks": len(jobs)}
+        for (kind, _, _), r in zip(jobs, results):
+            if kind == "core":
+                data.update(r.data)
+            else:
+                key = kind.split(":", 1)[1]
+                data["platform_outputs"][key] = r.data.get(key) or {}
+            usage["prompt_tokens"] += r.usage.get("prompt_tokens") or 0
+            usage["completion_tokens"] += r.usage.get("completion_tokens") or 0
+            usage["latency_ms"] = max(usage["latency_ms"], r.latency_ms)
+        return data, usage, results[0].model
+
     def generate(self, product: ProductInput, settings: CreativeSettings) -> CopyResult:
         if self.demo:
             return CopyResult(demo_copy(product, settings), "demo")
-        schema = prompts.build_schema(settings.platforms)
-        user = prompts.build_user_prompt(product, settings)
-        res = self._call(prompts.SYSTEM_PROMPT, user, schema)
+        data, usage, model = self._run(product, settings)
         try:
-            copy = _validate(res.data, settings.platforms)
+            copy = _validate(data, settings.platforms)
         except AppError as e:
             if not e.retryable:
                 raise
             log.warning("invalid model output (%s); repairing once", e.code)
-            res = self._call(prompts.SYSTEM_PROMPT, user + f"\n\nYour previous reply had a problem: {e.message}. "
-                             "Return the COMPLETE JSON again with every field filled using only the facts.", schema)
-            copy = _validate(res.data, settings.platforms, strict=False)
+            data, usage, model = self._run(product, settings,
+                                           f"\n\nA previous attempt had a problem: {e.message}. Fill every field using only the facts.")
+            copy = _validate(data, settings.platforms, strict=False)
         copy = self._post_check(copy, product)
-        return CopyResult(copy, f"ollama:{res.model}", res.usage | {"latency_ms": res.latency_ms})
+        return CopyResult(copy, f"ollama:{model}", usage)
 
     def regenerate(self, current: CopyOutput, product: ProductInput, settings: CreativeSettings, *,
                    section: str | None, tone: Tone | None, instructions: str | None) -> CopyResult:

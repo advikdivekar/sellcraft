@@ -1,22 +1,31 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from pathlib import Path
 
 SIZES = {"9:16": (1080, 1920), "4:5": (1080, 1350), "1:1": (1080, 1080), "16:9": (1920, 1080)}
+FPS = 30
 
 
 def size_for(aspect: str) -> tuple[int, int]:
     return SIZES.get(aspect, SIZES["9:16"])
 
 
+@dataclass
+class ClipResult:
+    clip: Path
+    method: str  # "studio_cutout" | "animated_photo" | "ltx"
+    stills: list[Path] = field(default_factory=list)  # studio product images, one per source photo
+    notes: list[str] = field(default_factory=list)  # honest notes, e.g. "Background removal failed for photo 2"
+
+
 class ImageToVideoProvider(ABC):
-    """Turns one product photo into a motion clip (no text, no audio; text and audio are added during assembly)."""
+    """Turns product photos into a motion clip (no text, no audio; text and audio are added during assembly)."""
 
     name: str
-    method: str  # label shown to the user: "animated_photo" | "ltx"
 
     @abstractmethod
     def available(self) -> bool: ...
 
     @abstractmethod
-    def generate(self, image: Path, *, motion_prompt: str, style: str, duration: float,
-                 size: tuple[int, int], out: Path) -> Path: ...
+    def generate(self, images: list[Path], *, style: str, duration: float, size: tuple[int, int],
+                 out_dir: Path) -> ClipResult: ...

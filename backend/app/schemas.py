@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class Platform(str, Enum):
@@ -52,9 +52,12 @@ def _clean_list(v: list[str]) -> list[str]:
     return [s.strip() for s in v if s and s.strip()]
 
 
+MAX_IMAGES = 5
+
+
 class ProductInput(BaseModel):
     name: str = Field(min_length=1, max_length=120)
-    image_asset_id: str = Field(min_length=1, max_length=64)
+    image_asset_ids: list[str] = Field(min_length=1, max_length=MAX_IMAGES)  # first = hero image
     summary: str | None = Field(default=None, max_length=1000)
     price: str | None = Field(default=None, max_length=40)
     currency: str | None = Field(default=None, max_length=8)
@@ -68,6 +71,20 @@ class ProductInput(BaseModel):
     care_instructions: str | None = Field(default=None, max_length=500)
     extra_notes: str | None = Field(default=None, max_length=1000)
     forbidden_words: list[str] = Field(default_factory=list, max_length=30)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_single_image(cls, data):
+        if isinstance(data, dict) and "image_asset_ids" not in data and data.get("image_asset_id"):
+            data = {**data, "image_asset_ids": [data["image_asset_id"]]}
+        return data
+
+    @field_validator("image_asset_ids")
+    @classmethod
+    def _unique_ids(cls, v: list[str]) -> list[str]:
+        if len(set(v)) != len(v) or any(not i or len(i) > 64 for i in v):
+            raise ValueError("Each photo can only be used once")
+        return v
 
     @field_validator("name")
     @classmethod
@@ -149,6 +166,7 @@ class JobError(BaseModel):
 class StageEntry(BaseModel):
     name: str
     status: str  # running | done | skipped | failed
+    notes: list[str] = Field(default_factory=list)
     started_at: datetime | None = None
     finished_at: datetime | None = None
     detail: str | None = None
@@ -156,9 +174,9 @@ class StageEntry(BaseModel):
 
 class GeneratedAsset(BaseModel):
     id: str
-    kind: str  # image | video | audio
+    kind: str  # image | studio_image | video | audio | clip(internal)
     mime: str
-    method: str | None = None  # upload | animated_photo | ltx | elevenlabs
+    method: str | None = None  # upload | studio_cutout | animated_photo | ltx | elevenlabs
     duration_seconds: float | None = None
     created_at: datetime
 
@@ -186,3 +204,7 @@ class RegenerateCopyRequest(BaseModel):
     section: str | None = None  # a CopyOutput field, or "platform:<name>"; None = everything
     tone: Tone | None = None
     instructions: str | None = Field(default=None, max_length=300)
+
+
+class AnalyzePhotosRequest(BaseModel):
+    asset_ids: list[str] = Field(min_length=1, max_length=MAX_IMAGES)

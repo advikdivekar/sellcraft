@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from .. import db
 from ..config import get_settings
 from ..errors import AppError
-from ..schemas import (CopyOutput, CreateGenerationRequest, GenerationJob, JobStatus,
+from ..schemas import (AnalyzePhotosRequest, CopyOutput, CreateGenerationRequest, GenerationJob, JobStatus,
                        RegenerateCopyRequest)
 from ..services import jobs, storage, vision
 from ..services.copy import CopyService
@@ -45,22 +45,27 @@ def upload(file: UploadFile = File(...)):
     return storage.save_upload(file)
 
 
-@router.post("/uploads/{asset_id}/analyze")
-def analyze_upload(asset_id: str):
-    """Suggest form fields from a not-yet-used upload. Suggestions only: the seller confirms them."""
+def _unused_upload(asset_id: str):
     row = db.get_asset_row(asset_id)
     if row is None or row["kind"] != "image" or row["job_id"] is not None:
-        raise AppError("upload_not_found", "Photo not found. Upload it again.", status=404)
-    return vision.analyze(storage.asset_file(row))
+        raise AppError("upload_not_found", "A photo wasn't found. Upload it again.", status=404)
+    return row
+
+
+@router.post("/uploads/analyze")
+def analyze_uploads(req: AnalyzePhotosRequest):
+    """Suggest form fields from not-yet-used uploads. Suggestions only: the seller confirms them."""
+    paths = [storage.asset_file(_unused_upload(a)) for a in req.asset_ids]
+    return vision.analyze(paths)
 
 
 @router.post("/generations", status_code=202)
 def create_generation(req: CreateGenerationRequest, bg: BackgroundTasks):
-    row = db.get_asset_row(req.product.image_asset_id)
-    if row is None or row["kind"] != "image" or row["job_id"] is not None:
-        raise AppError("bad_image", "Upload a product photo first.", status=422)
+    for aid in req.product.image_asset_ids:
+        _unused_upload(aid)
     job_id = db.create_job(req.product, req.settings)
-    db.attach_asset(req.product.image_asset_id, job_id)
+    for aid in req.product.image_asset_ids:
+        db.attach_asset(aid, job_id)
     bg.add_task(jobs.run_generation, job_id)
     return _job_or_404(job_id)
 

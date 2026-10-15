@@ -19,6 +19,14 @@ def env(tmp_path, monkeypatch):
     config.get_settings.cache_clear()
 
 
+@pytest.fixture(autouse=True)
+def fast_framing(monkeypatch, request):
+    """Most tests don't need the segmentation model (slow to load); use the framed-photo path unless a test opts in."""
+    if "real_cutout" not in request.keywords:
+        from app.services.video import studio
+        monkeypatch.setattr(studio, "cutout", lambda img: None)
+
+
 @pytest.fixture
 def client():
     from app.main import app

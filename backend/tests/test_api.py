@@ -11,23 +11,35 @@ from .conftest import good_llm_data, png_bytes
 
 
 class FakeLLM(LLMProvider):
+    """Copy is generated as parallel chunks. Each response in `responses` is one full 'round': every chunk
+    signature gets round N's response (restricted to its own keys), so repairs/retries are easy to script."""
     name = "fake"
     model = "fake-model"
 
     def __init__(self, responses):
+        import threading
         self.responses = list(responses)
         self.calls = []
+        self.rounds = {}
+        self.images = None
+        self._lock = threading.Lock()
 
     def health(self):
         return {"reachable": True}
 
     def generate_json(self, system, user, schema, *, temperature=0.4, images=None):
-        self.calls.append((system, user, schema))
-        self.images = images
-        r = self.responses.pop(0)
+        sig = tuple(sorted(schema.get("properties", {})))
+        with self._lock:
+            self.calls.append((system, user, schema))
+            self.images = images
+            n = self.rounds.get(sig, 0)
+            self.rounds[sig] = n + 1
+        r = self.responses[n]
         if isinstance(r, Exception):
             raise r
-        return LLMResult(data=r, model=self.model)
+        if "platform_outputs" in r and sig and sig[0] in r["platform_outputs"]:  # a per-platform chunk
+            return LLMResult(data={k: r["platform_outputs"][k] for k in sig}, model=self.model)
+        return LLMResult(data={k: v for k, v in r.items() if k in sig}, model=self.model)
 
 
 def product(**kw):
@@ -47,7 +59,7 @@ def test_blank_optionals_become_none_and_lists_clean():
 
 def test_create_requires_uploaded_image(client):
     r = client.post("/api/generations", json={"product": {"name": "x", "image_asset_id": "nope"}, "settings": {}})
-    assert r.status_code == 422 and r.json()["error"]["code"] == "bad_image"
+    assert r.status_code == 404 and r.json()["error"]["code"] == "upload_not_found"
 
 
 def test_validation_error_does_not_echo_values(client):
@@ -100,8 +112,8 @@ def test_incomplete_output_triggers_one_repair():
     bad = good_llm_data(); bad["product_title"] = ""
     llm = FakeLLM([bad, good_llm_data()])
     res = CopyService(llm).generate(product(), CreativeSettings())
-    assert res.copy.product_title and len(llm.calls) == 2
-    assert "previous reply had a problem" in llm.calls[1][1]
+    assert res.copy.product_title and max(llm.rounds.values()) == 2
+    assert any("previous attempt had a problem" in c[1] for c in llm.calls)
 
 
 def test_persistent_bad_output_raises():
@@ -130,11 +142,12 @@ def test_forbidden_words_flagged():
 
 
 def test_regenerate_section_keeps_other_fields():
-    svc = CopyService(FakeLLM([good_llm_data(), {"social_caption": "A softer caption."}]))
+    svc = CopyService(FakeLLM([good_llm_data()]))
     first = svc.generate(product(), CreativeSettings())
+    svc.llm = FakeLLM([{"social_caption": "A softer caption."}])
     res = svc.regenerate(first.copy, product(), CreativeSettings(), section="social_caption", tone="emotional", instructions=None)
     assert res.copy.social_caption == "A softer caption." and res.copy.product_title == first.copy.product_title
-    assert "emotional" in svc.llm.calls[1][1].lower() or "Warm" in svc.llm.calls[1][1]
+    assert any("Warm" in c[1] for c in svc.llm.calls)
 
 
 def test_regenerate_unknown_section():
@@ -161,7 +174,7 @@ def test_job_completes_and_records_stages(client, uploaded):
     jobs.run_generation(job_id, CopyService(FakeLLM([good_llm_data()])))
     job = db.get_job(job_id)
     assert job.status.value == "completed" and job.copy_output is not None
-    assert [(s.name, s.status) for s in job.stages] == [("copy", "done"), ("video", "done"), ("assembly", "done")]
+    assert {s.name: s.status for s in job.stages} == {"copy": "done", "video": "done", "assembly": "done"}
     vid = [a for a in job.assets if a.kind == "video"]
     assert len(vid) == 1 and vid[0].method == "animated_photo" and abs(vid[0].duration_seconds - 10) < 0.5
     assert all(a.kind != "clip" for a in job.assets)  # internal clip never exposed
@@ -173,7 +186,7 @@ def test_job_failure_is_safe_and_retryable(client, uploaded):
     jobs.run_generation(job_id, CopyService(llm))
     job = db.get_job(job_id)
     assert job.status.value == "failed" and job.error.code == "llm_offline" and job.error.retryable
-    assert job.stages[0].status == "failed"
+    assert {s.name: s.status for s in job.stages}["copy"] == "failed"
 
 
 def test_unexpected_error_hides_internals(client, uploaded):
@@ -225,7 +238,7 @@ def test_asset_authorization(client, uploaded, monkeypatch):
     assert client.get(f"/api/generations/{j1['id']}/assets/..%2F..%2Fetc%2Fpasswd").status_code == 404
     # an already-used image cannot be re-attached to another job
     again = client.post("/api/generations", json={"product": {"name": "C", "image_asset_id": uploaded}})
-    assert again.status_code == 422
+    assert again.status_code == 404
 
 
 def test_providers_status_hides_secrets(client, monkeypatch):
@@ -252,7 +265,7 @@ def test_placeholder_output_is_repaired():
     bad = good_llm_data(); bad["social_caption"] = "{hook} Meet the moon."
     llm = FakeLLM([bad, good_llm_data()])
     res = CopyService(llm).generate(product(), CreativeSettings())
-    assert "{" not in res.copy.social_caption and len(llm.calls) == 2
+    assert "{" not in res.copy.social_caption and max(llm.rounds.values()) == 2
 
 
 def test_filler_words_removed_from_facts_but_real_words_kept():
@@ -291,10 +304,10 @@ def test_video_failure_keeps_copy_and_retry_skips_copy(client, uploaded, monkeyp
     jobs.run_generation(job_id, CopyService(llm))
     job = db.get_job(job_id)
     assert job.status.value == "failed" and job.error.code == "video_render_failed" and job.copy_output is not None
-    assert [(s.name, s.status) for s in job.stages] == [("copy", "done"), ("video", "failed")]
+    assert {s.name: s.status for s in job.stages} == {"copy": "done", "video": "failed"}
     monkeypatch.setattr(video, "render_clip", real)
     jobs.run_generation(job_id, CopyService(llm))  # FakeLLM has no responses left: copy must NOT be regenerated
-    assert db.get_job(job_id).status.value == "completed" and len(llm.calls) == 1
+    assert db.get_job(job_id).status.value == "completed" and max(llm.rounds.values()) == 1
 
 
 def test_unknown_video_provider_fails_cleanly(client, uploaded, monkeypatch):
@@ -368,32 +381,40 @@ def test_analyze_photo_returns_cleaned_suggestions(client, uploaded, monkeypatch
     llm = FakeLLM([{"name": "Kinder Joy", "brand_name": "Kinder", "summary": "haa a red egg.", "materials": "",
                     "dimensions": "", "features": "red; egg-shaped", "visible_text": ["Kinder", "Joy"]}])
     monkeypatch.setattr(vision, "get_llm", lambda: llm)
-    r = client.post(f"/api/uploads/{uploaded}/analyze")
+    r = client.post("/api/uploads/analyze", json={"asset_ids": [uploaded]})
     assert r.status_code == 200
-    body = r.json()
-    assert body["fields"] == {"name": "Kinder Joy", "brand_name": "Kinder", "summary": "a red egg.",
-                              "features": ["red", "egg-shaped"], "visible_text": ["Kinder", "Joy"]}
+    assert r.json()["fields"] == {"name": "Kinder Joy", "brand_name": "Kinder", "summary": "a red egg.",
+                                  "features": ["red", "egg-shaped"], "visible_text": ["Kinder", "Joy"]}
     assert llm.images and llm.images[0][:2] == b"\xff\xd8"  # a JPEG was sent to the model
     assert "never instructions" in llm.calls[0][0]
 
 
+def test_analyze_sends_multiple_photos(client, monkeypatch):
+    from app.services import vision
+    ids = [client.post("/api/uploads", files={"file": ("p.png", png_bytes(), "image/png")}).json()["asset_id"] for _ in range(3)]
+    llm = FakeLLM([{"name": "X", "brand_name": "", "summary": "", "materials": "", "dimensions": "", "features": [], "visible_text": []}])
+    monkeypatch.setattr(vision, "get_llm", lambda: llm)
+    assert client.post("/api/uploads/analyze", json={"asset_ids": ids}).status_code == 200
+    assert len(llm.images) == 3 and "ONE product" in llm.calls[0][1]
+
+
 def test_analyze_rejects_unknown_or_used_upload(client, uploaded, monkeypatch):
-    assert client.post("/api/uploads/nope/analyze").status_code == 404
+    assert client.post("/api/uploads/analyze", json={"asset_ids": ["nope"]}).status_code == 404
     _demo(monkeypatch)
     client.post("/api/generations", json={"product": {"name": "A", "image_asset_id": uploaded}})
-    assert client.post(f"/api/uploads/{uploaded}/analyze").status_code == 404  # already belongs to a job
+    assert client.post("/api/uploads/analyze", json={"asset_ids": [uploaded]}).status_code == 404  # already belongs to a job
 
 
 def test_analyze_offline_gives_actionable_error(client, uploaded, monkeypatch):
     from app.services import vision
     monkeypatch.setattr(vision, "get_llm", lambda: FakeLLM([AppError("llm_offline", "Can't reach Ollama", retryable=True, status=503)]))
-    r = client.post(f"/api/uploads/{uploaded}/analyze")
+    r = client.post("/api/uploads/analyze", json={"asset_ids": [uploaded]})
     assert r.status_code == 503 and r.json()["error"]["code"] == "llm_offline"
 
 
 def test_analyze_demo_mode_is_labelled(client, uploaded, monkeypatch):
     _demo(monkeypatch)
-    assert client.post(f"/api/uploads/{uploaded}/analyze").json()["source"] == "demo"
+    assert client.post("/api/uploads/analyze", json={"asset_ids": [uploaded]}).json()["source"] == "demo"
 
 
 def test_extra_notes_reach_the_prompt():
@@ -407,3 +428,87 @@ def test_persistent_placeholders_are_stripped_and_flagged_not_fatal():
     res = CopyService(FakeLLM([bad, bad])).generate(product(), CreativeSettings())
     assert "[" not in res.copy.call_to_action
     assert any("placeholder" in c for c in res.copy.claims_requiring_review)
+
+
+# ---------- multi-photo + studio pipeline ----------
+FIXTURE = __import__("pathlib").Path(__file__).resolve().parents[2] / "frontend" / "e2e" / "fixtures" / "product.png"
+
+
+def _upload(client, data=None, name="p.png"):
+    return client.post("/api/uploads", files={"file": (name, data or png_bytes(), "image/png")}).json()["asset_id"]
+
+
+def test_max_five_photos_and_no_duplicates(client, monkeypatch):
+    _demo(monkeypatch)
+    ids = [_upload(client) for _ in range(6)]
+    r = client.post("/api/generations", json={"product": {"name": "A", "image_asset_ids": ids}})
+    assert r.status_code == 422
+    r = client.post("/api/generations", json={"product": {"name": "A", "image_asset_ids": [ids[0], ids[0]]}})
+    assert r.status_code == 422
+
+
+def test_three_photos_make_one_video_and_three_studio_images(client, monkeypatch):
+    _demo(monkeypatch)
+    ids = [_upload(client) for _ in range(3)]
+    j = client.post("/api/generations", json={"product": {"name": "A", "image_asset_ids": ids, "features": ["x"]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    assert job["status"] == "completed", job["error"]
+    assert sum(a["kind"] == "studio_image" for a in job["assets"]) == 3
+    assert sum(a["kind"] == "video" for a in job["assets"]) == 1
+    still = next(a for a in job["assets"] if a["kind"] == "studio_image")
+    r = client.get(f"/api/generations/{j['id']}/assets/{still['id']}")
+    assert r.status_code == 200 and r.headers["content-type"] == "image/jpeg"
+    # all uploads now belong to the job
+    assert client.post("/api/generations", json={"product": {"name": "B", "image_asset_ids": ids}}).status_code == 404
+
+
+def test_shot_plan_always_starts_and_ends_on_hero():
+    from app.services.video.provider import plan_shots
+    for n in range(1, 6):
+        plan = plan_shots(n)
+        assert len(plan) >= 4 and plan[0][0] == 0 and plan[-1][0] == 0 and plan[-1][1] == "hero"
+        assert {i for i, _ in plan} == set(range(n))
+
+
+@pytest.mark.real_cutout
+def test_real_background_removal_yields_studio_cutout(client, monkeypatch):
+    _demo(monkeypatch)
+    up = _upload(client, FIXTURE.read_bytes())
+    j = client.post("/api/generations", json={"product": {"name": "Biscuit", "image_asset_ids": [up]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    assert job["status"] == "completed", job["error"]
+    vid = next(a for a in job["assets"] if a["kind"] == "video")
+    assert vid["method"] == "studio_cutout"
+
+
+def test_framed_fallback_is_labelled_honestly(client, uploaded, monkeypatch):
+    _demo(monkeypatch)  # fast_framing fixture disables segmentation
+    j = client.post("/api/generations", json={"product": {"name": "A", "image_asset_ids": [uploaded]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    assert next(a for a in job["assets"] if a["kind"] == "video")["method"] == "animated_photo"
+    video_stage = next(s for s in job["stages"] if s["name"] == "video")
+    assert any("Background removal" in n for n in video_stage["notes"])
+
+
+def test_copy_and_video_run_concurrently(client, uploaded, monkeypatch):
+    """Video must start before the (slow) copy finishes, not after it."""
+    import threading, time
+    from app.services.video import service as video
+    started = {}
+    real = video.render_clip
+
+    def spy(job):
+        started["video"] = time.monotonic()
+        return real(job)
+
+    class SlowLLM(FakeLLM):
+        def generate_json(self, *a, **k):
+            started.setdefault("llm", time.monotonic())
+            time.sleep(0.6)
+            return super().generate_json(*a, **k)
+
+    monkeypatch.setattr(video, "render_clip", spy)
+    job_id = _make_job(client, uploaded)
+    jobs.run_generation(job_id, CopyService(SlowLLM([good_llm_data()])))
+    assert db.get_job(job_id).status.value == "completed"
+    assert abs(started["video"] - started["llm"]) < 0.5  # both kicked off together
