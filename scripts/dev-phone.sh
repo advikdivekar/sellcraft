@@ -15,6 +15,9 @@ trap cleanup EXIT INT TERM
 command -v cloudflared >/dev/null || { echo "Install it first: brew install cloudflared"; exit 1; }
 
 MODE="${1:-prod}"
+# The tunnel makes the app reachable from the internet, so require a random access code (carried in the QR link).
+ACCESS_CODE="$(openssl rand -hex 4)"; export ACCESS_CODE
+echo "$ACCESS_CODE" > "$LOG/access_code"
 RELOAD=""; [ "$MODE" = "--dev" ] && RELOAD="--reload"
 (cd "$ROOT/backend" && exec .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 $RELOAD) >"$LOG/api.log" 2>&1 &
 PIDS+=($!)
@@ -42,7 +45,8 @@ for _ in $(seq 1 40); do
 done
 [ -n "$URL" ] || { echo "No tunnel URL. See $LOG/tunnel.log"; exit 1; }
 
-echo; echo "Open on your phone:  $URL"; echo
-command -v qrencode >/dev/null && qrencode -t ANSIUTF8 "$URL"
-echo; echo "Anyone with this link can reach the app while it runs. Ctrl+C to stop. Logs: $LOG"
+LINK="$URL/#k=$ACCESS_CODE"
+echo; echo "Open on your phone:  $LINK"; echo "(access code: $ACCESS_CODE)"; echo
+command -v qrencode >/dev/null && qrencode -t ANSIUTF8 "$LINK"
+echo; echo "The link only works with the access code. Ctrl+C to stop. Logs: $LOG"
 wait

@@ -61,7 +61,7 @@ export interface CopyOutput {
   platform_outputs: Record<string, Record<string, string | string[]>>;
 }
 
-export interface StageEntry { name: string; status: "running" | "done" | "skipped" | "failed"; detail?: string | null; notes: string[] }
+export interface StageEntry { name: string; status: "running" | "done" | "skipped" | "failed"; detail?: string | null; notes: string[]; progress: number }
 export interface GeneratedAsset { id: string; kind: string; mime: string; method?: string | null; duration_seconds?: number | null }
 
 export interface GenerationJob {
@@ -74,6 +74,8 @@ export interface GenerationJob {
   error: { code: string; message: string; retryable: boolean } | null;
   stages: StageEntry[];
   assets: GeneratedAsset[];
+  progress: number;
+  phase: string | null;
 }
 
 export interface ProviderStatus {
@@ -90,3 +92,5 @@ export interface PhotoAnalysis {
   note?: string;
   fields: { name?: string; brand_name?: string; summary?: string; materials?: string; dimensions?: string; features?: string[]; visible_text?: string[] };
 }
+
+export interface ConnectionState { provider: "shopify"; connected: boolean; label: string | null; source: "app" | "env" | null }

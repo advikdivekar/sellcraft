@@ -39,7 +39,7 @@ def providers_status():
         "ffmpeg": {"available": ffmpeg.available()},
         "video": {"provider": s.video_provider, "method": "animated_photo" if s.video_provider == "fallback" else s.video_provider},
         "voiceover": {"configured": bool(s.elevenlabs_api_key)},
-        "shopify": {"configured": ShopifyPublisher().configured, "store": s.shopify_store_domain or None},
+        "shopify": {"configured": (cur := ShopifyPublisher.current()).configured, "store": cur.domain or None},
         "demo_mode": s.demo_mode,
     }
 
@@ -162,6 +162,6 @@ def publish_shopify(job_id: str, req: PublishRequest):
         raise AppError("confirm_required", "Please confirm you want to send this to your Shopify store.", status=422)
     job = _completed_job(job_id)
     videos = _paths(job, "video")
-    return ShopifyPublisher().publish_draft(
+    return ShopifyPublisher.current().publish_draft(
         title=job.product.name, brand=job.product.brand_name, copy=job.copy_output,
         images=_paths(job, "studio_image") + _paths(job, "catalog_image"), video=videos[0] if videos else None)

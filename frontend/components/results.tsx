@@ -1,6 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Check, Download, ExternalLink, Film, Info, Loader2, Share2, Sparkles, Store } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { LISTING_SECTIONS, PLATFORMS, PLATFORM_FIELD_LABELS, SOCIAL_SECTIONS, TONES, VIDEO_SECTIONS, methodLabel, postText, type SectionDef } from "@/lib/options";
 import { copyText } from "@/lib/image";
@@ -44,6 +45,10 @@ export function Results({ job }: { job: GenerationJob }) {
   const status = useQuery({ queryKey: ["status"], queryFn: api.status });
   const locked = job.stages.some((s) => s.name === "copy" && s.status === "running");
   const studio = job.assets.filter((a) => a.kind === "studio_image");
+  const catalog = job.assets.filter((a) => a.kind === "catalog_image");
+  const cutouts = job.assets.filter((a) => a.kind === "cutout_image");
+  const photoNotes = job.stages.find((x) => x.name === "video")?.notes ?? [];
+  const hasPhotos = studio.length + catalog.length + cutouts.length > 0;
   const shopify = useMutation({
     mutationFn: () => api.publishShopify(job.id),
     onError: (e) => setErr(e instanceof ApiError ? e.message : "Couldn't send to Shopify."),
@@ -86,7 +91,7 @@ export function Results({ job }: { job: GenerationJob }) {
     { id: "listing", label: "Listing" }, { id: "social", label: "Social" },
     ...platforms.map((p) => ({ id: p as Tab, label: PLATFORMS.find((x) => x.value === p)!.label })),
     { id: "video", label: "Video" },
-    ...(studio.length ? [{ id: "photos" as Tab, label: "Photos" }] : []),
+    ...(hasPhotos ? [{ id: "photos" as Tab, label: "Photos" }] : []),
   ];
 
   async function shareKit() {
@@ -169,17 +174,15 @@ export function Results({ job }: { job: GenerationJob }) {
         )}
         {tab === "photos" && (
           <>
-            <p className="text-sm text-muted">Your photos on a designed backdrop, ready for a feed post (4:5). Background removed and re-lit; the product itself isn&apos;t changed.</p>
-            <ul className="grid grid-cols-2 gap-3">
-              {studio.map((a, i) => (
-                <li key={a.id} className="space-y-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={api.assetUrl(job.id, a.id)} alt={`Studio photo ${i + 1}`} className="w-full rounded-xl border border-border" loading="lazy" />
-                  <a href={api.assetUrl(job.id, a.id)} download={`${slug(job.product.name)}-studio-${i + 1}.jpg`}
-                    className="inline-flex min-h-11 items-center gap-1.5 text-sm text-accent"><Download className="size-4" />Download</a>
-                </li>
-              ))}
-            </ul>
+            {photoNotes.length > 0 && (
+              <div className="rounded-xl border border-warn/50 bg-warn/10 p-3 text-sm">
+                <p className="mb-1 flex items-center gap-2 font-medium"><Info className="size-4 text-warn" />What we noticed in your photos</p>
+                <ul className="list-disc space-y-0.5 pl-5 text-muted">{photoNotes.map((n) => <li key={n}>{n}</li>)}</ul>
+              </div>
+            )}
+            <PhotoGroup title="Studio photos" blurb="Cleaned product on a designed backdrop, in the 4:5 feed shape." kind="Studio photo" assets={studio} jobId={job.id} name={slug(job.product.name)} ext="jpg" />
+            <PhotoGroup title="White background" blurb="Pure white, centred: the style marketplaces like Etsy, Amazon and Shopify expect." kind="White background photo" assets={catalog} jobId={job.id} name={slug(job.product.name)} ext="jpg" />
+            <PhotoGroup title="Transparent cut-outs" blurb="PNG with the background removed, for your own designs." kind="Cut-out" assets={cutouts} jobId={job.id} name={slug(job.product.name)} ext="png" checker />
           </>
         )}
         {tab === "video" && (
@@ -249,7 +252,7 @@ export function Results({ job }: { job: GenerationJob }) {
               </Button>
             )
           ) : (
-            <p className="text-sm text-muted">Not connected. Add your store domain and a custom-app token in <code>backend/.env</code> (see the README) to send this kit to Shopify as a draft in one tap.</p>
+            <p className="text-sm text-muted">Not connected. <Link href="/connections" className="text-accent underline">Connect your Shopify store</Link> to send this kit to it as a draft in one tap.</p>
           )}
         </div>
       </Card>
@@ -267,5 +270,27 @@ function SourceBanner({ source }: { source: string | null }) {
       {demo ? <><strong>Demo Mode.</strong> This is deterministic sample output built from your facts, not a live model response.</>
         : <>Written by <strong>{source.replace("ollama:", "")}</strong>, an open-weight model running locally through Ollama.</>}
     </p>
+  );
+}
+
+function PhotoGroup({ title, blurb, kind, assets, jobId, name, ext, checker }: {
+  title: string; blurb: string; kind: string; assets: { id: string }[]; jobId: string; name: string; ext: string; checker?: boolean;
+}) {
+  if (assets.length === 0) return null;
+  return (
+    <section className="space-y-2">
+      <div><h4 className="font-medium">{title}</h4><p className="text-xs text-muted">{blurb}</p></div>
+      <ul className="grid grid-cols-2 gap-3">
+        {assets.map((a, i) => (
+          <li key={a.id} className="space-y-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={api.assetUrl(jobId, a.id)} alt={`${kind} ${i + 1}`} loading="lazy"
+              className={cx("w-full rounded-xl border border-border", checker && "bg-[conic-gradient(#d4d0c8_25%,#fff_0_50%,#d4d0c8_0_75%,#fff_0)] bg-[length:16px_16px]")} />
+            <a href={api.assetUrl(jobId, a.id)} download={`${name}-${title.toLowerCase().replace(/\W+/g, "-")}-${i + 1}.${ext}`}
+              className="inline-flex min-h-11 items-center gap-1.5 text-sm text-accent"><Download className="size-4" />Download</a>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

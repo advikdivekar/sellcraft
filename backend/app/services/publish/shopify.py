@@ -8,8 +8,10 @@ from pathlib import Path
 
 import httpx
 
+from ... import db
 from ...config import get_settings
 from ...errors import AppError
+from .. import vault
 from ...schemas import CopyOutput
 from ..export import listing_html
 
@@ -30,6 +32,19 @@ CREATE = """mutation($product: ProductCreateInput!, $media: [CreateMediaInput!])
 }"""
 
 
+def normalize_domain(raw: str) -> str:
+    """Accepts 'my-store', 'my-store.myshopify.com' or a pasted admin URL; returns 'my-store.myshopify.com'."""
+    d = re.sub(r"^https?://", "", raw.strip().lower()).split("/")[0].split("?")[0]
+    if d and "." not in d:
+        d += ".myshopify.com"
+    if not DOMAIN_RE.match(d):
+        raise AppError("bad_domain", "Enter your store's .myshopify.com address (for example my-store.myshopify.com).", status=422)
+    return d
+
+
+VERIFY = """{ shop { name myshopifyDomain } currentAppInstallation { accessScopes { handle } } }"""
+
+
 class ShopifyPublisher:
     def __init__(self, domain: str | None = None, token: str | None = None, version: str | None = None,
                  client: httpx.Client | None = None):
@@ -38,6 +53,26 @@ class ShopifyPublisher:
         self.token = token if token is not None else s.shopify_admin_token
         self.version = version or s.shopify_api_version
         self.client = client or httpx.Client(timeout=60)
+
+    @classmethod
+    def current(cls, client: httpx.Client | None = None) -> "ShopifyPublisher":
+        """The store connected through the app (encrypted in the database), else the .env fallback."""
+        row = db.get_connection("shopify")
+        if row:
+            token = vault.decrypt(row["secret_enc"])
+            domain = __import__("json").loads(row["meta"]).get("domain", "")
+            if token and domain:
+                return cls(domain, token, client=client)
+        return cls(client=client)
+
+    def verify(self) -> dict:
+        """Check the token works and can write products. Returns {'name', 'domain'}."""
+        data = self._gql(VERIFY, {})
+        scopes = {x["handle"] for x in data["currentAppInstallation"]["accessScopes"]}
+        if "write_products" not in scopes:
+            raise AppError("shopify_scopes", "That token can't create products. In your Shopify app, grant the Admin API scope write_products, "
+                           "reinstall the app, and copy the new token.", status=422)
+        return {"name": data["shop"]["name"], "domain": data["shop"]["myshopifyDomain"]}
 
     @property
     def configured(self) -> bool:

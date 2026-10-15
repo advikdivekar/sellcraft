@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     shopify_admin_token: str = ""  # custom-app Admin API token (shpat_...). Backend only.
     shopify_api_version: str = "2026-07"
 
+    access_code: str = ""  # if set, every API call needs it (cookie or X-Access-Code header). dev-phone.sh sets one.
+    secret_key: str = ""  # Fernet key for stored connection tokens; auto-generated into data/.secret if empty
+
     sentry_dsn: str = ""
 
     upload_dir: Path = Path("data/uploads")

@@ -20,12 +20,17 @@ export default function Home() {
         <p className="max-w-xl text-lg text-muted">
           Built for small sellers who are tired of rewriting the same product details for every platform.
         </p>
-        <Link
-          href="/create"
-          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-6 text-base font-medium text-white hover:opacity-90 dark:text-black"
-        >
-          Create marketing kit
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/create"
+            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-6 text-base font-medium text-white hover:opacity-90 dark:text-black"
+          >
+            Create marketing kit
+          </Link>
+          <Link href="/connections" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-surface px-5 text-base font-medium hover:bg-accent-soft">
+            Connect your store
+          </Link>
+        </div>
       </header>
 
       <ul className="grid gap-3 sm:grid-cols-2">

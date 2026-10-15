@@ -20,6 +20,13 @@ CREATE TABLE IF NOT EXISTS jobs (
   error TEXT,
   stages TEXT NOT NULL DEFAULT '[]'
 );
+CREATE TABLE IF NOT EXISTS connections (
+  provider TEXT PRIMARY KEY,
+  label TEXT NOT NULL,
+  secret_enc TEXT NOT NULL,
+  meta TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS assets (
   id TEXT PRIMARY KEY,
   job_id TEXT,
@@ -154,3 +161,19 @@ def list_asset_rows(job_id: str, kinds: tuple[str, ...]) -> list[sqlite3.Row]:
 def delete_asset(asset_id: str) -> None:
     with connect() as c:
         c.execute("DELETE FROM assets WHERE id=?", (asset_id,))
+
+
+def save_connection(provider: str, label: str, secret_enc: str, meta: dict) -> None:
+    with connect() as c:
+        c.execute("INSERT OR REPLACE INTO connections (provider,label,secret_enc,meta,created_at) VALUES (?,?,?,?,?)",
+                  (provider, label, secret_enc, json.dumps(meta), now().isoformat()))
+
+
+def get_connection(provider: str) -> sqlite3.Row | None:
+    with connect() as c:
+        return c.execute("SELECT * FROM connections WHERE provider=?", (provider,)).fetchone()
+
+
+def delete_connection(provider: str) -> bool:
+    with connect() as c:
+        return c.execute("DELETE FROM connections WHERE provider=?", (provider,)).rowcount > 0

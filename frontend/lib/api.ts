@@ -1,4 +1,4 @@
-import type { PhotoAnalysis, CopyOutput, CreativeSettings, GenerationJob, ProductInput, ProviderStatus, Tone } from "./types";
+import type { ConnectionState, PhotoAnalysis, CopyOutput, CreativeSettings, GenerationJob, ProductInput, ProviderStatus, Tone } from "./types";
 
 export class ApiError extends Error {
   constructor(public code: string, message: string, public retryable = false, public fields?: { field: string; message: string }[]) {
@@ -35,6 +35,9 @@ export const api = {
   },
   analyze: (assetIds: string[]) => request<PhotoAnalysis>("/api/uploads/analyze", json("POST", { asset_ids: assetIds })),
   publishShopify: (id: string) => request<{ admin_url: string; media_attached: number }>(`/api/generations/${id}/publish/shopify`, json("POST", { confirm: true })),
+  connections: () => request<ConnectionState[]>("/api/connections"),
+  connectShopify: (domain: string, token: string) => request<ConnectionState>("/api/connections/shopify", json("POST", { domain, token })),
+  disconnectShopify: () => request<ConnectionState>("/api/connections/shopify", { method: "DELETE" }),
   kitUrl: (id: string) => `/api/generations/${id}/kit.zip`,
   createJob: (product: ProductInput, settings: CreativeSettings) =>
     request<GenerationJob>("/api/generations", json("POST", { product, settings })),

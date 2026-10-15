@@ -237,3 +237,12 @@ def overall_progress(stages: list[StageEntry], settings: CreativeSettings, statu
         got += w * (1.0 if s.status in ("done", "skipped") else min(max(s.progress, 0.0), 0.98) if s.status == "running" else 0.0)
     running = [STAGE_PHASE[s.name] for s in stages if s.status == "running" and s.name in STAGE_PHASE]
     return round(got / total, 3), (" + ".join(running) if running else ("Getting started" if status == JobStatus.queued else None))
+
+
+class ConnectShopifyRequest(BaseModel):
+    domain: str = Field(min_length=1, max_length=200)
+    token: str = Field(min_length=1, max_length=500)
+
+
+class AccessRequest(BaseModel):
+    code: str = Field(min_length=1, max_length=200)

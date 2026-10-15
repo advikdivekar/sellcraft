@@ -10,10 +10,28 @@ const STEPS = [
   { key: "assembly", label: "Adding text to the video", hint: "" },
 ];
 
+export function ProgressBar({ value, label }: { value: number; label?: string | null }) {
+  const pct = Math.round(Math.min(Math.max(value, 0), 1) * 100);
+  return (
+    <div>
+      <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
+        <span className="min-w-0 truncate font-medium">{label ?? "Working"}</span>
+        <span className="tabular-nums text-muted">{pct}%</span>
+      </div>
+      <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Overall progress"
+        className="h-2.5 overflow-hidden rounded-full bg-border">
+        <div className="h-full rounded-full bg-accent transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
 export function Progress({ job, onRetry, retrying }: { job: GenerationJob; onRetry: () => void; retrying: boolean }) {
   const steps = STEPS.filter((s) => s.key !== "voiceover" || job.settings.voiceover);
+  const running = job.status !== "failed" && job.status !== "completed";
   return (
     <div className="space-y-5">
+      {running && <ProgressBar value={job.progress} label={job.phase} />}
       <ol className="space-y-3" aria-live="polite">
         {steps.map((s) => {
           const entry = job.stages.find((x) => x.name === s.key);

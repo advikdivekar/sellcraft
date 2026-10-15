@@ -302,7 +302,7 @@ def test_video_failure_keeps_copy_and_retry_skips_copy(client, uploaded, monkeyp
     llm = FakeLLM([good_llm_data()])
     job_id = _make_job(client, uploaded)
     real = video.render_clip
-    monkeypatch.setattr(video, "render_clip", lambda job: (_ for _ in ()).throw(AppError("video_render_failed", "boom", retryable=True)))
+    monkeypatch.setattr(video, "render_clip", lambda job, **kw: (_ for _ in ()).throw(AppError("video_render_failed", "boom", retryable=True)))
     jobs.run_generation(job_id, CopyService(llm))
     job = db.get_job(job_id)
     assert job.status.value == "failed" and job.error.code == "video_render_failed" and job.copy_output is not None
@@ -732,3 +732,98 @@ def test_real_cutout_produces_white_catalog_and_transparent_png(client, monkeypa
     cut = next(a for a in job["assets"] if a["kind"] == "cutout_image")
     r = client.get(f"/api/generations/{j['id']}/assets/{cut['id']}")
     assert r.headers["content-type"] == "image/png" and r.content[:4] == b"\x89PNG"
+
+
+# ---------- connections vault + access code ----------
+def test_vault_roundtrip_and_key_file_is_private(tmp_path):
+    import os, stat
+    from app.services import vault
+    token = vault.encrypt("shpat_secret_value")
+    assert "shpat" not in token and vault.decrypt(token) == "shpat_secret_value"
+    key = tmp_path / ".secret"
+    assert key.exists() and stat.S_IMODE(os.stat(key).st_mode) == 0o600
+    assert vault.decrypt("not-a-valid-token") is None
+
+
+def test_normalize_domain_variants():
+    from app.services.publish.shopify import normalize_domain
+    assert normalize_domain("My-Store") == "my-store.myshopify.com"
+    assert normalize_domain("https://my-store.myshopify.com/admin/products?x=1") == "my-store.myshopify.com"
+    for bad in ("evil.example.com", "my store.myshopify.com", "https://x.com", ""):
+        with pytest.raises(AppError):
+            normalize_domain(bad)
+
+
+def _patch_verify(monkeypatch, result=None, error=None):
+    from app.services.publish.shopify import ShopifyPublisher
+    def verify(self):
+        if error:
+            raise error
+        return result
+    monkeypatch.setattr(ShopifyPublisher, "verify", verify)
+
+
+def test_connect_shopify_stores_encrypted_token_and_never_returns_it(client, monkeypatch):
+    _patch_verify(monkeypatch, {"name": "Moon Shop", "domain": "moon-shop.myshopify.com"})
+    r = client.post("/api/connections/shopify", json={"domain": "moon-shop", "token": "shpat_topsecret"})
+    assert r.status_code == 200 and r.json() == {"provider": "shopify", "connected": True,
+                                                  "label": "Moon Shop (moon-shop.myshopify.com)", "source": "app"}
+    assert "topsecret" not in r.text and "topsecret" not in client.get("/api/connections").text
+    row = db.get_connection("shopify")
+    assert "topsecret" not in row["secret_enc"]  # encrypted at rest
+    st = client.get("/api/providers/status").json()["shopify"]
+    assert st == {"configured": True, "store": "moon-shop.myshopify.com"} and "topsecret" not in str(st)
+    from app.services.publish.shopify import ShopifyPublisher
+    cur = ShopifyPublisher.current()
+    assert cur.token == "shpat_topsecret" and cur.domain == "moon-shop.myshopify.com"  # the publisher uses the stored connection
+
+
+def test_connect_shopify_rejects_bad_token_without_saving(client, monkeypatch):
+    _patch_verify(monkeypatch, error=AppError("shopify_auth", "Shopify rejected the access token.", status=502))
+    r = client.post("/api/connections/shopify", json={"domain": "moon-shop", "token": "nope"})
+    assert r.status_code == 502 and r.json()["error"]["code"] == "shopify_auth"
+    assert db.get_connection("shopify") is None
+    assert client.get("/api/connections").json()[0]["connected"] is False
+
+
+def test_connect_shopify_bad_domain_and_disconnect(client, monkeypatch):
+    assert client.post("/api/connections/shopify", json={"domain": "evil.example.com", "token": "t"}).status_code == 422
+    _patch_verify(monkeypatch, {"name": "S", "domain": "s.myshopify.com"})
+    client.post("/api/connections/shopify", json={"domain": "s", "token": "t"})
+    r = client.delete("/api/connections/shopify")
+    assert r.json()["connected"] is False and db.get_connection("shopify") is None
+
+
+def test_verify_checks_write_products_scope():
+    import httpx
+    from app.services.publish.shopify import ShopifyPublisher
+    def mk(scopes):
+        t = httpx.MockTransport(lambda req: httpx.Response(200, json={"data": {"shop": {"name": "S", "myshopifyDomain": "s.myshopify.com"},
+                                "currentAppInstallation": {"accessScopes": [{"handle": h} for h in scopes]}}}))
+        return ShopifyPublisher("s.myshopify.com", "t", client=httpx.Client(transport=t))
+    assert mk(["write_products", "read_orders"]).verify() == {"name": "S", "domain": "s.myshopify.com"}
+    with pytest.raises(AppError) as e:
+        mk(["read_products"]).verify()
+    assert e.value.code == "shopify_scopes"
+
+
+def test_access_code_gates_the_api(client, monkeypatch):
+    from app import config
+    monkeypatch.setenv("ACCESS_CODE", "abc123")
+    config.get_settings.cache_clear()
+    assert client.get("/api/health").status_code == 200          # liveness stays open
+    r = client.get("/api/providers/status")
+    assert r.status_code == 401 and r.json()["error"]["code"] == "access_required"
+    assert client.get("/api/access").json() == {"required": True, "granted": False}
+    assert client.get("/api/providers/status", headers={"X-Access-Code": "abc123"}).status_code == 200
+    assert client.get("/api/providers/status", headers={"X-Access-Code": "abc124"}).status_code == 401
+    assert client.post("/api/access", json={"code": "wrong"}).status_code == 401
+    ok = client.post("/api/access", json={"code": "abc123"})
+    assert ok.status_code == 200 and "httponly" in ok.headers["set-cookie"].lower()
+    assert client.get("/api/providers/status").status_code == 200  # the cookie now authorises this browser
+    assert client.post("/api/connections/shopify", json={"domain": "x", "token": "t"}).status_code != 401
+
+
+def test_access_gate_off_by_default(client):
+    assert client.get("/api/access").json() == {"required": False, "granted": True}
+    assert client.get("/api/providers/status").status_code == 200
