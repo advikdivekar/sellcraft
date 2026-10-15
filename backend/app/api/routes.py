@@ -85,6 +85,16 @@ def regenerate_copy(job_id: str, req: RegenerateCopyRequest):
     return _job_or_404(job_id)
 
 
+@router.post("/generations/{job_id}/retry", status_code=202)
+def retry_generation(job_id: str, bg: BackgroundTasks):
+    job = _job_or_404(job_id)
+    if job.status != JobStatus.failed:
+        raise AppError("not_failed", "Only failed generations can be retried.", status=409)
+    db.update_job(job_id, status=JobStatus.queued, error=None, stages=[])
+    bg.add_task(jobs.run_generation, job_id)
+    return _job_or_404(job_id)
+
+
 @router.get("/generations/{job_id}/assets/{asset_id}")
 def get_asset(job_id: str, asset_id: str):
     row = db.get_asset_row(asset_id)

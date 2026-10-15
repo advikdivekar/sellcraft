@@ -230,3 +230,15 @@ def test_providers_status_hides_secrets(client, monkeypatch):
     config.get_settings.cache_clear()
     r = client.get("/api/providers/status")
     assert r.status_code == 200 and "sk_supersecret" not in r.text and r.json()["voiceover"]["configured"] is True
+
+
+def test_retry_only_for_failed_jobs(client, uploaded, monkeypatch):
+    from app import config
+    monkeypatch.setenv("DEMO_MODE", "true")
+    config.get_settings.cache_clear()
+    j = client.post("/api/generations", json={"product": {"name": "A", "image_asset_id": uploaded}}).json()
+    assert client.post(f"/api/generations/{j['id']}/retry").status_code == 409
+    db.update_job(j["id"], status="failed")
+    r = client.post(f"/api/generations/{j['id']}/retry")
+    assert r.status_code == 202
+    assert client.get(f"/api/generations/{j['id']}").json()["status"] == "completed"
