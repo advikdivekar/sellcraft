@@ -400,3 +400,10 @@ def test_extra_notes_reach_the_prompt():
     from app.services.prompts import build_user_prompt
     p = build_user_prompt(product(extra_notes="Comes in strawberry and cocoa"), CreativeSettings())
     assert "Extra notes from the seller: Comes in strawberry and cocoa" in p
+
+
+def test_persistent_placeholders_are_stripped_and_flagged_not_fatal():
+    bad = good_llm_data(); bad["call_to_action"] = "Visit [Store Name] today"
+    res = CopyService(FakeLLM([bad, bad])).generate(product(), CreativeSettings())
+    assert "[" not in res.copy.call_to_action
+    assert any("placeholder" in c for c in res.copy.claims_requiring_review)

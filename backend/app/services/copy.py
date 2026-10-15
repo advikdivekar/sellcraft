@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 from dataclasses import dataclass, field
@@ -65,7 +66,24 @@ def normalize(data: dict, kinds: dict[str, str] | None = None) -> dict:
     return out
 
 
-def _validate(data: dict, platforms: list[Platform]) -> CopyOutput:
+PLACEHOLDER = re.compile(r"\{[A-Za-z_]+\}|\[[A-Za-z_ ]+\]")
+
+
+def _strip_placeholders(v):
+    if isinstance(v, str):
+        return re.sub(r"\s{2,}", " ", PLACEHOLDER.sub("", v)).strip()
+    if isinstance(v, list):
+        return [_strip_placeholders(x) for x in v]
+    if isinstance(v, dict):
+        return {k: _strip_placeholders(x) for k, x in v.items()}
+    return v
+
+
+def _validate(data: dict, platforms: list[Platform], *, strict: bool = True) -> CopyOutput:
+    """strict=True: template placeholders are an error (triggers one repair). strict=False: strip them and flag."""
+    had_placeholder = bool(PLACEHOLDER.search(json.dumps(data)))
+    if had_placeholder and not strict:
+        data = _strip_placeholders(data)
     cleaned = normalize(data)
     cleaned.setdefault("platform_outputs", {})
     try:
@@ -73,7 +91,7 @@ def _validate(data: dict, platforms: list[Platform]) -> CopyOutput:
     except ValidationError as e:
         raise AppError("llm_invalid_output", f"The model's output didn't match the expected format: {e.error_count()} problems.",
                        retryable=True, status=502)
-    if re.search(r"\{[A-Za-z_]+\}|\[[A-Za-z_ ]+\]", copy.model_dump_json()):
+    if strict and PLACEHOLDER.search(copy.model_dump_json()):
         raise AppError("llm_placeholder_output", "The model left template placeholders in its output.",
                        retryable=True, status=502)
     empty = [f for f in REQUIRED_NONEMPTY if not getattr(copy, f).strip()]
@@ -81,6 +99,9 @@ def _validate(data: dict, platforms: list[Platform]) -> CopyOutput:
     if empty:
         raise AppError("llm_incomplete_output", "The model's output was missing: " + ", ".join(empty),
                        retryable=True, status=502)
+    if had_placeholder and not strict:
+        copy.claims_requiring_review.append(
+            "The model left a template placeholder (like [Store Name]); it was removed. Re-read the copy around where it may have been.")
     return copy
 
 
@@ -120,7 +141,7 @@ class CopyService:
             log.warning("invalid model output (%s); repairing once", e.code)
             res = self._call(prompts.SYSTEM_PROMPT, user + f"\n\nYour previous reply had a problem: {e.message}. "
                              "Return the COMPLETE JSON again with every field filled using only the facts.", schema)
-            copy = _validate(res.data, settings.platforms)
+            copy = _validate(res.data, settings.platforms, strict=False)
         copy = self._post_check(copy, product)
         return CopyResult(copy, f"ollama:{res.model}", res.usage | {"latency_ms": res.latency_ms})
 
