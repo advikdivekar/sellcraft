@@ -121,7 +121,39 @@ app/
       VideoPlayer + MethodBadge · DownloadBar (MP4, listing .txt/.json)
       Voiceover script panel (text only, fit-in-10s estimate)
 ```
-Style: light neutral background, dark text, one accent color, rounded cards used purposefully, responsive, accessible focus states.
+Style: light neutral background, dark text, one accent color, rounded cards used purposefully, **mobile-first responsive** (see 7b), accessible focus states.
+
+## 7b. Mobile-first requirements (demo will be shown on a phone)
+
+**Principle:** design for ~390px width first, then scale up to desktop. The phone is the primary demo device.
+
+**Layout & UX**
+- Single-column, one-step-at-a-time wizard on mobile (Product → Style → Generate → Results); side-by-side panels only at `md:` and up.
+- Touch targets ≥ 44×44 px; segmented controls become horizontally scrollable chips or bottom-sheet pickers; sticky bottom "Generate" / "Download" bar.
+- No horizontal page scroll; use `100dvh` (not `100vh`), safe-area insets (`env(safe-area-inset-*)`), and viewport meta `width=device-width, initial-scale=1`.
+- Inputs use ≥16px font (prevents iOS zoom-on-focus) and proper `inputMode`/`autocomplete`.
+- Results: tabs collapse to a scrollable tab bar; copy buttons give instant "Copied" feedback (Clipboard API with fallback).
+- Respect `prefers-color-scheme`/reduced motion; keep the UI light and fast (no heavy JS, lazy-load the video).
+
+**Photo input**
+- `<input type="file" accept="image/jpeg,image/png,image/webp" capture="environment">` option so the seller can **take a photo with the phone camera** or pick from the gallery.
+- Handle large phone photos: client-side downscale (max ~2048px, re-encode) before upload, server still validates type/size; handle HEIC by converting client-side or showing a clear "use JPEG/PNG/WebP" message.
+
+**Video on mobile**
+- `<video playsinline controls muted preload="metadata">` with a poster frame; vertical 9:16 fits the phone screen natively.
+- Export H.264, `-pix_fmt yuv420p`, `-movflags +faststart`, even dimensions → plays in iOS Safari and Android Chrome.
+- Download: use `<a download>` plus the Web Share API (`navigator.share({files})`) as the "Save / Share" path, since iOS often ignores direct downloads.
+
+**Reaching the app from the phone (demo setup)**
+- Run Next.js with `-H 0.0.0.0` and FastAPI on `0.0.0.0`; the phone opens `http://<laptop-LAN-IP>:3000` on the same Wi-Fi. Next `rewrites` proxy `/api/*` to FastAPI so the phone only talks to one origin (no CORS/mixed-content issues).
+- Ollama and FFmpeg stay on the laptop; the phone is just the UI.
+- Fallback if Wi-Fi blocks device-to-device traffic (e.g. college/venue networks): a tunnel such as `cloudflared tunnel --url http://localhost:3000` (HTTPS also needed for camera access/Clipboard/Share on some browsers). Document both in the README.
+- Camera capture and `navigator.share` require a secure context on some browsers → plan on the HTTPS tunnel for the camera part of the demo.
+
+**Testing for mobile**
+- Manual checklist on a real iPhone Safari and Android Chrome: upload from camera, form usability with keyboard open, progress screen, video playback, copy, share/save.
+- Playwright run with a mobile viewport (e.g. iPhone 14 / Pixel 7 device profiles) for the core flow.
+- Optional: make it installable as a PWA (manifest + icons) so it opens full-screen from the home screen for the demo; no offline mode needed.
 
 ## 8. Directory structure
 
@@ -168,7 +200,7 @@ pytest with mocks (never live paid APIs): input validation, missing facts, struc
 Main ($250, writing weighted most) · **Best Use of Gemma** ($200). Optional: Entire/DevRelay session share. ElevenLabs/Render/Temporal categories skipped for now.
 
 ## 14. Definition of done (MVP)
-1. Upload photo + facts. 2. Choose platform/tone/style/objective. 3. Gemma generates structured, editable copy. 4. Missing facts flagged, not invented. 5. Regenerate a single section/tone without touching video. 6. Valid ~10 s MP4 (labelled animated-photo ad unless a real model ran). 7. Preview + download. 8. Truthful progress/errors. 9. README setup works. 10. Tests pass. 11. No secrets committed.
+1. Upload photo + facts. 2. Choose platform/tone/style/objective. 3. Gemma generates structured, editable copy. 4. Missing facts flagged, not invented. 5. Regenerate a single section/tone without touching video. 6. Valid ~10 s MP4 (labelled animated-photo ad unless a real model ran). 7. Preview + download. 8. Truthful progress/errors. 9. README setup works. 10. Tests pass. 11. No secrets committed. 12. Full flow (camera photo → generate → play video → copy/share) works on a real phone.
 
 ## 15. Open items
 - Gemma size / RAM and whether Ollama + ffmpeg are installed (to be checked at scaffold time).
