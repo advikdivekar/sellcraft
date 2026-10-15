@@ -11,7 +11,7 @@ import { EditableField } from "./editable-field";
 import { useFeedback } from "./feedback";
 import { DeckCarousel, VideoCard } from "./media";
 import { Insights, PhotoGroup, SharePanel } from "./results-parts";
-import { Badge, Button, Card, Chips, Tabs, cx } from "./ui";
+import { Badge, Button, Card, Chips, Sheet, Tabs, buttonClass, cx } from "./ui";
 
 type Main = "overview" | "copy" | "photos" | "share";
 type Sub = "listing" | "social" | "video" | Platform;
@@ -90,10 +90,10 @@ export function Results({ job }: { job: GenerationJob }) {
     ...(photoCount ? [{ id: "photos" as Main, label: "Photos", badge: photoCount }] : []), { id: "share" as Main, label: "Share" }];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-sm:pb-24">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 space-y-2">
-          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">{job.product.name}</h1>
+          <h1 className="truncate text-[1.7rem] font-semibold sm:text-3xl">{job.product.name}</h1>
           <div className="flex flex-wrap items-center gap-2">
             {platforms.map((p) => <Badge key={p} tone="accent">{PLATFORMS.find((x) => x.value === p)!.label}</Badge>)}
             <Badge>{TONES.find((t) => t.value === job.settings.tone)?.label}</Badge>
@@ -103,13 +103,13 @@ export function Results({ job }: { job: GenerationJob }) {
             </span>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 max-sm:hidden">
           {video && <Button onClick={shareAll}><Share2 className="size-4" />Share</Button>}
-          <a href={api.kitUrl(job.id)} download className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border-strong bg-surface px-4 text-[15px] font-medium shadow-card transition hover:bg-surface-2"><Download className="size-4" /><span className="max-sm:hidden">Download kit</span><span className="sm:hidden">Zip</span></a>
+          <a href={api.kitUrl(job.id)} download className={buttonClass("secondary")}><Download className="size-4" />Download kit</a>
         </div>
       </header>
 
-      <Tabs label="Kit sections" tabs={mainTabs} value={main} onChange={setMain} />
+      <div className="sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 -mx-4 bg-glass px-4 py-2 backdrop-blur-xl backdrop-saturate-150 sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none"><Tabs variant="segment" label="Kit sections" tabs={mainTabs} value={main} onChange={setMain} /></div>
 
       <div key={main} className="anim-in">
         {main === "overview" && (
@@ -124,21 +124,19 @@ export function Results({ job }: { job: GenerationJob }) {
 
         {main === "copy" && (
           <div className="space-y-5">
-            <Card className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div><h3 className="font-semibold">Writing tone</h3><p className="text-sm text-muted">Rewrites all copy. Your facts and the video stay the same.</p></div>
-                <Button variant="secondary" size="sm" onClick={() => setShowTone((v) => !v)} aria-expanded={showTone}>{showTone ? "Close" : "Change tone"}</Button>
-              </div>
-              {showTone && (
-                <div className="anim-in space-y-3">
-                  <Chips label="Tone" options={TONES} value={tone} onChange={setTone} />
-                  <Button size="sm" busy={busyKey === "__all"} disabled={locked} onClick={() => regen.mutate({ tone })}><Sparkles className="size-4" />Rewrite copy</Button>
-                  <p className="text-xs text-muted">This replaces your manual edits to the copy.</p>
-                </div>
-              )}
+            <Card className="flex items-center justify-between gap-3">
+              <div><p className="eyebrow">Writing tone</p><p className="font-medium">{TONES.find((t) => t.value === job.settings.tone)?.label}</p></div>
+              <Button variant="secondary" size="sm" onClick={() => setShowTone(true)}>Change tone</Button>
             </Card>
+            <Sheet open={showTone} onClose={() => setShowTone(false)} title="Rewrite in another tone">
+              <div className="space-y-4">
+                <p className="text-sm text-muted">Rewrites all your copy. Your facts and the video stay the same. This replaces your manual edits to the copy.</p>
+                <Chips label="Tone" options={TONES} value={tone} onChange={setTone} />
+                <Button className="w-full" size="lg" busy={busyKey === "__all"} disabled={locked} onClick={async () => { await regen.mutateAsync({ tone }).catch(() => {}); setShowTone(false); }}><Sparkles className="size-4" />Rewrite copy</Button>
+              </div>
+            </Sheet>
             <Tabs label="Copy sections" tabs={subTabs} value={sub} onChange={setSub} />
-            <Card className="space-y-5">
+            <Card bleed className="space-y-5">
               {sub === "listing" && LISTING_SECTIONS.map(core)}
               {sub === "social" && SOCIAL_SECTIONS.map(core)}
               {platforms.includes(sub as Platform) && (
@@ -163,7 +161,7 @@ export function Results({ job }: { job: GenerationJob }) {
                     <h4 className="mb-2 text-sm font-semibold">Storyboard</h4>
                     <ol className="space-y-2">{copy.video_storyboard.map((b, i) => (
                       <li key={i} className="rounded-xl border border-border bg-surface-2 p-3 text-sm">
-                        <span className="font-semibold text-accent">{b.time}</span> {b.visual}
+                        <span className="font-semibold text-accent-text">{b.time}</span> {b.visual}
                         {b.on_screen_text && <span className="mt-0.5 block text-muted">On screen: &ldquo;{b.on_screen_text}&rdquo;</span>}
                       </li>))}</ol>
                   </div>
@@ -188,6 +186,14 @@ export function Results({ job }: { job: GenerationJob }) {
             onPublish={() => shopify.mutate()} publishing={shopify.isPending} published={shopify.data} asText={asText(copy, platforms)} />
         )}
       </div>
+      {video && (
+        <div className="pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-glass px-4 pt-3 backdrop-blur-xl backdrop-saturate-150 sm:hidden">
+          <div className="mx-auto flex max-w-xl gap-2">
+            <Button className="flex-1" size="lg" onClick={shareAll}><Share2 className="size-5" />Share</Button>
+            <a href={api.kitUrl(job.id)} download className={buttonClass("secondary", "lg")} aria-label="Download kit"><Download className="size-5" /></a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

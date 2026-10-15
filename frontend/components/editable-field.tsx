@@ -7,7 +7,7 @@ import { Button } from "./ui";
 type Value = string | string[];
 const toText = (v: Value | undefined) => (Array.isArray(v) ? v.join("\n") : (v ?? ""));
 
-export function EditableField({ label, value, kind, rows = 3, onCommit, onRegenerate, busy, locked }: {
+export function EditableField({ label, value, kind, onCommit, onRegenerate, busy, locked }: {
   label: string; value: Value | undefined; kind: "str" | "list"; rows?: number; locked?: boolean;
   onCommit: (v: Value) => void; onRegenerate?: () => void; busy?: boolean;
 }) {
@@ -30,7 +30,6 @@ export function EditableField({ label, value, kind, rows = 3, onCommit, onRegene
     if (text === toText(value)) return;
     onCommit(kind === "list" ? text.split("\n").map((s) => s.trim()).filter(Boolean) : text);
   };
-  const lineRows = kind === "list" ? Math.max(rows, Math.min(text.split("\n").length + 1, 10)) : rows;
 
   return (
     <div className="space-y-1.5">
@@ -48,8 +47,8 @@ export function EditableField({ label, value, kind, rows = 3, onCommit, onRegene
         </div>
       </div>
       <textarea
-        id={`f-${label}`} ref={ref} value={text} rows={lineRows} readOnly={locked} placeholder={locked ? "Writing…" : undefined} aria-busy={locked && !text} onChange={(e) => setText(e.target.value)} onBlur={commit}
-        className={`w-full resize-y rounded-xl border border-border bg-background px-3.5 py-3 leading-relaxed focus:border-accent ${locked && !text ? "animate-pulse" : ""}`}
+        id={`f-${label}`} ref={ref} value={text} rows={2} readOnly={locked} placeholder={locked ? "Writing…" : undefined} aria-busy={locked && !text} onChange={(e) => setText(e.target.value)} onBlur={commit}
+        className={`w-full resize-none rounded-[10px] bg-surface px-3.5 py-3 leading-relaxed shadow-card ring-1 ring-border-strong transition hover:ring-foreground/30 focus:outline-none focus:ring-2 focus:ring-foreground ${locked && !text ? "animate-pulse" : ""}`}
       />
     </div>
   );

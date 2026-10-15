@@ -8,14 +8,16 @@ const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "SellCraft AI",
   description: "One product photo. A few facts. A complete marketing kit.",
-  appleWebApp: { capable: true, title: "SellCraft", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "SellCraft", statusBarStyle: "black-translucent" },
+  icons: { icon: "/icon-192.png", apple: "/apple-touch-icon.png" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#f6f3ee" }, { media: "(prefers-color-scheme: dark)", color: "#12100d" }],
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#fafaf9" }, { media: "(prefers-color-scheme: dark)", color: "#09090a" }],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

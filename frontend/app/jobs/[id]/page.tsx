@@ -21,7 +21,7 @@ export default function JobPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 pb-safe pt-6 sm:px-6">
-      {error && <Card><p role="alert" className="font-medium text-danger">{(error as ApiError).message}</p><Link href="/create" className="mt-2 inline-block text-sm font-medium text-accent underline">Start a new kit</Link></Card>}
+      {error && <Card><p role="alert" className="font-medium text-danger">{(error as ApiError).message}</p><Link href="/create" className="mt-2 inline-block text-sm font-medium text-accent-text underline">Start a new kit</Link></Card>}
       {!job && !error && <div className="space-y-4"><Skeleton className="h-9 w-64" /><Skeleton className="h-12 w-full" /><Skeleton className="h-96 w-full" /></div>}
       {job && (
         <>

@@ -21,18 +21,18 @@ export function VideoCard({ job, video, rendering, updating, onUpdate }: {
     if (r === "fallback") toast("Opened the video. Use your browser's save option.");
   }
   return (
-    <Card pad={false} className="overflow-hidden">
+    <Card pad={false} bleed className="overflow-hidden">
       <div className="flex items-center justify-between gap-2 px-4 pt-4 sm:px-5">
-        <h3 className="flex items-center gap-2 font-semibold"><Film className="size-4 text-accent" aria-hidden />Video ad</h3>
+        <h3 className="flex items-center gap-2 font-semibold"><Film className="size-4 text-accent-text" aria-hidden />Video ad</h3>
         {video && <Badge tone="accent">{video.method === "studio_cutout" ? "Studio-enhanced" : "Animated photo"}</Badge>}
       </div>
       <div className="p-4 sm:p-5">
-        <div className="mx-auto aspect-[9/16] w-full max-w-[300px] overflow-hidden rounded-[26px] bg-black shadow-float ring-1 ring-black/10">
+        <div className="mx-auto aspect-[9/16] w-full max-w-[300px] overflow-hidden rounded-[28px] bg-black shadow-float ring-1 ring-black/10">
           {video ? (
             <video key={video.id} className="size-full object-contain" src={`${url}#t=0.1`} controls playsInline preload="metadata" />
           ) : (
             <div className="grid size-full place-items-center bg-surface-2 p-6 text-center text-sm text-muted">
-              {rendering ? <span className="flex flex-col items-center gap-3"><Loader2 className="size-6 animate-spin text-accent" />Rendering your video…</span> : "No video yet. See the message above to retry."}
+              {rendering ? <span className="flex flex-col items-center gap-3"><Loader2 className="size-6 animate-spin text-accent-text" />Rendering your video…</span> : "No video yet. See the message above to retry."}
             </div>
           )}
         </div>
@@ -40,7 +40,7 @@ export function VideoCard({ job, video, rendering, updating, onUpdate }: {
           <>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Button size="sm" onClick={share}><Share2 className="size-4" />Share video</Button>
-              <a href={url} download={`${slug(job.product.name)}.mp4`} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border-strong bg-surface px-3.5 text-sm font-medium shadow-card transition hover:bg-surface-2"><Download className="size-4" />MP4</a>
+              <a href={url} download={`${slug(job.product.name)}.mp4`} className="inline-flex min-h-11 items-center gap-2 rounded-[10px] bg-surface px-3.5 text-sm font-medium shadow-card ring-1 ring-border-strong transition hover:bg-surface-2 active:scale-[0.97]"><Download className="size-4" />MP4</a>
               <Button variant="secondary" size="sm" busy={updating} onClick={onUpdate}>Update text</Button>
             </div>
             <button type="button" onClick={() => setInfo((v) => !v)} className="mx-auto mt-3 flex min-h-9 items-center gap-1.5 text-xs text-muted hover:text-foreground"><Info className="size-3.5" />How was this made?</button>
@@ -76,7 +76,7 @@ export function DeckCarousel({ job, slides, building }: { job: GenerationJob; sl
   }
 
   return (
-    <Card pad={false} className="overflow-hidden">
+    <Card pad={false} bleed className="overflow-hidden">
       <div className="flex items-center justify-between gap-2 px-4 pt-4 sm:px-5">
         <h3 className="font-semibold">Image deck</h3>
         <span className="text-xs text-muted tabular-nums">{slides.length ? `${idx + 1} / ${slides.length}` : ""}</span>
@@ -91,7 +91,7 @@ export function DeckCarousel({ job, slides, building }: { job: GenerationJob; sl
                 <li key={s.id} className="w-[82%] shrink-0 snap-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={api.assetUrl(job.id, s.id)} alt={`Slide ${i + 1}: ${SLIDE_LABEL[s.method ?? ""] ?? "Slide"}`} loading={i < 2 ? "eager" : "lazy"}
-                    className="aspect-[4/5] w-full rounded-2xl border border-border object-cover shadow-float" />
+                    className="aspect-[4/5] w-full rounded-xl object-cover shadow-float ring-1 ring-border" />
                 </li>
               ))}
             </ul>
@@ -106,7 +106,7 @@ export function DeckCarousel({ job, slides, building }: { job: GenerationJob; sl
           <p className="px-4 text-center text-sm font-medium">{SLIDE_LABEL[slides[idx]?.method ?? ""] ?? "Slide"}</p>
           <div className="flex flex-wrap justify-center gap-2 p-4 sm:p-5">
             <Button size="sm" onClick={shareDeck}><Share2 className="size-4" />Share deck</Button>
-            <a href={api.assetUrl(job.id, slides[idx].id)} download={`${name}-slide-${idx + 1}.jpg`} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border-strong bg-surface px-3.5 text-sm font-medium shadow-card transition hover:bg-surface-2"><Download className="size-4" />This slide</a>
+            <a href={api.assetUrl(job.id, slides[idx].id)} download={`${name}-slide-${idx + 1}.jpg`} className="inline-flex min-h-11 items-center gap-2 rounded-[10px] bg-surface px-3.5 text-sm font-medium shadow-card ring-1 ring-border-strong transition hover:bg-surface-2 active:scale-[0.97]"><Download className="size-4" />This slide</a>
           </div>
         </>
       )}

@@ -43,7 +43,7 @@ export function PhotoGroup({ title, blurb, kind, assets, jobId, name, ext, check
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={api.assetUrl(jobId, a.id)} alt={`${kind} ${i + 1}`} loading="lazy"
               className={cx("w-full rounded-xl border border-border object-cover shadow-card", checker && "bg-[conic-gradient(#d9d4ca_25%,#fff_0_50%,#d9d4ca_0_75%,#fff_0)] bg-[length:16px_16px]")} />
-            <a href={api.assetUrl(jobId, a.id)} download={`${name}-${slug(title)}-${i + 1}.${ext}`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-accent"><Download className="size-4" />Download</a>
+            <a href={api.assetUrl(jobId, a.id)} download={`${name}-${slug(title)}-${i + 1}.${ext}`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-accent-text"><Download className="size-4" />Download</a>
           </li>
         ))}
       </ul>
@@ -110,13 +110,13 @@ export function SharePanel({ job, copy, platforms, video, slides, shopifyConfigu
 
       <Card className="space-y-3">
         <SectionTitle hint="Creates a draft product. You review and publish it in Shopify.">Your store</SectionTitle>
-        <div className="flex items-center gap-3"><Store className="size-5 text-accent" aria-hidden /><span className="font-medium">Shopify</span>{shopifyConfigured && <Badge tone="ok">Connected</Badge>}</div>
+        <div className="flex items-center gap-3"><Store className="size-5 text-accent-text" aria-hidden /><span className="font-medium">Shopify</span>{shopifyConfigured && <Badge tone="ok">Connected</Badge>}</div>
         {shopifyConfigured ? (
           published
-            ? <p className="text-sm"><Check className="mr-1 inline size-4 text-ok" />Draft created with {published.media_attached} media. <a className="inline-flex items-center gap-1 font-medium text-accent underline" href={published.admin_url} target="_blank" rel="noreferrer">Open in Shopify<ExternalLink className="size-3.5" /></a></p>
+            ? <p className="text-sm"><Check className="mr-1 inline size-4 text-ok" />Draft created with {published.media_attached} media. <a className="inline-flex items-center gap-1 font-medium text-accent-text underline" href={published.admin_url} target="_blank" rel="noreferrer">Open in Shopify<ExternalLink className="size-3.5" /></a></p>
             : <Button variant="secondary" busy={publishing} onClick={publish}>Send to Shopify as draft</Button>
         ) : (
-          <p className="text-sm text-muted">Not connected. <Link href="/connections" className="font-medium text-accent underline">Connect your Shopify store</Link> to send this kit to it in one tap.</p>
+          <p className="text-sm text-muted">Not connected. <Link href="/connections" className="font-medium text-accent-text underline">Connect your Shopify store</Link> to send this kit to it in one tap.</p>
         )}
       </Card>
     </div>

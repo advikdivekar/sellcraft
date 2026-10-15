@@ -54,7 +54,7 @@ export function ImageDropzone({ value, update, onAdded }: {
       {(value.length > 0 || pending > 0) && (
         <ul className="grid grid-cols-3 gap-2" aria-label="Your photos">
           {value.map((img, i) => (
-            <li key={img.assetId} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-background">
+            <li key={img.assetId} className="relative aspect-square overflow-hidden rounded-xl bg-surface-2 ring-1 ring-border">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img.previewUrl} alt={`Product photo ${i + 1}`} className="size-full object-cover" />
               {i === 0 && <span className="absolute left-1.5 top-1.5 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-fg">Main</span>}
@@ -75,16 +75,16 @@ export function ImageDropzone({ value, update, onAdded }: {
       )}
 
       {room > 0 && (
-        <div className={value.length === 0 && pending === 0 ? "rounded-xl border-2 border-dashed border-border bg-background p-6 text-center" : ""}>
+        <div className={value.length === 0 && pending === 0 ? "rounded-xl border border-dashed border-border-strong bg-surface-2 px-5 py-9 text-center" : ""}>
           {value.length === 0 && pending === 0 && (
             <>
-              <ImagePlus className="mx-auto mb-2 size-8 text-muted" aria-hidden />
+              <span className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-surface shadow-card ring-1 ring-border"><ImagePlus className="size-5 text-muted" aria-hidden /></span>
               <p className="mb-4 text-sm text-muted">Add up to {MAX_PHOTOS} photos: different angles help. A clear photo on a plain background works best.</p>
             </>
           )}
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Button onClick={() => camera.current?.click()}><Camera className="size-5" />Take photo</Button>
-            <Button variant="secondary" onClick={() => gallery.current?.click()}><ImagePlus className="size-5" />{value.length ? "Add more" : "Choose from library"}</Button>
+            <Button onClick={() => camera.current?.click()} size="lg"><Camera className="size-5" />Take photo</Button>
+            <Button variant="secondary" size="lg" onClick={() => gallery.current?.click()}><ImagePlus className="size-5" />{value.length ? "Add more" : "Choose from library"}</Button>
           </div>
         </div>
       )}

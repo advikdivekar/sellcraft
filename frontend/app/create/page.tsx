@@ -35,7 +35,7 @@ const noopSubscribe = () => () => {};
 export default function CreatePage() {
   const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-36 pt-6 sm:px-6 lg:pb-12">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-40 pt-6 sm:px-6 sm:pt-10 lg:pb-12">
       {mounted ? <Wizard /> : <div className="space-y-4"><Skeleton className="h-10 w-72" /><Skeleton className="h-64 w-full" /></div>}
     </main>
   );
@@ -143,8 +143,8 @@ function Wizard() {
     <>
       <div className="mb-6 space-y-5">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Create a marketing kit</h1>
-          <p className="mt-1 text-muted">Three quick steps. Your draft is saved automatically.</p>
+          <h1 className="text-[1.7rem] font-semibold sm:text-3xl">Create a marketing kit</h1>
+          <p className="mt-1 text-[15px] text-muted">Three quick steps. Your draft saves automatically.</p>
         </div>
         <Stepper steps={["Photos", "Facts", "Style"]} current={step} onGo={go} maxReached={reached} />
       </div>
@@ -171,7 +171,7 @@ function Wizard() {
                 <Field label="Currency" optional><input className={inputCls} value={f.currency} onChange={set("currency")} maxLength={8} autoCapitalize="characters" /></Field>
               </div>
               <button type="button" onClick={() => setMoreOpen((o) => !o)} aria-expanded={moreOpen}
-                className="flex min-h-12 w-full items-center justify-between rounded-xl border border-border-strong bg-surface-2 px-4 text-left text-sm font-medium transition hover:bg-accent-soft">
+                className="flex min-h-12 w-full items-center justify-between rounded-[10px] bg-surface-2 px-4 text-left text-sm font-medium ring-1 ring-border transition hover:ring-border-strong active:scale-[0.99]">
                 <span>More details <span className="font-normal text-muted">(better copy, optional)</span></span>
                 <ChevronDown className={cx("size-4 text-muted transition-transform", moreOpen && "rotate-180")} aria-hidden />
               </button>
@@ -199,7 +199,7 @@ function Wizard() {
             <>
               <Card className="space-y-6">
                 <div>
-                  <SectionTitle action={<button type="button" className="min-h-11 text-sm font-medium text-accent" onClick={() => setPlatforms(allSelected ? ["instagram"] : PLATFORMS.map((p) => p.value))}>{allSelected ? "Just one" : "Select all"}</button>}>Where will you sell?</SectionTitle>
+                  <SectionTitle action={<button type="button" className="min-h-11 text-sm font-medium text-accent-text" onClick={() => setPlatforms(allSelected ? ["instagram"] : PLATFORMS.map((p) => p.value))}>{allSelected ? "Just one" : "Select all"}</button>}>Where will you sell?</SectionTitle>
                   <Chips multi label="Platforms" options={PLATFORMS} value={platforms} onChange={togglePlatform} />
                   {platforms.length > 1 && <p className="mt-2 text-xs text-muted">One video and deck are shared; copy is written separately for each platform.</p>}
                 </div>
@@ -211,7 +211,7 @@ function Wizard() {
                 <div role="radiogroup" aria-label="Visual style" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {STYLES.map((s) => (
                     <button key={s.value} type="button" role="radio" aria-checked={style === s.value} onClick={() => setStyle(s.value)}
-                      className={cx("group overflow-hidden rounded-2xl border text-left transition active:scale-[0.98]", style === s.value ? "border-accent ring-2 ring-accent/30" : "border-border-strong hover:border-foreground/40")}>
+                      className={cx("group overflow-hidden rounded-xl text-left shadow-card transition active:scale-[0.97]", style === s.value ? "ring-2 ring-foreground" : "ring-1 ring-border-strong hover:ring-foreground/40")}>
                       <div className={`relative h-20 bg-gradient-to-b ${STYLE_META[s.value].swatch}`}>
                         <span className="absolute left-1/2 top-1/2 h-10 w-7 -translate-x-1/2 -translate-y-1/2 rounded-[45%] bg-white/30 shadow-lg" />
                       </div>
@@ -256,7 +256,7 @@ function Wizard() {
       </div>
 
       {/* Mobile action bar */}
-      <div className="pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur-md lg:hidden">
+      <div className="pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-glass px-4 pt-3 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
         <div className="mx-auto flex max-w-xl gap-2">
           {step > 0 && <Button variant="secondary" size="lg" onClick={() => go(step - 1)} aria-label="Back"><ArrowLeft className="size-5" /></Button>}
           {step < 2
@@ -281,7 +281,7 @@ function ScanStatus({ scan, filled, onRescan, onAdd }: {
 }) {
   if (scan.state === "idle") return null;
   if (scan.state === "running")
-    return <p role="status" className="mt-4 flex items-center gap-2 rounded-xl bg-accent-soft px-3.5 py-3 text-sm"><Loader2 className="size-4 animate-spin text-accent" />Reading your photos to pre-fill the form… you can keep going.</p>;
+    return <p role="status" className="mt-4 flex items-center gap-2 rounded-xl bg-accent-soft px-3.5 py-3 text-sm"><Loader2 className="size-4 animate-spin text-accent-text" />Reading your photos to pre-fill the form… you can keep going.</p>;
   if (scan.state === "error")
     return (
       <div role="alert" className="mt-4 space-y-2 rounded-xl border border-warn/40 bg-warn/10 p-3.5 text-sm">

@@ -26,7 +26,7 @@ export default function ConnectionsPage() {
 
       <Card className="space-y-4">
         <div className="flex items-center gap-3">
-          <Store className="size-5 text-accent" aria-hidden />
+          <Store className="size-5 text-accent-text" aria-hidden />
           <h2 className="font-medium">Shopify</h2>
           {shopify?.connected && <Badge tone="ok" className="ml-auto"><Check className="size-3.5" />Connected</Badge>}
         </div>
@@ -64,7 +64,7 @@ export default function ConnectionsPage() {
       </Card>
 
       <Card className="space-y-2">
-        <div className="flex items-center gap-3"><Share2 className="size-5 text-accent" aria-hidden /><h2 className="font-medium">Instagram, Facebook, WhatsApp, Pinterest</h2></div>
+        <div className="flex items-center gap-3"><Share2 className="size-5 text-accent-text" aria-hidden /><h2 className="font-medium">Instagram, Facebook, WhatsApp, Pinterest</h2></div>
         <p className="text-sm text-muted">No connection needed. On the results page, <strong>Share video + caption</strong> opens your phone&apos;s share sheet with the video and the caption ready, and <strong>Copy post</strong> copies the text formatted for each platform.</p>
         <p className="text-xs text-muted">Direct posting to these platforms and to Etsy requires each platform&apos;s developer approval, so it isn&apos;t available yet.</p>
       </Card>

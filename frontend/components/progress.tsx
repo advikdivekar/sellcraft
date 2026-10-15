@@ -40,7 +40,7 @@ export function Progress({ job, onRetry, retrying }: { job: GenerationJob; onRet
           return (
             <li key={s.key} className="flex items-center gap-3">
               {st === "done" ? <Check className="size-5 text-ok" aria-label="done" />
-                : st === "running" ? <Loader2 className="size-5 animate-spin text-accent" aria-label="in progress" />
+                : st === "running" ? <Loader2 className="size-5 animate-spin text-accent-text" aria-label="in progress" />
                 : st === "failed" ? <AlertTriangle className="size-5 text-danger" aria-label="failed" />
                 : st === "skipped" ? <MinusCircle className="size-5 text-muted" aria-label="skipped" />
                 : <Circle className="size-5 text-border-strong" aria-label="waiting" />}

@@ -21,7 +21,7 @@ const fail = async (m) => { console.error("FAIL:", m); await page.screenshot({ p
 
 await page.goto(`${base}/${accessCode ? `#k=${accessCode}` : ""}`, { waitUntil: "load" });
 step("home page");
-await page.getByRole("link", { name: /Create a marketing kit/ }).first().click();
+await page.getByRole("link", { name: /Create your first kit/ }).first().click();
 await page.getByRole("heading", { name: "Create a marketing kit" }).waitFor({ timeout: 20000 });
 
 step("photos step: upload two photos");
