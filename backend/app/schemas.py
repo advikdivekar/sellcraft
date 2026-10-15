@@ -208,3 +208,7 @@ class RegenerateCopyRequest(BaseModel):
 
 class AnalyzePhotosRequest(BaseModel):
     asset_ids: list[str] = Field(min_length=1, max_length=MAX_IMAGES)
+
+
+class PublishRequest(BaseModel):
+    confirm: bool = False

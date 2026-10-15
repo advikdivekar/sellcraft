@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 
 from pydantic import ValidationError
@@ -98,8 +98,10 @@ def _validate(data: dict, platforms: list[Platform], *, strict: bool = True) -> 
     empty = [f for f in REQUIRED_NONEMPTY if not getattr(copy, f).strip()]
     empty += [f"platform_outputs.{p.value}" for p in platforms if not any(copy.platform_outputs.get(p.value, {}).values())]
     if empty:
-        raise AppError("llm_incomplete_output", "The model's output was missing: " + ", ".join(empty),
+        err = AppError("llm_incomplete_output", "The model's output was missing: " + ", ".join(empty),
                        retryable=True, status=502)
+        err.missing = empty
+        raise err
     if had_placeholder and not strict:
         copy.claims_requiring_review.append(
             "The model left a template placeholder (like [Store Name]); it was removed. Re-read the copy around where it may have been.")
@@ -111,6 +113,22 @@ def forbidden_hits(copy: CopyOutput, words: list[str]) -> list[str]:
         return []
     text = copy.model_dump_json().lower()
     return [w for w in words if re.search(rf"(?<!\w){re.escape(w.lower())}(?!\w)", text)]
+
+
+# Claims a model likes to add. If one shows up in the copy but nowhere in the seller's own facts, flag it.
+RISKY = ["eco-friendly", "organic", "natural", "vegan", "hypoallergenic", "certified", "handmade", "waterproof",
+         "guarantee", "guaranteed", "best", "#1", "premium", "healthy", "clinically", "award", "bestseller",
+         "limited edition", "sale", "discount", "free shipping", "kids", "children", "women", "men", "girls", "boys",
+         "perfect", "delicious", "durable", "comfortable", "lifetime"]
+
+
+def risky_terms(copy: CopyOutput, product: ProductInput) -> list[str]:
+    facts = " ".join(filter(None, [product.name, product.summary, product.materials, product.dimensions, product.audience,
+                                   product.brand_voice, product.care_instructions, product.extra_notes,
+                                   *product.features, *product.benefits])).lower()
+    text = copy.model_dump_json(exclude={"claims_requiring_review", "missing_information"}).lower()
+    pat = lambda w: re.compile(rf"(?<![\w-]){re.escape(w)}(?![\w-])")
+    return [w for w in RISKY if pat(w).search(text) and not pat(w).search(facts)]
 
 
 class CopyService:
@@ -129,46 +147,85 @@ class CopyService:
             return self.llm.generate_json(system, user + "\n\nYour previous reply was not valid JSON. Reply with valid JSON only.", schema)
 
     def _chunks(self, product, settings, note: str = ""):
-        """Independent pieces of the kit. Each is a small JSON generation, so they can run concurrently."""
-        jobs = [("core", prompts.build_fields_schema(keys),
+        """Independent pieces of the kit. Each is a small JSON generation, so they run concurrently."""
+        jobs = [(f"core:{n}", prompts.build_fields_schema(keys),
                  prompts.build_user_prompt(product, settings, fields=keys) + note)
-                for keys in (prompts.LISTING_KEYS, prompts.SOCIAL_KEYS, prompts.VIDEO_KEYS)]
+                for n, keys in enumerate(prompts.CORE_CHUNKS)]
         for p in settings.platforms:
             sec = f"platform:{p.value}"
             jobs.append((sec, prompts.build_schema(settings.platforms, section=sec),
                          prompts.build_user_prompt(product, settings, section=sec) + note))
         return jobs
 
-    def _run(self, product, settings, note: str = ""):
-        """Run all chunks in parallel (Ollama serves them together when OLLAMA_NUM_PARALLEL > 1)."""
-        jobs = self._chunks(product, settings, note)
+    def _run(self, jobs, on_progress=None):
+        """Run chunks in parallel (Ollama serves them together when OLLAMA_NUM_PARALLEL > 1).
+        on_progress(results_so_far, total) fires as each chunk finishes so the UI can show partial copy."""
+        results: dict = {}
         with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
-            results = list(pool.map(lambda j: self._call(prompts.SYSTEM_PROMPT, j[2], j[1]), jobs))
+            futs = {pool.submit(self._call, prompts.SYSTEM_PROMPT, j[2], j[1]): j[0] for j in jobs}
+            for f in as_completed(futs):
+                results[futs[f]] = f.result()
+                if on_progress:
+                    on_progress(dict(results), len(jobs))
+        return results
+
+    def _partial(self, results: dict) -> CopyOutput | None:
+        """Best-effort copy from the chunks finished so far (not validated; shown read-only until complete)."""
+        try:
+            data, _, _ = self._merge(results)
+            return CopyOutput.model_validate(normalize(_strip_placeholders(data)))
+        except Exception:  # noqa: BLE001 - a partial view must never break the real run
+            return None
+
+    @staticmethod
+    def _merge(results: dict):
         data: dict = {"platform_outputs": {}}
-        usage = {"prompt_tokens": 0, "completion_tokens": 0, "latency_ms": 0, "chunks": len(jobs)}
-        for (kind, _, _), r in zip(jobs, results):
-            if kind == "core":
+        usage = {"prompt_tokens": 0, "completion_tokens": 0, "latency_ms": 0, "chunks": len(results)}
+        for name, r in results.items():
+            if name.startswith("core:"):
                 data.update(r.data)
             else:
-                key = kind.split(":", 1)[1]
+                key = name.split(":", 1)[1]
                 data["platform_outputs"][key] = r.data.get(key) or {}
             usage["prompt_tokens"] += r.usage.get("prompt_tokens") or 0
             usage["completion_tokens"] += r.usage.get("completion_tokens") or 0
             usage["latency_ms"] = max(usage["latency_ms"], r.latency_ms)
-        return data, usage, results[0].model
+        return data, usage, next(iter(results.values())).model
 
-    def generate(self, product: ProductInput, settings: CreativeSettings) -> CopyResult:
+    @staticmethod
+    def _chunks_for(missing: list[str]) -> set[str]:
+        out = set()
+        for m in missing:
+            if m.startswith("platform_outputs."):
+                out.add("platform:" + m.split(".", 1)[1])
+            else:
+                out.update(f"core:{n}" for n, keys in enumerate(prompts.CORE_CHUNKS) if m in keys)
+        return out
+
+    def generate(self, product: ProductInput, settings: CreativeSettings, on_progress=None) -> CopyResult:
+        """on_progress(partial_copy, done, total) is called as parallel parts finish."""
         if self.demo:
             return CopyResult(demo_copy(product, settings), "demo")
-        data, usage, model = self._run(product, settings)
+        jobs = self._chunks(product, settings)
+        cb = None
+        if on_progress:
+            def cb(done_results, total):
+                partial = self._partial(done_results)
+                if partial is not None:
+                    on_progress(partial, len(done_results), total)
+        results = self._run(jobs, cb)
+        data, usage, model = self._merge(results)
         try:
-            copy = _validate(data, settings.platforms)
+            copy = _validate(data, settings.platforms, strict=False)  # placeholders are stripped + flagged, never a re-run
         except AppError as e:
             if not e.retryable:
                 raise
-            log.warning("invalid model output (%s); repairing once", e.code)
-            data, usage, model = self._run(product, settings,
-                                           f"\n\nA previous attempt had a problem: {e.message}. Fill every field using only the facts.")
+            log.warning("invalid model output (%s); redoing only the failed parts", e.code)
+            redo = self._chunks_for(getattr(e, "missing", [])) or {j[0] for j in jobs}
+            retry_jobs = [j for j in self._chunks(product, settings, f"\n\nA previous attempt had a problem: {e.message}. "
+                                                  "Fill every field using only the facts.") if j[0] in redo]
+            results.update(self._run(retry_jobs))
+            data, usage, model = self._merge(results)
             copy = _validate(data, settings.platforms, strict=False)
         copy = self._post_check(copy, product)
         return CopyResult(copy, f"ollama:{model}", usage)
@@ -216,6 +273,7 @@ class CopyService:
     @staticmethod
     def _post_check(copy: CopyOutput, product: ProductInput) -> CopyOutput:
         hits = forbidden_hits(copy, product.forbidden_words)
-        flagged = [c for c in copy.claims_requiring_review if not c.startswith("Forbidden word used:")]
+        flagged = [c for c in copy.claims_requiring_review if not c.startswith(("Forbidden word used:", "Not in your facts:"))]
         flagged += [f"Forbidden word used: {w}" for w in hits]
+        flagged += [f"Not in your facts: \"{w}\". Remove it unless it's true." for w in risky_terms(copy, product)]
         return copy.model_copy(update={"claims_requiring_review": flagged})

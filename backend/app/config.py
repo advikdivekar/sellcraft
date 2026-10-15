@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     elevenlabs_api_key: str = ""
     elevenlabs_default_voice_id: str = ""
 
+    shopify_store_domain: str = ""  # e.g. my-store.myshopify.com
+    shopify_admin_token: str = ""  # custom-app Admin API token (shpat_...). Backend only.
+    shopify_api_version: str = "2026-07"
+
     sentry_dsn: str = ""
 
     upload_dir: Path = Path("data/uploads")

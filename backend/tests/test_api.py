@@ -261,11 +261,13 @@ def test_retry_only_for_failed_jobs(client, uploaded, monkeypatch):
     assert client.get(f"/api/generations/{j['id']}").json()["status"] == "completed"
 
 
-def test_placeholder_output_is_repaired():
+def test_placeholders_are_stripped_in_place_without_a_second_round():
     bad = good_llm_data(); bad["social_caption"] = "{hook} Meet the moon."
-    llm = FakeLLM([bad, good_llm_data()])
+    llm = FakeLLM([bad])
     res = CopyService(llm).generate(product(), CreativeSettings())
-    assert "{" not in res.copy.social_caption and max(llm.rounds.values()) == 2
+    assert "{" not in res.copy.social_caption and res.copy.social_caption == "Meet the moon."
+    assert max(llm.rounds.values()) == 1  # no re-run: that would double the wait
+    assert any("placeholder" in c for c in res.copy.claims_requiring_review)
 
 
 def test_filler_words_removed_from_facts_but_real_words_kept():
@@ -512,3 +514,135 @@ def test_copy_and_video_run_concurrently(client, uploaded, monkeypatch):
     jobs.run_generation(job_id, CopyService(SlowLLM([good_llm_data()])))
     assert db.get_job(job_id).status.value == "completed"
     assert abs(started["video"] - started["llm"]) < 0.5  # both kicked off together
+
+
+def test_risky_terms_flagged_only_when_not_in_facts():
+    d = good_llm_data(); d["short_description"] = "A perfect organic necklace for women"
+    res = CopyService(FakeLLM([d])).generate(product(features=["organic cotton cord"]), CreativeSettings())
+    flags = " ".join(res.copy.claims_requiring_review)
+    assert '"perfect"' in flags and '"women"' in flags and '"organic"' not in flags  # organic IS in the facts
+
+
+def test_only_failed_chunks_are_redone():
+    bad = good_llm_data(); bad["product_title"] = ""
+    llm = FakeLLM([bad, good_llm_data()])
+    CopyService(llm).generate(product(), CreativeSettings())
+    first_round_chunks = sum(1 for n in llm.rounds.values() if n >= 1)
+    redone = sum(1 for n in llm.rounds.values() if n >= 2)
+    assert redone == 1 and first_round_chunks >= 5  # 4 core + 1 platform ran once; only the title chunk ran again
+
+
+def test_partial_copy_is_published_while_parts_finish(client, uploaded):
+    seen = []
+    job_id = _make_job(client, uploaded)
+    real_update = db.update_job
+
+    class Spy(CopyService):
+        def generate(self, product, settings, on_progress=None):
+            def cb(copy, done, total):
+                seen.append((done, total, bool(copy.product_title) or bool(copy.video_hook)))
+                on_progress(copy, done, total)
+            return super().generate(product, settings, on_progress=cb)
+
+    jobs.run_generation(job_id, Spy(FakeLLM([good_llm_data()])))
+    assert seen and seen[-1][0] == seen[-1][1] and all(t == seen[0][1] for _, t, _ in seen)
+    job = db.get_job(job_id)
+    assert job.status.value == "completed" and job.copy_source == "ollama:fake-model"
+
+
+# ---------- kit export + Shopify ----------
+def test_kit_zip_contains_video_photos_and_listing(client, uploaded, monkeypatch):
+    import io, zipfile
+    _demo(monkeypatch)
+    j = client.post("/api/generations", json={"product": {"name": "Moon Necklace", "image_asset_ids": [uploaded], "features": ["925 silver"]}}).json()
+    r = client.get(f"/api/generations/{j['id']}/kit.zip")
+    assert r.status_code == 200 and r.headers["content-type"] == "application/zip"
+    names = zipfile.ZipFile(io.BytesIO(r.content)).namelist()
+    assert "listing.txt" in names and "listing.json" in names
+    assert "moon-necklace-ad.mp4" in names and any(n.startswith("photos/") for n in names)
+
+
+def test_kit_requires_finished_job(client, uploaded):
+    job_id = _make_job(client, uploaded)  # queued
+    assert client.get(f"/api/generations/{job_id}/kit.zip").status_code == 409
+
+
+def _shopify_transport(calls, user_errors=None, status=200):
+    import httpx
+    def handler(req: httpx.Request):
+        calls.append(req)
+        if req.url.host.endswith("myshopify.com"):
+            q = __import__("json").loads(req.content)["query"]
+            if status != 200:
+                return httpx.Response(status, json={})
+            if "stagedUploadsCreate" in q:
+                n = len(__import__("json").loads(req.content)["variables"]["input"])
+                return httpx.Response(200, json={"data": {"stagedUploadsCreate": {"userErrors": [], "stagedTargets": [
+                    {"url": f"https://upload.example/{i}", "resourceUrl": f"https://cdn.example/{i}", "parameters": [{"name": "k", "value": "v"}]}
+                    for i in range(n)]}}})
+            return httpx.Response(200, json={"data": {"productCreate": {"userErrors": user_errors or [],
+                                                                         "product": {"id": "gid://shopify/Product/42", "handle": "x"}}}})
+        return httpx.Response(204)  # staged upload target
+    return httpx.MockTransport(handler)
+
+
+def test_shopify_publish_creates_draft_with_escaped_html(tmp_path):
+    import httpx, json
+    from app.services.publish.shopify import ShopifyPublisher
+    from app.schemas import CopyOutput
+    img = tmp_path / "a.jpg"; img.write_bytes(b"\xff\xd8x")
+    vid = tmp_path / "v.mp4"; vid.write_bytes(b"0000ftyp")
+    calls = []
+    pub = ShopifyPublisher("my-shop.myshopify.com", "shpat_secret", client=httpx.Client(transport=_shopify_transport(calls)))
+    copy = CopyOutput(product_title="Moon", full_description="Nice <script>alert(1)</script>", key_features=["a & b"], tags=["x"],
+                      seo_title="S", meta_description="M")
+    out = pub.publish_draft(title="Moon", brand="Acme", copy=copy, images=[img], video=vid)
+    assert out["admin_url"] == "https://my-shop.myshopify.com/admin/products/42" and out["media_attached"] == 2
+    create = json.loads([c for c in calls if b"productCreate" in c.content][0].content)["variables"]
+    assert create["product"]["status"] == "DRAFT" and "<script>" not in create["product"]["descriptionHtml"]
+    assert "&lt;script&gt;" in create["product"]["descriptionHtml"] and "a &amp; b" in create["product"]["descriptionHtml"]
+    assert [m["mediaContentType"] for m in create["media"]] == ["IMAGE", "VIDEO"]
+    assert all(c.headers.get("X-Shopify-Access-Token") == "shpat_secret" for c in calls if c.url.host.endswith("myshopify.com"))
+    assert not any("shpat" in str(c.url) for c in calls)  # token only ever in the header
+
+
+def test_shopify_bad_domain_or_missing_config_is_rejected():
+    from app.services.publish.shopify import ShopifyPublisher
+    assert not ShopifyPublisher("evil.example.com", "t").configured          # only *.myshopify.com
+    assert not ShopifyPublisher("a.myshopify.com", "").configured
+    with pytest.raises(AppError) as e:
+        ShopifyPublisher("", "").publish_draft(title="x", brand=None, copy=CopyOutputStub(), images=[], video=None)
+    assert e.value.code == "shopify_not_configured"
+
+
+def CopyOutputStub():
+    from app.schemas import CopyOutput
+    return CopyOutput()
+
+
+@pytest.mark.parametrize("status,code", [(401, "shopify_auth"), (429, "shopify_rate_limited"), (500, "shopify_error")])
+def test_shopify_errors_are_mapped(tmp_path, status, code):
+    import httpx
+    from app.services.publish.shopify import ShopifyPublisher
+    pub = ShopifyPublisher("s.myshopify.com", "t", client=httpx.Client(transport=_shopify_transport([], status=status)))
+    with pytest.raises(AppError) as e:
+        pub.publish_draft(title="x", brand=None, copy=CopyOutputStub(), images=[], video=None)
+    assert e.value.code == code
+
+
+def test_shopify_user_errors_surface(tmp_path):
+    import httpx
+    from app.services.publish.shopify import ShopifyPublisher
+    pub = ShopifyPublisher("s.myshopify.com", "t", client=httpx.Client(transport=_shopify_transport([], user_errors=[{"message": "Title can't be blank"}])))
+    with pytest.raises(AppError) as e:
+        pub.publish_draft(title="x", brand=None, copy=CopyOutputStub(), images=[], video=None)
+    assert e.value.code == "shopify_rejected" and "Title" in e.value.message
+
+
+def test_publish_endpoint_needs_confirmation_and_config(client, uploaded, monkeypatch):
+    _demo(monkeypatch)
+    j = client.post("/api/generations", json={"product": {"name": "A", "image_asset_ids": [uploaded]}}).json()
+    assert client.post(f"/api/generations/{j['id']}/publish/shopify", json={}).status_code == 422
+    r = client.post(f"/api/generations/{j['id']}/publish/shopify", json={"confirm": True})
+    assert r.status_code == 409 and r.json()["error"]["code"] == "shopify_not_configured"
+    assert client.get("/api/providers/status").json()["shopify"]["configured"] is False

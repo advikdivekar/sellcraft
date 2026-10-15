@@ -40,14 +40,18 @@ def _set_stage(job_id: str, stages: list[StageEntry], name: str, status: str, de
 
 def _stage_copy(job_id, stages, copy_service):
     job = db.get_job(job_id)
-    if job.copy_output is not None:  # retry after a later-stage failure: keep the copy (and the seller's edits)
+    if job.copy_output is not None and job.copy_source:  # retry after a later-stage failure: keep the copy (and the seller's edits)
         _set_stage(job_id, stages, "copy", "done", job.copy_source)
         return
     db.update_job(job_id, status=JobStatus.generating_copy)
     _set_stage(job_id, stages, "copy", "running")
     svc = copy_service or CopyService()
+    def partial(copy, done, total):  # show finished parts right away; the UI keeps them read-only until complete
+        db.update_job(job_id, copy_output=copy)
+        _set_stage(job_id, stages, "copy", "running", f"{done}/{total} parts")
+
     with tracing.span("llm", "copy.generate", model=getattr(svc.llm, "model", "demo")) as sp:
-        result = svc.generate(job.product, job.settings)
+        result = svc.generate(job.product, job.settings, on_progress=partial)
         if sp is not None:
             for k, v in result.usage.items():
                 sp.set_data(k, v)

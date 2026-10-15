@@ -16,11 +16,13 @@ CORE_FIELDS: dict[str, str] = {
 }
 
 # The kit is written as independent chunks so they can be generated concurrently (see CopyService.generate).
-LISTING_KEYS = ["product_title", "short_description", "full_description", "key_features", "benefits", "target_audience",
-                "seo_title", "meta_description", "keywords", "tags", "missing_information", "claims_requiring_review"]
-SOCIAL_KEYS = ["social_caption", "hashtags", "ad_headline", "call_to_action"]
-VIDEO_KEYS = ["video_hook", "voiceover_script", "video_storyboard", "video_generation_prompt"]
-assert set(LISTING_KEYS + SOCIAL_KEYS + VIDEO_KEYS) == set(CORE_FIELDS)
+CORE_CHUNKS: list[list[str]] = [  # ~equal token cost each, so the parallel calls finish together
+    ["product_title", "short_description", "full_description", "target_audience"],
+    ["key_features", "benefits", "keywords", "tags", "seo_title", "meta_description"],
+    ["social_caption", "hashtags", "ad_headline", "call_to_action", "missing_information", "claims_requiring_review"],
+    ["video_hook", "voiceover_script", "video_storyboard", "video_generation_prompt"],
+]
+assert {k for c in CORE_CHUNKS for k in c} == set(CORE_FIELDS)
 
 PLATFORM_FIELDS: dict[Platform, dict[str, str]] = {
     Platform.instagram: {"hook": "str", "reel_caption": "str", "hashtags": "list", "video_on_screen_text": "list"},
@@ -61,25 +63,18 @@ OBJECTIVE_GUIDE = {
 }
 
 SYSTEM_PROMPT = """You are SellCraft, a careful marketing copywriter for small online sellers.
-You write ONLY from the PRODUCT FACTS provided. The facts are the single source of truth.
+Write ONLY from the PRODUCT FACTS. They are the single source of truth.
+- Never invent properties, materials, sizes, prices, discounts, scarcity, reviews, awards, certifications or results.
+- Never call a product eco-friendly, organic, handmade, hypoallergenic, vegan, waterproof, medical or certified unless the facts say so.
+- Do not assume who the buyer is (gender, age, occasion) or claim fit, comfort, durability or quality the facts don't state.
+- Tone changes wording, never facts. If useful information is missing, don't guess: put it in "missing_information".
+- List risky claims in "claims_requiring_review". Never use the seller's FORBIDDEN WORDS. No fake urgency.
+- Write final text only: no placeholders like {hook} or [name].
+Reply with one JSON object matching the schema. No markdown."""
 
-Hard rules:
-- Never invent product properties, materials, sizes, prices, discounts, scarcity, reviews, testimonials, awards, certifications or customer results.
-- Never claim a product is eco-friendly, organic, handmade, hypoallergenic, vegan, waterproof, medical or certified unless the facts say so.
-- Tone changes wording, never facts.
-- If useful information is absent (e.g. materials, size, price), do NOT guess; list it in "missing_information" and leave details out of the copy.
-- List any phrase in your copy that makes a claim the seller should double-check in "claims_requiring_review".
-- Never use words from the seller's FORBIDDEN WORDS list.
-- The seller types facts quickly. Silently fix obvious typos, filler words (like "haa", "umm") and slang so they never appear in the copy, keeping the meaning exactly.
-- video_storyboard visuals may only use camera movement, framing and lighting on the single supplied product photo. Do not invent actions, hands, people, extra objects or changes to the product.
-- Never output template placeholders such as {hook} or [name]; write the final text.
-- Do not assume who the buyer is (gender, age, occasion) unless the facts say so. Do not claim fit, comfort, durability or quality that the facts don't state.
-- Keep calls to action suitable for the platform; no fake urgency ("only 3 left", "sale ends tonight").
-- The video does not render text; on-screen text is added later, so keep hooks short (max 8 words).
-- voiceover_script must be readable aloud in about 10 seconds (maximum 25 words).
-- video_storyboard has exactly 4 beats at times "0-2s" (hook), "2-6s" (product showcase), "6-8s" (one verified key feature), "8-10s" (product name + CTA).
-- video_generation_prompt describes subtle camera movement and gentle scene motion only. It must keep the product's appearance unchanged and must not add labels, logos, text or new objects.
-Respond with a single JSON object that matches the requested schema. No markdown, no commentary."""
+VIDEO_RULES = """- video_hook: max 8 words. voiceover_script: readable aloud in about 10 seconds (max 25 words).
+- video_storyboard: exactly 4 beats at "0-2s" (hook), "2-6s" (product showcase), "6-8s" (one verified feature), "8-10s" (name + CTA). Each beat: visual max 10 words, on_screen_text max 6 words. Visuals may only describe camera movement, framing and lighting on the supplied product photo. Never invent actions, hands, people or objects.
+- video_generation_prompt: max 25 words; subtle camera movement only; keep the product unchanged; add no labels, logos or text."""
 
 
 _FILLER = re.compile(r"(?<!\w)(?:h+a+a*h*|haan|h?umm+|u+h+|hmm+|erm?)(?!\w)[,.]?\s*", re.IGNORECASE)
@@ -145,15 +140,23 @@ def build_schema(platforms: list[Platform], *, section: str | None = None) -> di
 def build_user_prompt(product: ProductInput, settings: CreativeSettings, *, section: str | None = None,
                       current: CopyOutput | None = None, instructions: str | None = None,
                       fields: list[str] | None = None) -> str:
+    """Only the sections a part of the kit needs: every extra token is re-read by every parallel call."""
+    vid = bool(fields) and "video_hook" in fields
+    plat = [Platform(section.split(":", 1)[1])] if section and section.startswith("platform:") else (
+        [] if fields else settings.platforms)
     parts = [
         "## PRODUCT FACTS\n" + _facts(product),
         "## FORBIDDEN WORDS\n" + (", ".join(product.forbidden_words) or "none"),
-        "## PLATFORMS\n" + "\n".join(f"- {p.value}: {PLATFORM_GUIDE[p]}\n  fields: {', '.join(PLATFORM_FIELDS[p])}"
-                                     for p in settings.platforms),
-        "## TONE\n" + TONE_GUIDE[settings.tone],
-        "## VISUAL STYLE (for the video brief)\n" + STYLE_GUIDE[settings.visual_style],
-        "## MARKETING OBJECTIVE\n" + OBJECTIVE_GUIDE[settings.objective],
     ]
+    if plat:
+        parts.append("## PLATFORMS\n" + "\n".join(f"- {p.value}: {PLATFORM_GUIDE[p]}\n  fields: {', '.join(PLATFORM_FIELDS[p])}" for p in plat))
+    parts.append("## TONE\n" + TONE_GUIDE[settings.tone])
+    if vid or not fields:
+        parts.append("## VISUAL STYLE (for the video brief)\n" + STYLE_GUIDE[settings.visual_style])
+    if not fields or "social_caption" in fields or vid or plat:
+        parts.append("## MARKETING OBJECTIVE\n" + OBJECTIVE_GUIDE[settings.objective])
+    if vid or not (fields or section):
+        parts.append("## VIDEO RULES\n" + VIDEO_RULES)
     if fields:
         parts.append("## TASK\nWrite ONLY these JSON fields, using the facts above: " + ", ".join(fields) + ".")
     elif section:
