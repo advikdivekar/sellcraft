@@ -1,6 +1,6 @@
 "use client";
 import { Check, Copy, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { copyText } from "@/lib/image";
 import { Button } from "./ui";
 
@@ -14,8 +14,17 @@ export function EditableField({ label, value, kind, rows = 3, onCommit, onRegene
   const [text, setText] = useState(toText(value));
   const [seen, setSeen] = useState(toText(value));
   const [copied, setCopied] = useState(false);
+  const ref = useRef<HTMLTextAreaElement>(null);
   // Sync from the server value when it changes (regenerate / save), without an effect.
   if (toText(value) !== seen) { setSeen(toText(value)); setText(toText(value)); }
+
+  // Grow to fit the content so nothing is clipped (matters on narrow phone screens).
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + 2}px`;
+  }, [text]);
 
   const commit = () => {
     if (text === toText(value)) return;
@@ -39,7 +48,7 @@ export function EditableField({ label, value, kind, rows = 3, onCommit, onRegene
         </div>
       </div>
       <textarea
-        id={`f-${label}`} value={text} rows={lineRows} onChange={(e) => setText(e.target.value)} onBlur={commit}
+        id={`f-${label}`} ref={ref} value={text} rows={lineRows} onChange={(e) => setText(e.target.value)} onBlur={commit}
         className="w-full resize-y rounded-xl border border-border bg-background px-3.5 py-3 leading-relaxed focus:border-accent"
       />
     </div>

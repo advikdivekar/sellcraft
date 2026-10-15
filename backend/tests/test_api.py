@@ -249,3 +249,11 @@ def test_placeholder_output_is_repaired():
     llm = FakeLLM([bad, good_llm_data()])
     res = CopyService(llm).generate(product(), CreativeSettings())
     assert "{" not in res.copy.social_caption and len(llm.calls) == 2
+
+
+def test_filler_words_removed_from_facts_but_real_words_kept():
+    from app.services.prompts import clean_fact
+    assert clean_fact("haa choco chips in it") == "choco chips in it"
+    assert clean_fact("Umm, handmade hat") == "handmade hat"
+    assert clean_fact("Haha-proof, hammock, Hahn ceramic") == "Haha-proof, hammock, Hahn ceramic"
+    assert clean_fact("haa") is None

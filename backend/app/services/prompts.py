@@ -1,5 +1,7 @@
 """Prompt + schema construction. Concerns are kept in separate sections:
 FACTS | PLATFORM | TONE | STYLE | OBJECTIVE | RULES | OUTPUT."""
+import re
+
 from ..schemas import CopyOutput, CreativeSettings, Objective, Platform, ProductInput, Tone, VisualStyle
 
 # field -> kind ("str" | "list")
@@ -61,6 +63,8 @@ Hard rules:
 - If useful information is absent (e.g. materials, size, price), do NOT guess; list it in "missing_information" and leave details out of the copy.
 - List any phrase in your copy that makes a claim the seller should double-check in "claims_requiring_review".
 - Never use words from the seller's FORBIDDEN WORDS list.
+- The seller types facts quickly. Silently fix obvious typos, filler words (like "haa", "umm") and slang so they never appear in the copy, keeping the meaning exactly.
+- video_storyboard visuals may only use camera movement, framing and lighting on the single supplied product photo. Do not invent actions, hands, people, extra objects or changes to the product.
 - Never output template placeholders such as {hook} or [name]; write the final text.
 - Do not assume who the buyer is (gender, age, occasion) unless the facts say so. Do not claim fit, comfort, durability or quality that the facts don't state.
 - Keep calls to action suitable for the platform; no fake urgency ("only 3 left", "sale ends tonight").
@@ -71,7 +75,23 @@ Hard rules:
 Respond with a single JSON object that matches the requested schema. No markdown, no commentary."""
 
 
+_FILLER = re.compile(r"(?<!\w)(?:h+a+a*h*|haan|h?umm+|u+h+|hmm+|erm?)(?!\w)[,.]?\s*", re.IGNORECASE)
+
+
+def clean_fact(text: str | None) -> str | None:
+    """Drop spoken-style filler a seller may type ("haa", "umm") so small models don't echo it."""
+    if not text:
+        return text
+    return re.sub(r"\s{2,}", " ", _FILLER.sub("", text)).strip() or None
+
+
 def _facts(p: ProductInput) -> str:
+    p = p.model_copy(update={
+        "name": clean_fact(p.name) or p.name,
+        **{k: clean_fact(getattr(p, k)) for k in ("summary", "materials", "dimensions", "audience", "brand_voice", "care_instructions")},
+        "features": [c for c in map(clean_fact, p.features) if c],
+        "benefits": [c for c in map(clean_fact, p.benefits) if c],
+    })
     rows = [("Product name", p.name), ("Brand", p.brand_name), ("Summary", p.summary),
             ("Price", f"{p.price} {p.currency or ''}".strip() if p.price else None),
             ("Materials / ingredients", p.materials), ("Dimensions / specs", p.dimensions),
