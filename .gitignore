@@ -1,0 +1,32 @@
+# secrets / env
+.env
+.env.*
+!.env.example
+
+# runtime data
+backend/data/
+*.db
+*.sqlite3
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# node
+node_modules/
+.next/
+out/
+
+# models / media
+*.gguf
+*.safetensors
+*.mp4
+*.mp3
+
+# misc
+.DS_Store
+Screenshot*.jpg
+Screenshot*.png
