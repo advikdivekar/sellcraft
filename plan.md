@@ -125,7 +125,9 @@ Style: light neutral background, dark text, one accent color, rounded cards used
 
 ## 7b. Mobile-first requirements (demo will be shown on a phone)
 
-**Principle:** design for ~390px width first, then scale up to desktop. The phone is the primary demo device.
+**Principle:** design for ~390px width first, then scale up to desktop. The phone is the primary demo device — **target device: iPhone (Safari)**; Android is secondary.
+
+iPhone notes: HEIC photos are common (convert client-side to JPEG); Safari needs `playsinline` and H.264/yuv420p/faststart video; camera, Clipboard and Web Share need HTTPS (use the tunnel); Safari ignores `<a download>` for video, so use the share sheet "Save Video".
 
 **Layout & UX**
 - Single-column, one-step-at-a-time wizard on mobile (Product → Style → Generate → Results); side-by-side panels only at `md:` and up.
