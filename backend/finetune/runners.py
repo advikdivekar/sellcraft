@@ -118,9 +118,13 @@ class TinkerNativeProvider(LLMProvider):
     """Samples a Tinker-hosted base model or checkpoint with the native SDK (needs `pip install tinker` + TINKER_API_KEY)."""
     name = "tinker"
 
-    def __init__(self, base_model: str, max_tokens: int = 4096):
+    def __init__(self, base_model: str, max_tokens: int = 4096, shape_hint: bool | None = None):
         self.model, self.max_tokens = base_model, max_tokens
+        self.is_checkpoint = base_model.startswith("tinker://")
+        # A fine-tuned checkpoint already learned the output format from the app's prompt; adding a hint would change its prompt.
+        self.shape_hint = (not self.is_checkpoint) if shape_hint is None else shape_hint
         self._sampler = self._tok = None
+        self._base = None
 
     def health(self) -> dict:
         return {"reachable": bool(os.getenv("TINKER_API_KEY")), "model": self.model}
@@ -129,15 +133,23 @@ class TinkerNativeProvider(LLMProvider):
         if self._sampler is None:
             import tinker
             svc = tinker.ServiceClient()
-            self._sampler = svc.create_sampling_client(base_model=self.model)
-            self._tok = svc.create_lora_training_client(base_model=self.model, rank=8).get_tokenizer()
+            if self.is_checkpoint:
+                import json as _json
+                from pathlib import Path
+                meta = Path(__file__).parent / "results" / "checkpoint.json"
+                self._base = _json.loads(meta.read_text())["base_model"]  # the tokenizer belongs to the base model
+                self._sampler = svc.create_sampling_client(model_path=self.model)
+            else:
+                self._base = self.model
+                self._sampler = svc.create_sampling_client(base_model=self.model)
+            self._tok = svc.create_lora_training_client(base_model=self._base, rank=8).get_tokenizer()
 
     def generate_json(self, system, user, schema, *, temperature=0.4, images=None) -> LLMResult:
         import asyncio
         from tinker import types
         self._init()
         t0 = time.monotonic()
-        msgs = [{"role": "system", "content": system}, {"role": "user", "content": user + shape_instruction(schema)}]
+        msgs = [{"role": "system", "content": system}, {"role": "user", "content": user + (shape_instruction(schema) if self.shape_hint else "")}]
         try:  # hybrid-reasoning models (Qwen3 family) otherwise spend your tokens "thinking" first
             text = self._tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False)
         except TypeError:
