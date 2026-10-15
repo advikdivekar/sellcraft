@@ -57,7 +57,7 @@ export function ImageDropzone({ value, update, onAdded }: {
             <li key={img.assetId} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-background">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img.previewUrl} alt={`Product photo ${i + 1}`} className="size-full object-cover" />
-              {i === 0 && <span className="absolute left-1.5 top-1.5 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-white dark:text-black">Main</span>}
+              {i === 0 && <span className="absolute left-1.5 top-1.5 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-fg">Main</span>}
               <button type="button" aria-label={`Remove photo ${i + 1}`} onClick={() => remove(i)}
                 className="absolute right-1 top-1 grid size-9 place-items-center rounded-full bg-black/60 text-white"><X className="size-4" /></button>
               {i > 0 && (

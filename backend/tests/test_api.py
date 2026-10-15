@@ -174,7 +174,7 @@ def test_job_completes_and_records_stages(client, uploaded):
     jobs.run_generation(job_id, CopyService(FakeLLM([good_llm_data()])))
     job = db.get_job(job_id)
     assert job.status.value == "completed" and job.copy_output is not None
-    assert {s.name: s.status for s in job.stages} == {"copy": "done", "video": "done", "assembly": "done"}
+    assert {s.name: s.status for s in job.stages} == {"copy": "done", "video": "done", "deck": "done", "assembly": "done"}
     vid = [a for a in job.assets if a.kind == "video"]
     assert len(vid) == 1 and vid[0].method == "animated_photo" and abs(vid[0].duration_seconds - 10) < 0.5
     assert all(a.kind != "clip" for a in job.assets)  # internal clip never exposed
@@ -655,9 +655,9 @@ def test_overall_progress_is_weighted_and_honest():
     cs = CreativeSettings()
     assert overall_progress([], cs, JobStatus.queued) == (0.0, "Getting started")
     p, phase = overall_progress([st("copy", "running", 0.5), st("video", "running", 0.5)], cs, JobStatus.generating_copy)
-    assert p == pytest.approx((0.5 * 0.5 + 0.3 * 0.5) / 0.95, abs=1e-3) and phase == "Writing your copy + Building studio photos and video"
+    assert p == pytest.approx((0.48 * 0.5 + 0.30 * 0.5) / 0.96, abs=1e-3) and phase == "Writing your copy + Refining photos and building the video"
     done, _ = overall_progress([st("copy", "done"), st("video", "done"), st("assembly", "running", 0.5)], cs, JobStatus.assembling_video)
-    assert 0.9 < done < 1.0
+    assert 0.85 < done < 1.0
     assert overall_progress([], cs, JobStatus.completed) == (1.0, None)
     # a stage that claims 100% while still running must not push the bar to the end
     assert overall_progress([st("copy", "running", 5.0)], cs, JobStatus.generating_copy)[0] < 0.6
@@ -917,3 +917,39 @@ def test_refine_denoises_upscales_and_keeps_colour():
     refined = grid(out)
     assert refined.std(axis=(0, 1)).mean() < 0.85 * baseline.std(axis=(0, 1)).mean()  # visibly less noise than plain upscaling
     assert refined[..., 0].mean() > refined[..., 1].mean() * 2.5  # a red product stays red
+
+
+def test_refine_does_not_band_or_desaturate_flat_colour():
+    """Regression: plain matte products used to get horizontal bands and washed-out colour from local contrast."""
+    import numpy as np
+    from PIL import Image
+    from app.services.video import studio
+    flat = np.zeros((500, 400, 4), np.uint8)
+    flat[40:460, 40:360] = (190, 120, 70, 255)
+    out, _ = studio.refine(Image.fromarray(flat, "RGBA"), sharpness=100)
+    inner = np.asarray(out.convert("RGB")).astype(np.float32)[250:750, 200:600]
+    rows = inner.mean(axis=(1, 2))
+    assert rows.std() < 6  # no horizontal banding down the product
+    m = inner.mean(axis=(0, 1))
+    assert m[0] > m[2] * 1.8 and abs(m[0] - 190) < 30  # still orange, not gray
+
+
+def test_refine_is_safe_to_run_concurrently():
+    """Regression: two photos are refined in parallel threads; a shared, non-thread-safe network once produced banded output."""
+    import numpy as np
+    from concurrent.futures import ThreadPoolExecutor
+    from PIL import Image
+    from app.services.video import studio
+    rng = np.random.default_rng(5)
+    def photo(seed):
+        arr = np.zeros((420, 360, 4), np.uint8)
+        arr[30:390, 30:330] = (200, 90 + seed * 40, 60, 255)
+        arr[..., :3] = np.clip(arr[..., :3].astype(np.int16) + np.random.default_rng(seed).normal(0, 6, arr[..., :3].shape), 0, 255).astype(np.uint8)
+        arr[..., 3] = np.where(arr[..., 3] > 0, 255, 0)
+        return Image.fromarray(arr, "RGBA")
+    imgs = [photo(i) for i in range(4)]
+    serial = [np.asarray(studio.refine(im, 40)[0]) for im in imgs]
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        parallel = list(pool.map(lambda im: np.asarray(studio.refine(im, 40)[0]), imgs))
+    for a, b in zip(serial, parallel):
+        assert np.abs(a.astype(int) - b.astype(int)).mean() < 0.5  # identical up to rounding: no cross-thread corruption

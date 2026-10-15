@@ -104,6 +104,7 @@ def _decontaminate_edges(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
 
 
 _sr_cache: dict = {}
+_sr_run_lock = threading.RLock()
 SR_URLS = {
     "fsrcnn": "https://github.com/Saafke/FSRCNN_Tensorflow/raw/master/models/FSRCNN_x2.pb",
     "espcn": "https://github.com/fannymonori/TF-ESPCN/raw/master/export/ESPCN_x2.pb",
@@ -167,19 +168,26 @@ def refine(rgba: Image.Image, sharpness: float = 100.0) -> tuple[Image.Image, li
         sr = _superres_model()
         if sr is not None:
             try:
-                bgr = sr.upsample(bgr)
+                with _sr_run_lock:
+                    bgr = sr.upsample(bgr)
                 a = np.asarray(Image.fromarray(a).resize((bgr.shape[1], bgr.shape[0]), Image.LANCZOS))
                 done.append("upscaled 2× with a super-resolution network")
             except Exception:  # noqa: BLE001
                 log.warning("super-resolution failed", exc_info=True)
     solid = a > 200
 
-    # 3. local contrast (CLAHE on lightness only), blended so it never looks processed
+    # 3. local contrast (CLAHE on lightness only), applied ONLY where the product has texture. On flat colour it
+    #    would amplify noise into bands and drain the colour, so flat areas are left exactly as they are.
     lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
-    l_eq = cv2.createCLAHE(clipLimit=1.8, tileGridSize=(6, 6)).apply(lab[..., 0])
-    lab[..., 0] = cv2.addWeighted(lab[..., 0], 0.55, l_eq, 0.45, 0)
-    bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-    done.append("recovered local contrast")
+    l_orig = lab[..., 0].astype(np.float32)
+    l_eq = cv2.createCLAHE(clipLimit=1.6, tileGridSize=(6, 6)).apply(lab[..., 0]).astype(np.float32)
+    mean = cv2.GaussianBlur(l_orig, (0, 0), 6)
+    local_std = np.sqrt(np.maximum(cv2.GaussianBlur(l_orig * l_orig, (0, 0), 6) - mean * mean, 0))
+    w = np.clip((local_std - 4) / 14, 0, 1) * 0.40  # 0 on flat colour, up to 40% on detailed areas
+    if float(w[solid].mean()) > 0.03:
+        lab[..., 0] = np.clip(l_orig * (1 - w) + l_eq * w, 0, 255).astype(np.uint8)
+        bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+        done.append("recovered local contrast")
 
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32)
     # 4. colour cast + exposure, measured on the product only and capped

@@ -11,6 +11,15 @@ From up to **5 photos** and a few facts (the app measures each photo, flags blur
 
 **Honesty:** the video is image processing (background removal + FFmpeg animation), *not* AI-generated footage, and the UI says so. Nothing is posted anywhere without you tapping a button; Shopify products are created as drafts.
 
+## How your photos are refined
+Not just a new background: the product pixels themselves are retouched, deterministically and without a generative model, so labels, logos and shape stay true.
+1. Background removed at the photo's **full resolution** (rembg / U2-Net; only the mask is predicted small).
+2. Camera noise reduced (strength follows the measured noise), then a small **super-resolution network** (OpenCV FSRCNN, x2) when the product has few pixels.
+3. Local contrast recovered only on textured areas (flat colour is left alone), colour cast and exposure fixed on the product only, edge halos removed, sharpening proportional to how soft the photo was.
+4. Backdrop chosen from what the photo shows (dark product -> lighter backdrop, warm product + bold style -> cool backdrop).
+
+The refined product feeds everything: the video, the studio photos, a white-background marketplace photo, a transparent PNG, and the **image deck** (hero, benefits, close-up, extra angles, call to action). The benefits slide only ever uses features and benefits you gave or confirmed; with fewer than two it is skipped and the app says why. Photo problems (blur, low resolution, product too small) are reported, not hidden.
+
 ## What runs where
 | Part | Where | Notes |
 |---|---|---|

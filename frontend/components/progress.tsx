@@ -14,13 +14,14 @@ export function ProgressBar({ value, label }: { value: number; label?: string | 
   const pct = Math.round(Math.min(Math.max(value, 0), 1) * 100);
   return (
     <div>
-      <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
-        <span className="min-w-0 truncate font-medium">{label ?? "Working"}</span>
-        <span className="tabular-nums text-muted">{pct}%</span>
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <span className="min-w-0 truncate text-sm font-medium">{label ?? "Working"}</span>
+        <span className="text-2xl font-semibold tabular-nums tracking-tight">{pct}<span className="text-base text-muted">%</span></span>
       </div>
-      <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Overall progress"
-        className="h-2.5 overflow-hidden rounded-full bg-border">
-        <div className="h-full rounded-full bg-accent transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
+      <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Overall progress" className="h-3 overflow-hidden rounded-full bg-border">
+        <div className="relative h-full rounded-full bg-accent transition-[width] duration-700 ease-out" style={{ width: `${Math.max(pct, 3)}%` }}>
+          <span className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ backgroundSize: "200% 100%", animation: "shimmer 1.6s linear infinite" }} />
+        </div>
       </div>
     </div>
   );
@@ -42,7 +43,7 @@ export function Progress({ job, onRetry, retrying }: { job: GenerationJob; onRet
                 : st === "running" ? <Loader2 className="size-5 animate-spin text-accent" aria-label="in progress" />
                 : st === "failed" ? <AlertTriangle className="size-5 text-danger" aria-label="failed" />
                 : st === "skipped" ? <MinusCircle className="size-5 text-muted" aria-label="skipped" />
-                : <Circle className="size-5 text-border" aria-label="waiting" />}
+                : <Circle className="size-5 text-border-strong" aria-label="waiting" />}
               <span className={cx("min-w-0", st === "running" && "font-medium", (!st || st === "skipped") && "text-muted")}>
                 {s.label}
                 {st === "skipped" && " (not enabled yet)"}

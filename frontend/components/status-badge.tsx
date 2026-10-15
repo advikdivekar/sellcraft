@@ -5,7 +5,7 @@ import { cx } from "./ui";
 
 export function StatusBadge() {
   const { data, isError, isLoading } = useQuery({ queryKey: ["status"], queryFn: api.status, refetchInterval: 15000 });
-  if (isLoading) return <p className="text-sm text-muted">Checking AI engine…</p>;
+  if (isLoading) return <div className="skeleton h-7 w-56 rounded-full" aria-label="Checking AI engine" />;
   if (isError || !data)
     return <Pill tone="bad" text="Backend offline" detail="Start the API: cd backend && .venv/bin/uvicorn app.main:app --port 8000" />;
   const l = data.llm;
@@ -17,9 +17,9 @@ export function StatusBadge() {
 
 function Pill({ tone, text, detail }: { tone: "ok" | "warn" | "bad"; text: string; detail?: string }) {
   return (
-    <div className="flex items-start gap-2.5 text-sm" role="status">
+    <div className="inline-flex max-w-full items-start gap-2.5 rounded-2xl border border-border bg-surface px-3.5 py-2 text-sm shadow-card" role="status">
       <span className={cx("mt-1.5 size-2.5 shrink-0 rounded-full", tone === "ok" && "bg-ok", tone === "warn" && "bg-warn", tone === "bad" && "bg-danger")} />
-      <span><span className="font-medium">{text}</span>{detail && <span className="block text-xs text-muted">{detail}</span>}</span>
+      <span className="min-w-0"><span className="font-medium">{text}</span>{detail && <span className="block text-xs text-muted">{detail}</span>}</span>
     </div>
   );
 }

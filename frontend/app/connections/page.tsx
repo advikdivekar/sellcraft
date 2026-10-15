@@ -1,9 +1,8 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, Lock, Share2, Store, Unplug } from "lucide-react";
-import Link from "next/link";
+import { Check, Lock, Share2, Store, Unplug } from "lucide-react";
 import { useState } from "react";
-import { Button, Card, Field, inputCls } from "@/components/ui";
+import { Badge, Button, Card, Field, inputCls } from "@/components/ui";
 import { ApiError, api } from "@/lib/api";
 
 export default function ConnectionsPage() {
@@ -20,7 +19,6 @@ export default function ConnectionsPage() {
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 space-y-5 px-4 pb-safe pt-6 sm:px-6">
-      <Link href="/" className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted hover:text-foreground"><ArrowLeft className="size-4" />Home</Link>
       <header>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Connect your stores</h1>
         <p className="mt-1 text-muted">Connect once, then send finished kits to your store from the results page. Nothing is ever published without you tapping a button.</p>
@@ -30,7 +28,7 @@ export default function ConnectionsPage() {
         <div className="flex items-center gap-3">
           <Store className="size-5 text-accent" aria-hidden />
           <h2 className="font-medium">Shopify</h2>
-          {shopify?.connected && <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-ok/15 px-2.5 py-0.5 text-xs font-medium text-ok"><Check className="size-3.5" />Connected</span>}
+          {shopify?.connected && <Badge tone="ok" className="ml-auto"><Check className="size-3.5" />Connected</Badge>}
         </div>
 
         {shopify?.connected ? (
