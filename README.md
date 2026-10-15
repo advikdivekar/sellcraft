@@ -35,7 +35,7 @@ No Ollama yet? Set `DEMO_MODE=true` in `backend/.env`. The UI then shows a visib
 ### Open it on your phone (any network, HTTPS)
 ```bash
 brew install cloudflared qrencode   # once
-scripts/dev-phone.sh                # add DEMO_MODE=true to run without Ollama
+scripts/dev-phone.sh                # production build (use for demos); --dev for hot reload; DEMO_MODE=true to skip Ollama
 ```
 It starts the backend, the frontend and a Cloudflare quick tunnel, then prints an `https://…trycloudflare.com` URL and a QR code. Scan it with the iPhone camera. HTTPS gives Safari the secure context it needs for camera capture, clipboard and share, and the tunnel works even when the Wi-Fi blocks device-to-device traffic (or on cellular). Code changes hot-reload. Anyone with the link can use the app while it runs; stop with Ctrl+C.
 

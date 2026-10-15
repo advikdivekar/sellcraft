@@ -2,7 +2,9 @@
 # Start backend + frontend + an HTTPS tunnel so the app opens on your phone over ANY network
 # (works on cellular, venue Wi-Fi that blocks device-to-device traffic, and gives the
 # secure context iOS needs for camera capture, clipboard and share).
-# Usage: scripts/dev-phone.sh        (set DEMO_MODE=true to run without Ollama)
+# Usage: scripts/dev-phone.sh          production build (fast on phones; use this for demos)
+#        scripts/dev-phone.sh --dev    hot reload (dev bundles are heavy over a tunnel and can stall on phones)
+#        DEMO_MODE=true scripts/dev-phone.sh   run without Ollama
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LOG="${TMPDIR:-/tmp}/sellcraft-dev"; mkdir -p "$LOG"
@@ -12,9 +14,17 @@ trap cleanup EXIT INT TERM
 
 command -v cloudflared >/dev/null || { echo "Install it first: brew install cloudflared"; exit 1; }
 
-(cd "$ROOT/backend" && exec .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload) >"$LOG/api.log" 2>&1 &
+MODE="${1:-prod}"
+RELOAD=""; [ "$MODE" = "--dev" ] && RELOAD="--reload"
+(cd "$ROOT/backend" && exec .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 $RELOAD) >"$LOG/api.log" 2>&1 &
 PIDS+=($!)
-(cd "$ROOT/frontend" && exec npm run dev -- -H 127.0.0.1) >"$LOG/web.log" 2>&1 &
+if [ "$MODE" = "--dev" ]; then
+  (cd "$ROOT/frontend" && exec npm run dev -- -H 127.0.0.1) >"$LOG/web.log" 2>&1 &
+else
+  echo "Building production frontend..."
+  (cd "$ROOT/frontend" && npm run build) >"$LOG/build.log" 2>&1 || { echo "Build failed. See $LOG/build.log"; exit 1; }
+  (cd "$ROOT/frontend" && exec npm run start -- -H 127.0.0.1) >"$LOG/web.log" 2>&1 &
+fi
 PIDS+=($!)
 
 echo "Waiting for the app..."
