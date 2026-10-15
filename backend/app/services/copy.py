@@ -122,6 +122,12 @@ RISKY = ["eco-friendly", "organic", "natural", "vegan", "hypoallergenic", "certi
          "perfect", "delicious", "durable", "comfortable", "lifetime",
          # embellishments found by an independent audit of a fine-tuned model: invented urgency, occasions and audiences
          "available now", "in stock", "while supplies last", "gift idea", "gift ideas", "birthday", "holiday", "anniversary", "wedding"]
+# Claims that carry real regulatory or medical weight for cosmetic, skincare and clinic products. Kept SEPARATE from RISKY so the
+# fine-tuning scorer (which uses RISKY) stays comparable across experiments; the app applies both.
+REGULATED = ["clinically proven", "clinically tested", "dermatologist", "doctor recommended", "doctor-recommended", "medical grade",
+             "medical-grade", "fda approved", "fda-approved", "guaranteed results", "results guaranteed", "permanent", "painless",
+             "risk-free", "no side effects", "safe for all", "cure", "cures", "treats", "heals", "anti-aging", "anti-ageing",
+             "reverses", "wrinkle-free", "instant results", "before and after", "miracle"]
 # Occasion words are fine when the seller says the product is for gifting at all.
 GIFT_TERMS = {"gift idea", "gift ideas", "birthday", "holiday", "anniversary", "wedding"}
 
@@ -133,6 +139,16 @@ def risky_terms(copy: CopyOutput, product: ProductInput) -> list[str]:
     text = copy.model_dump_json(exclude={"claims_requiring_review", "missing_information"}).lower()
     pat = lambda w: re.compile(rf"(?<![\w-]){re.escape(w)}(?![\w-])")
     return [w for w in RISKY if pat(w).search(text) and not pat(w).search(facts) and not (w in GIFT_TERMS and "gift" in facts)]
+
+
+def regulated_terms(copy: CopyOutput, product: ProductInput) -> list[str]:
+    """Medical/cosmetic claims the seller did not state themselves. These need a human (and often a regulator-aware) review."""
+    facts = " ".join(filter(None, [product.name, product.summary, product.materials, product.dimensions, product.audience,
+                                   product.brand_voice, product.care_instructions, product.extra_notes,
+                                   *product.features, *product.benefits])).lower()
+    text = copy.model_dump_json(exclude={"claims_requiring_review", "missing_information"}).lower()
+    pat = lambda w: re.compile(rf"(?<![\w-]){re.escape(w)}(?![\w-])")
+    return [w for w in REGULATED if pat(w).search(text) and not pat(w).search(facts)]
 
 
 class CopyService:
@@ -277,7 +293,9 @@ class CopyService:
     @staticmethod
     def _post_check(copy: CopyOutput, product: ProductInput) -> CopyOutput:
         hits = forbidden_hits(copy, product.forbidden_words)
-        flagged = [c for c in copy.claims_requiring_review if not c.startswith(("Forbidden word used:", "Not in your facts:"))]
+        flagged = [c for c in copy.claims_requiring_review if not c.startswith(("Forbidden word used:", "Not in your facts:", "Regulated claim"))]
         flagged += [f"Forbidden word used: {w}" for w in hits]
         flagged += [f"Not in your facts: \"{w}\". Remove it unless it's true." for w in risky_terms(copy, product)]
+        flagged += [f"Regulated claim not in your facts: \"{w}\". Medical and cosmetic claims can create legal problems; remove it or check the rules that apply to you."
+                    for w in regulated_terms(copy, product)]
         return copy.model_copy(update={"claims_requiring_review": flagged})

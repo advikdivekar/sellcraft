@@ -136,8 +136,11 @@ class TinkerNativeProvider(LLMProvider):
             if self.is_checkpoint:
                 import json as _json
                 from pathlib import Path
-                meta = Path(__file__).parent / "results" / "checkpoint.json"
-                self._base = _json.loads(meta.read_text())["base_model"]  # the tokenizer belongs to the base model
+                self._base = "Qwen/Qwen3.5-4B"  # the tokenizer belongs to the base model; read it from the matching checkpoint record
+                for meta in (Path(__file__).parent / "results").glob("checkpoint*.json"):
+                    rec = _json.loads(meta.read_text())
+                    if rec.get("sampler_path") == self.model:
+                        self._base = rec["base_model"]
                 self._sampler = svc.create_sampling_client(model_path=self.model)
             else:
                 self._base = self.model

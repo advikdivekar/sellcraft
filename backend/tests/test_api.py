@@ -953,3 +953,22 @@ def test_refine_is_safe_to_run_concurrently():
         parallel = list(pool.map(lambda im: np.asarray(studio.refine(im, 40)[0]), imgs))
     for a, b in zip(serial, parallel):
         assert np.abs(a.astype(int) - b.astype(int)).mean() < 0.5  # identical up to rounding: no cross-thread corruption
+
+
+# ---------- regulated (medical / cosmetic) claims ----------
+def test_regulated_claims_are_flagged_unless_the_seller_stated_them():
+    from app.schemas import CopyOutput
+    from app.services.copy import regulated_terms
+    kit = good_llm_data(); kit["short_description"] = "A clinically proven serum with guaranteed results and no side effects."
+    copy = CopyOutput.model_validate({**kit, "platform_outputs": kit["platform_outputs"]})
+    plain = ProductInput(name="Serum", image_asset_id="x", features=["fragrance free"])
+    assert {"clinically proven", "guaranteed results", "no side effects"} <= set(regulated_terms(copy, plain))
+    stated = ProductInput(name="Serum", image_asset_id="x", features=["clinically proven (study attached)"])
+    assert "clinically proven" not in regulated_terms(copy, stated)  # the seller says it, so it's their claim to stand behind
+
+
+def test_post_check_adds_a_clearly_labelled_regulated_flag():
+    kit = good_llm_data(); kit["social_caption"] = "Painless and permanent."
+    res = CopyService(FakeLLM([kit])).generate(product(), CreativeSettings())
+    flags = " ".join(res.copy.claims_requiring_review)
+    assert "Regulated claim not in your facts" in flags and '"painless"' in flags and '"permanent"' in flags

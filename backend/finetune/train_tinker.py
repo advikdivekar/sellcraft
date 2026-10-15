@@ -112,7 +112,7 @@ def main(argv=None):
     if p["est_usd"] > a.budget_usd:
         raise SystemExit(f"Estimated ${p['est_usd']} exceeds the ${a.budget_usd} cap. Lower --epochs or raise --budget-usd.")
     path = asyncio.run(train(a, p["pairs"]))
-    out = DATA.parent / "results" / "checkpoint.json"
+    out = DATA.parent / "results" / f"checkpoint-{a.name}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"base_model": a.base_model, "sampler_path": path, "epochs": a.epochs, "examples": p["examples"], "lr": a.lr, "rank": a.rank}, indent=1))
     print("wrote", out)
