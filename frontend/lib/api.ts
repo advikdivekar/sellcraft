@@ -33,7 +33,9 @@ export const api = {
     fd.append("file", file, name);
     return request<{ asset_id: string; width: number; height: number }>("/api/uploads", { method: "POST", body: fd });
   },
-  analyze: (assetId: string) => request<PhotoAnalysis>(`/api/uploads/${assetId}/analyze`, { method: "POST" }),
+  analyze: (assetIds: string[]) => request<PhotoAnalysis>("/api/uploads/analyze", json("POST", { asset_ids: assetIds })),
+  publishShopify: (id: string) => request<{ admin_url: string; media_attached: number }>(`/api/generations/${id}/publish/shopify`, json("POST", { confirm: true })),
+  kitUrl: (id: string) => `/api/generations/${id}/kit.zip`,
   createJob: (product: ProductInput, settings: CreativeSettings) =>
     request<GenerationJob>("/api/generations", json("POST", { product, settings })),
   getJob: (id: string) => request<GenerationJob>(`/api/generations/${id}`),

@@ -16,7 +16,14 @@ export default function CreatePage() {
   const router = useRouter();
   const status = useQuery({ queryKey: ["status"], queryFn: api.status });
   const [step, setStep] = useState<1 | 2>(1);
-  const [image, setImage] = useState<UploadedImage | null>(null);
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const imagesRef = useRef<UploadedImage[]>([]);
+  const scanned = useRef(false);
+  const updateImages = (fn: (cur: UploadedImage[]) => UploadedImage[]) => {
+    imagesRef.current = fn(imagesRef.current);
+    setImages(imagesRef.current);
+    if (imagesRef.current.length === 0) { scanned.current = false; scanToken.current++; setScan({ state: "idle", visible: [] }); }
+  };
   const EMPTY = {
     name: "", summary: "", price: "", currency: "USD", materials: "", dimensions: "", features: "", benefits: "",
     audience: "", brand_name: "", brand_voice: "", care: "", forbidden: "", extra: "",
@@ -38,11 +45,11 @@ export default function CreatePage() {
     setForm((c) => ({ v: { ...c.v, [k]: e.target.value }, s: c.s.filter((x) => x !== k) }));
   const sug = (k: string) => form.s.includes(k);
 
-  async function analyze(assetId: string) {
+  async function analyze(assetIds: string[]) {
     const token = ++scanToken.current;
     setScan({ state: "running", visible: [] });
     try {
-      const r = await api.analyze(assetId);
+      const r = await api.analyze(assetIds);
       if (token !== scanToken.current) return; // photo was replaced while scanning
       const fl = r.fields;
       setForm((c) => {
@@ -62,21 +69,20 @@ export default function CreatePage() {
       setScan({ state: "error", visible: [], message: e instanceof ApiError ? e.message : "Couldn't read the photo." });
     }
   }
-  function onImage(v: UploadedImage | null) {
-    setImage(v);
-    scanToken.current++;
-    if (v) analyze(v.assetId); else setScan({ state: "idle", visible: [] });
+  function onPhotosAdded() {
+    // Read the photos once automatically; later changes use "Scan again" so typed facts are never surprised.
+    if (!scanned.current) { scanned.current = true; analyze(imagesRef.current.map((i) => i.assetId)); }
   }
   const addNote = (t: string) =>
     setForm((c) => ({ v: { ...c.v, extra: c.v.extra.includes(t) ? c.v.extra : (c.v.extra ? c.v.extra + "\n" : "") + t }, s: c.s }));
 
   const nameErr = touched && !f.name.trim() ? "Product name is required." : undefined;
-  const imageErr = touched && !image ? "Add a product photo." : undefined;
+  const imageErr = touched && images.length === 0 ? "Add at least one product photo." : undefined;
 
   const create = useMutation({
     mutationFn: () => {
       const product: ProductInput = {
-        name: f.name.trim(), image_asset_id: image!.assetId,
+        name: f.name.trim(), image_asset_ids: images.map((i) => i.assetId),
         summary: f.summary || null, price: f.price || null, currency: f.price ? f.currency || null : null,
         materials: f.materials || null, dimensions: f.dimensions || null,
         features: lines(f.features), benefits: lines(f.benefits), audience: f.audience || null,
@@ -93,13 +99,13 @@ export default function CreatePage() {
 
   function next() {
     setTouched(true);
-    if (!f.name.trim() || !image) return;
+    if (!f.name.trim() || images.length === 0) return;
     setStep(2);
     window.scrollTo({ top: 0 });
   }
   function submit() {
     setTouched(true);
-    if (!f.name.trim() || !image) { setStep(1); return; }
+    if (!f.name.trim() || images.length === 0) { setStep(1); return; }
     create.mutate();
   }
 
@@ -120,9 +126,9 @@ export default function CreatePage() {
         {/* ---------- Product ---------- */}
         <div className={cx("space-y-5", step === 1 ? "block" : "hidden md:block")}>
           <Card>
-            <h2 className="mb-3 font-medium">Product photo</h2>
-            <ImageDropzone value={image} onChange={onImage} />
-            <ScanStatus scan={scan} filled={form.s.length} onRescan={() => image && analyze(image.assetId)} onAdd={addNote} />
+            <h2 className="mb-3 font-medium">Product photos</h2>
+            <ImageDropzone value={images} update={updateImages} onAdded={onPhotosAdded} />
+            <ScanStatus scan={scan} filled={form.s.length} onRescan={() => images.length > 0 && analyze(images.map((i) => i.assetId))} onAdd={addNote} />
             {imageErr && <p role="alert" className="mt-2 text-sm text-danger">{imageErr}</p>}
           </Card>
           <Card className="space-y-4">

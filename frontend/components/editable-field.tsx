@@ -7,8 +7,8 @@ import { Button } from "./ui";
 type Value = string | string[];
 const toText = (v: Value | undefined) => (Array.isArray(v) ? v.join("\n") : (v ?? ""));
 
-export function EditableField({ label, value, kind, rows = 3, onCommit, onRegenerate, busy }: {
-  label: string; value: Value | undefined; kind: "str" | "list"; rows?: number;
+export function EditableField({ label, value, kind, rows = 3, onCommit, onRegenerate, busy, locked }: {
+  label: string; value: Value | undefined; kind: "str" | "list"; rows?: number; locked?: boolean;
   onCommit: (v: Value) => void; onRegenerate?: () => void; busy?: boolean;
 }) {
   const [text, setText] = useState(toText(value));
@@ -40,7 +40,7 @@ export function EditableField({ label, value, kind, rows = 3, onCommit, onRegene
           <Button variant="ghost" size="sm" aria-label={`Copy ${label}`} onClick={async () => { if (await copyText(text)) { setCopied(true); setTimeout(() => setCopied(false), 1500); } }}>
             {copied ? <Check className="size-4 text-ok" /> : <Copy className="size-4" />}<span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
           </Button>
-          {onRegenerate && (
+          {onRegenerate && !locked && (
             <Button variant="ghost" size="sm" aria-label={`Regenerate ${label}`} busy={busy} onClick={onRegenerate}>
               {!busy && <RefreshCw className="size-4" />}<span className="hidden sm:inline">Regenerate</span>
             </Button>
@@ -48,8 +48,8 @@ export function EditableField({ label, value, kind, rows = 3, onCommit, onRegene
         </div>
       </div>
       <textarea
-        id={`f-${label}`} ref={ref} value={text} rows={lineRows} onChange={(e) => setText(e.target.value)} onBlur={commit}
-        className="w-full resize-y rounded-xl border border-border bg-background px-3.5 py-3 leading-relaxed focus:border-accent"
+        id={`f-${label}`} ref={ref} value={text} rows={lineRows} readOnly={locked} placeholder={locked ? "Writing…" : undefined} aria-busy={locked && !text} onChange={(e) => setText(e.target.value)} onBlur={commit}
+        className={`w-full resize-y rounded-xl border border-border bg-background px-3.5 py-3 leading-relaxed focus:border-accent ${locked && !text ? "animate-pulse" : ""}`}
       />
     </div>
   );

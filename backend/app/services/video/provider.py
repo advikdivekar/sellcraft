@@ -116,7 +116,7 @@ class StudioAdProvider(ImageToVideoProvider):
             args += ["-i", str(f)]
         ffmpeg.run([*args, "-filter_complex", ";".join(parts), "-map", f"[{last}]", "-r", str(FPS), "-c:v", "libx264",
                     "-preset", "medium", "-crf", "16", "-pix_fmt", "yuv420p", "-t", f"{duration}", str(clip)])
-        for f in files:
+        for f in [*files, sweep, *(p_[k] for p_ in preps for k in ("bg", "layer"))]:  # intermediates; the clip + stills are kept
             f.unlink(missing_ok=True)
         notes = [f"Background removal wasn't possible for photo {i + 1}, so it was shown as a framed photo."
                  for i, p in enumerate(preps) if not p["cutout"]]

@@ -8,7 +8,7 @@ export type JobStatus =
 
 export interface ProductInput {
   name: string;
-  image_asset_id: string;
+  image_asset_ids: string[];
   summary?: string | null;
   price?: string | null;
   currency?: string | null;
@@ -61,7 +61,7 @@ export interface CopyOutput {
   platform_outputs: Record<string, Record<string, string | string[]>>;
 }
 
-export interface StageEntry { name: string; status: "running" | "done" | "skipped" | "failed"; detail?: string | null }
+export interface StageEntry { name: string; status: "running" | "done" | "skipped" | "failed"; detail?: string | null; notes: string[] }
 export interface GeneratedAsset { id: string; kind: string; mime: string; method?: string | null; duration_seconds?: number | null }
 
 export interface GenerationJob {
@@ -81,6 +81,7 @@ export interface ProviderStatus {
   ffmpeg: { available: boolean };
   video: { provider: string; method: string };
   voiceover: { configured: boolean };
+  shopify: { configured: boolean; store: string | null };
   demo_mode: boolean;
 }
 

@@ -67,3 +67,26 @@ export const PLATFORM_FIELD_LABELS: Record<Platform, { key: string; label: strin
     { key: "seo_title", label: "SEO title", kind: "str", rows: 2 }, { key: "meta_description", label: "Meta description", kind: "str", rows: 3 },
   ],
 };
+
+export function methodLabel(method?: string | null): string {
+  if (method === "studio_cutout")
+    return "Studio-enhanced ad: your photos with the background replaced, re-lit and animated with camera moves. Not AI-generated footage.";
+  if (method === "animated_photo")
+    return "Animated-photo ad: your own photo on a designed backdrop with motion. Not AI-generated footage.";
+  return method ? `AI-generated video (${method})` : "";
+}
+
+type Copy = import("./types").CopyOutput;
+const s1 = (v: string | string[] | undefined) => (Array.isArray(v) ? v.join(" ") : (v ?? ""));
+/** The post, exactly as a seller would paste it on that platform. */
+export function postText(p: Platform, c: Copy): string {
+  const o = c.platform_outputs[p] ?? {};
+  const tags = (xs: string | string[] | undefined) => (Array.isArray(xs) ? xs.map((t) => (t.startsWith("#") ? t : `#${t}`)).join(" ") : "");
+  switch (p) {
+    case "instagram": return [s1(o.reel_caption) || c.social_caption, tags(o.hashtags as string[]) || tags(c.hashtags)].filter(Boolean).join("\n\n");
+    case "facebook": return [s1(o.primary_text), s1(o.cta)].filter(Boolean).join("\n\n");
+    case "pinterest": return [s1(o.pin_title), s1(o.pin_description), s1(o.keyword_phrases)].filter(Boolean).join("\n\n");
+    case "etsy": return [s1(o.title), s1(o.item_description), "Tags: " + s1(o.tags)].filter(Boolean).join("\n\n");
+    default: return [s1(o.page_copy), (Array.isArray(o.feature_bullets) ? o.feature_bullets.map((b) => `- ${b}`).join("\n") : "")].filter(Boolean).join("\n\n");
+  }
+}

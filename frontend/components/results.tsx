@@ -1,15 +1,15 @@
 "use client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Download, Film, Info, Loader2, Share2, Sparkles } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle, Check, Download, ExternalLink, Film, Info, Loader2, Share2, Sparkles, Store } from "lucide-react";
 import { useState } from "react";
-import { LISTING_SECTIONS, PLATFORMS, PLATFORM_FIELD_LABELS, SOCIAL_SECTIONS, TONES, VIDEO_SECTIONS, type SectionDef } from "@/lib/options";
+import { LISTING_SECTIONS, PLATFORMS, PLATFORM_FIELD_LABELS, SOCIAL_SECTIONS, TONES, VIDEO_SECTIONS, methodLabel, postText, type SectionDef } from "@/lib/options";
 import { copyText } from "@/lib/image";
 import { ApiError, api } from "@/lib/api";
 import type { CopyOutput, GenerationJob, Platform, Tone } from "@/lib/types";
 import { EditableField } from "./editable-field";
 import { Button, Card, Chips, cx } from "./ui";
 
-type Tab = "listing" | "social" | "video" | Platform;
+type Tab = "listing" | "social" | "video" | "photos" | Platform;
 
 function download(name: string, text: string, type: string) {
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -40,6 +40,14 @@ export function Results({ job }: { job: GenerationJob }) {
   const [tone, setTone] = useState<Tone>(job.settings.tone);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [copiedPost, setCopiedPost] = useState(false);
+  const status = useQuery({ queryKey: ["status"], queryFn: api.status });
+  const locked = job.stages.some((s) => s.name === "copy" && s.status === "running");
+  const studio = job.assets.filter((a) => a.kind === "studio_image");
+  const shopify = useMutation({
+    mutationFn: () => api.publishShopify(job.id),
+    onError: (e) => setErr(e instanceof ApiError ? e.message : "Couldn't send to Shopify."),
+  });
 
   const update = (j: GenerationJob) => qc.setQueryData(["job", job.id], j);
   const onError = (e: unknown) => setErr(e instanceof ApiError ? e.message : "Something went wrong.");
@@ -71,14 +79,29 @@ export function Results({ job }: { job: GenerationJob }) {
 
   const core = (s: SectionDef) => (
     <EditableField key={s.key} label={s.label} kind={s.kind} rows={s.rows} value={copy[s.key as keyof CopyOutput] as string | string[]}
-      onCommit={setCore(s.key)} onRegenerate={() => regen.mutate({ section: s.key })} busy={busyKey === s.key} />
+      onCommit={setCore(s.key)} onRegenerate={() => regen.mutate({ section: s.key })} busy={busyKey === s.key} locked={locked} />
   );
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "listing", label: "Listing" }, { id: "social", label: "Social" },
     ...platforms.map((p) => ({ id: p as Tab, label: PLATFORMS.find((x) => x.value === p)!.label })),
     { id: "video", label: "Video" },
+    ...(studio.length ? [{ id: "photos" as Tab, label: "Photos" }] : []),
   ];
+
+  async function shareKit() {
+    const caption = postText(platforms[0], copy);
+    await copyText(caption);
+    if (!video) return;
+    try {
+      const blob = await (await fetch(videoUrl(video.id))).blob();
+      const file = new File([blob], `${slug(job.product.name)}.mp4`, { type: "video/mp4" });
+      if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], text: caption, title: job.product.name });
+      else window.open(videoUrl(video.id), "_blank");
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") setErr("Couldn't open the share sheet. Use Download everything instead.");
+    }
+  }
 
   const words = copy.voiceover_script.trim().split(/\s+/).filter(Boolean).length;
   const secs = Math.round((words / 2.5) * 10) / 10;
@@ -108,7 +131,7 @@ export function Results({ job }: { job: GenerationJob }) {
       <Card className="space-y-3">
         <h3 className="text-sm font-medium">Rewrite all copy in a different tone</h3>
         <Chips label="Tone" options={TONES} value={tone} onChange={setTone} />
-        <Button variant="secondary" busy={busyKey === "__all"} onClick={() => regen.mutate({ tone })}>
+        <Button variant="secondary" busy={busyKey === "__all"} disabled={locked} onClick={() => regen.mutate({ tone })}>
           <Sparkles className="size-4" />Rewrite copy
         </Button>
         <p className="text-xs text-muted">Your product facts stay the same and the video is not re-made. This replaces your manual edits to the copy.</p>
@@ -132,11 +155,31 @@ export function Results({ job }: { job: GenerationJob }) {
           <>
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-medium">{PLATFORMS.find((x) => x.value === tab)!.label} copy</h3>
-              <Button variant="secondary" size="sm" busy={busyKey === `platform:${tab}`} onClick={() => regen.mutate({ section: `platform:${tab}` })}>Regenerate all</Button>
+              <div className="flex gap-2">
+                <Button variant="secondary" size="sm" onClick={async () => { if (await copyText(postText(tab as Platform, copy))) { setCopiedPost(true); setTimeout(() => setCopiedPost(false), 1500); } }}>
+                  {copiedPost ? <Check className="size-4 text-ok" /> : <Share2 className="size-4" />}{copiedPost ? "Copied" : "Copy post"}
+                </Button>
+                {!locked && <Button variant="secondary" size="sm" busy={busyKey === `platform:${tab}`} onClick={() => regen.mutate({ section: `platform:${tab}` })}>Regenerate all</Button>}
+              </div>
             </div>
             {PLATFORM_FIELD_LABELS[tab as Platform].map((f) => (
-              <EditableField key={f.key} label={f.label} kind={f.kind} rows={f.rows} value={copy.platform_outputs[tab]?.[f.key]} onCommit={setPlat(tab as Platform, f.key)} />
+              <EditableField key={f.key} label={f.label} kind={f.kind} rows={f.rows} value={copy.platform_outputs[tab]?.[f.key]} onCommit={setPlat(tab as Platform, f.key)} locked={locked} />
             ))}
+          </>
+        )}
+        {tab === "photos" && (
+          <>
+            <p className="text-sm text-muted">Your photos on a designed backdrop, ready for a feed post (4:5). Background removed and re-lit; the product itself isn&apos;t changed.</p>
+            <ul className="grid grid-cols-2 gap-3">
+              {studio.map((a, i) => (
+                <li key={a.id} className="space-y-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={api.assetUrl(job.id, a.id)} alt={`Studio photo ${i + 1}`} className="w-full rounded-xl border border-border" loading="lazy" />
+                  <a href={api.assetUrl(job.id, a.id)} download={`${slug(job.product.name)}-studio-${i + 1}.jpg`}
+                    className="inline-flex min-h-11 items-center gap-1.5 text-sm text-accent"><Download className="size-4" />Download</a>
+                </li>
+              ))}
+            </ul>
           </>
         )}
         {tab === "video" && (
@@ -146,10 +189,8 @@ export function Results({ job }: { job: GenerationJob }) {
                 <>
                   <video key={video.id} className="mx-auto max-h-[70dvh] rounded-lg" src={`${videoUrl(video.id)}#t=0.1`} controls playsInline preload="metadata" />
                   <p className="mt-2 text-center text-xs text-muted">
-                    {video.method === "animated_photo"
-                      ? "Animated-photo ad: your own photo with motion and text, not AI-generated footage."
-                      : `AI-generated video (${video.method})`}
-                    {video.duration_seconds ? ` · ${video.duration_seconds.toFixed(0)}s · vertical 9:16` : ""}
+                    {methodLabel(video.method)}
+                    {video.duration_seconds ? ` ${video.duration_seconds.toFixed(0)}s, vertical 9:16.` : ""}
                   </p>
                   <div className="mt-3 flex flex-wrap justify-center gap-2">
                     <Button variant="secondary" size="sm" onClick={() => shareVideo(video.id)}><Share2 className="size-4" />Save / Share</Button>
@@ -184,11 +225,33 @@ export function Results({ job }: { job: GenerationJob }) {
         )}
       </Card>
 
-      <Card className="flex flex-wrap gap-2">
-        <Button variant="secondary" onClick={() => copyText(asText(copy, platforms))}>Copy everything</Button>
-        <Button variant="secondary" onClick={() => download(`${slug(job.product.name)}-listing.txt`, asText(copy, platforms), "text/plain")}><Download className="size-4" />Listing .txt</Button>
-        <Button variant="secondary" onClick={() => download(`${slug(job.product.name)}-listing.json`, JSON.stringify(copy, null, 2), "application/json")}><Download className="size-4" />Listing .json</Button>
-        {video && <a className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-5 hover:bg-accent-soft" href={videoUrl(video.id)} download={`${slug(job.product.name)}.mp4`}><Download className="size-4" />Video .mp4</a>}
+      <Card className="space-y-3">
+        <h3 className="font-medium">Share &amp; publish</h3>
+        <div className="flex flex-wrap gap-2">
+          {video && (
+            <Button size="sm" onClick={() => shareKit()}><Share2 className="size-4" />Share video + caption</Button>
+          )}
+          <a className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-3.5 text-sm hover:bg-accent-soft" href={api.kitUrl(job.id)} download>
+            <Download className="size-4" />Download everything (.zip)
+          </a>
+          <Button variant="secondary" size="sm" onClick={() => copyText(asText(copy, platforms))}>Copy everything</Button>
+          <Button variant="secondary" size="sm" onClick={() => download(`${slug(job.product.name)}-listing.txt`, asText(copy, platforms), "text/plain")}>Listing .txt</Button>
+        </div>
+        <p className="text-xs text-muted">Share opens your phone&apos;s share sheet with the video and your caption, so you can post to Instagram, WhatsApp, Facebook and more in a tap. The caption is also copied.</p>
+        <div className="rounded-xl border border-border p-3">
+          <p className="mb-2 flex items-center gap-2 text-sm font-medium"><Store className="size-4" />Shopify</p>
+          {status.data?.shopify.configured ? (
+            shopify.data ? (
+              <p className="text-sm"><Check className="mr-1 inline size-4 text-ok" />Draft created with {shopify.data.media_attached} media. <a className="inline-flex items-center gap-1 text-accent underline" href={shopify.data.admin_url} target="_blank" rel="noreferrer">Open in Shopify<ExternalLink className="size-3.5" /></a></p>
+            ) : (
+              <Button variant="secondary" size="sm" busy={shopify.isPending} onClick={() => { if (window.confirm(`Create a DRAFT product in ${status.data?.shopify.store}? Nothing goes live until you publish it in Shopify.`)) shopify.mutate(); }}>
+                Send to Shopify as draft
+              </Button>
+            )
+          ) : (
+            <p className="text-sm text-muted">Not connected. Add your store domain and a custom-app token in <code>backend/.env</code> (see the README) to send this kit to Shopify as a draft in one tap.</p>
+          )}
+        </div>
       </Card>
     </div>
   );

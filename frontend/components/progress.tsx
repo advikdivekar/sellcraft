@@ -4,10 +4,10 @@ import type { GenerationJob } from "@/lib/types";
 import { Button, cx } from "./ui";
 
 const STEPS = [
-  { key: "copy", label: "Writing product copy" },
-  { key: "video", label: "Creating video" },
-  { key: "voiceover", label: "Generating voiceover" },
-  { key: "assembly", label: "Assembling final video" },
+  { key: "copy", label: "Writing your copy", hint: "Several parts are written at once" },
+  { key: "video", label: "Building studio video and photos", hint: "Background removal, lighting, camera moves" },
+  { key: "voiceover", label: "Generating voiceover", hint: "" },
+  { key: "assembly", label: "Adding text to the video", hint: "" },
 ];
 
 export function Progress({ job, onRetry, retrying }: { job: GenerationJob; onRetry: () => void; retrying: boolean }) {
@@ -16,7 +16,8 @@ export function Progress({ job, onRetry, retrying }: { job: GenerationJob; onRet
     <div className="space-y-5">
       <ol className="space-y-3" aria-live="polite">
         {steps.map((s) => {
-          const st = job.stages.find((x) => x.name === s.key)?.status;
+          const entry = job.stages.find((x) => x.name === s.key);
+          const st = entry?.status;
           return (
             <li key={s.key} className="flex items-center gap-3">
               {st === "done" ? <Check className="size-5 text-ok" aria-label="done" />
@@ -24,8 +25,12 @@ export function Progress({ job, onRetry, retrying }: { job: GenerationJob; onRet
                 : st === "failed" ? <AlertTriangle className="size-5 text-danger" aria-label="failed" />
                 : st === "skipped" ? <MinusCircle className="size-5 text-muted" aria-label="skipped" />
                 : <Circle className="size-5 text-border" aria-label="waiting" />}
-              <span className={cx(st === "running" && "font-medium", (!st || st === "skipped") && "text-muted")}>
-                {s.label}{st === "skipped" && " (not enabled yet)"}
+              <span className={cx("min-w-0", st === "running" && "font-medium", (!st || st === "skipped") && "text-muted")}>
+                {s.label}
+                {st === "skipped" && " (not enabled yet)"}
+                {st === "running" && s.key === "copy" && entry?.detail?.includes("parts") && <span className="ml-1.5 font-normal text-muted">{entry.detail}</span>}
+                {st === "running" && s.hint && <span className="block text-xs font-normal text-muted">{s.hint}</span>}
+                {entry?.notes?.map((n) => <span key={n} className="block text-xs font-normal text-warn">{n}</span>)}
               </span>
             </li>
           );

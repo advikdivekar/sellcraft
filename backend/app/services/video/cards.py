@@ -77,7 +77,7 @@ def render_card(blocks: list[tuple[str, str]], style: str, frame_w: int, out: Pa
         text = clean_text(raw)
         if not text:
             continue
-        start, floor, lines_max = {"title": (92, 52, 3), "body": (68, 44, 3), "pill": (52, 38, 2)}[kind]
+        start, floor, lines_max = {"title": (92, 52, 3), "body": (68, 44, 3), "pill": (60, 40, 2)}[kind]
         inner_w = max_w - (2 * 30 if kind == "pill" else 0)
         font, lines = _fit(probe, text, path, inner_w, lines_max, start, floor)
         lh = int(font.size * 1.22)
