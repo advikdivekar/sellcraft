@@ -14,6 +14,18 @@ from app.errors import AppError
 from app.services.llm.base import LLMProvider, LLMResult
 from app.services.llm.ollama import OllamaProvider
 
+def load_env() -> None:
+    """Make backend/.env values (like TINKER_API_KEY) visible to these scripts. Never prints them."""
+    from pathlib import Path
+    f = Path(__file__).resolve().parents[1] / ".env"
+    if f.exists():
+        for line in f.read_text().splitlines():
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.split("=", 1)
+                if v.strip() and k.strip() not in os.environ:
+                    os.environ[k.strip()] = v.strip().strip("\"'")
+
+
 TINKER_OAI = "https://tinker.thinkingmachines.dev/services/tinker-prod/oai/api/v1"
 
 
@@ -129,6 +141,7 @@ def add_provider_args(ap):
 
 
 def provider_from_args(a) -> LLMProvider:
+    load_env()
     if a.provider == "ollama":
         return OllamaProvider(model=a.model, timeout=600)
     if a.provider == "tinker":

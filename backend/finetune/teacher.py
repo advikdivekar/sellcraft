@@ -36,6 +36,16 @@ brands. Write vivid, specific, human copy: concrete sensory words, varied senten
 clichés ("elevate", "game-changer", "unleash"). Short beats long. Never trade truth for flair: every claim, number and
 material must come from the PRODUCT FACTS, and anything not given stays out of the copy."""
 
+# USD per million tokens to SAMPLE (prompt + completion counted at the same rate, which over-estimates: a safe cap).
+# From Tinker's Models & Pricing page, Oct 2026. Unknown models need --price-per-m.
+PRICES = {"Qwen/Qwen3.5-397B-A17B": 7.50, "Qwen/Qwen3.8-27B": 5.595, "Qwen/Qwen3.6-35B-A3B": 1.335, "Qwen/Qwen3.5-9B": 0.807,
+          "Qwen/Qwen3.5-4B": 1.005, "Qwen/Qwen3-8B": 0.60, "openai/gpt-oss-120b": 0.84, "openai/gpt-oss-20b": 0.45}
+
+
+def spend_usd(tokens: int, price_per_m: float) -> float:
+    return tokens / 1_000_000 * price_per_m
+
+
 CHUNK_FIELDS = {f"core:{i}": keys for i, keys in enumerate(prompts.CORE_CHUNKS)}
 
 
@@ -86,23 +96,34 @@ def revise_prompt(user: str, draft: dict, problems: list[str]) -> str:
             "\n\nRewrite the draft and fix EVERY problem. Keep what was already good. Use only the facts. Return the same JSON keys.")
 
 
-def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float = 0.7) -> dict:
+def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float = 0.7, mode: str = "kit") -> dict:
+    """mode 'kit': one teacher call writes the whole kit (the facts are sent once: ~40% fewer tokens, so cheaper).
+    mode 'parts': one call per part, exactly like the app. Either way the STUDENT examples are per part."""
     product, settings = ProductInput.model_validate(fs["product"]), CreativeSettings.model_validate(fs["settings"])
     svc = CopyService(teacher)
     jobs = svc._chunks(product, settings)  # [(name, schema, student_user_prompt)]
     by_name = {n: (schema, user) for n, schema, user in jobs}
     system_t = prompts.SYSTEM_PROMPT + TEACHER_STYLE
+    kit_schema = prompts.build_schema(settings.platforms)
+    kit_user = prompts.build_user_prompt(product, settings)
     tokens = [0]
     lock = threading.Lock()
 
-    def call(name: str, user: str):
-        r = teacher.generate_json(system_t, user, by_name[name][0], temperature=temperature)
+    def ask(user: str, schema: dict) -> dict:
+        r = teacher.generate_json(system_t, user, schema, temperature=temperature)
         with lock:
             tokens[0] += (r.usage.get("prompt_tokens") or 0) + (r.usage.get("completion_tokens") or 0)
         return r.data
 
+    def call(name: str, user: str):
+        return ask(user, by_name[name][0])
+
     try:
-        parts = {n: call(n, u) for n, _, u in jobs}
+        if mode == "kit":
+            full = ask(kit_user, kit_schema)
+            parts = {n: chunk_data(n, full) for n, _, _ in jobs}
+        else:
+            parts = {n: call(n, u) for n, _, u in jobs}
     except AppError as e:
         return {"id": fs["id"], "accepted": False, "rounds": 0, "tokens": tokens[0], "reason": f"{e.code}: {e.message}", "examples": []}
 
@@ -117,7 +138,15 @@ def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float =
 
     sc = score(fs, merged())
     rounds = 0
-    while sc["hard"] and rounds < max_revisions:
+    while sc["hard"] and rounds < max_revisions and mode == "kit":
+        rounds += 1
+        try:
+            full = ask(revise_prompt(kit_user, merged(), problems_text(sc["hard"])), kit_schema)
+            parts = {n: chunk_data(n, full) for n, _, _ in jobs}
+        except AppError:
+            break
+        sc = score(fs, merged())
+    while sc["hard"] and rounds < max_revisions and mode == "parts":
         rounds += 1
         fields = sorted({f for h in sc["hard"] for f in h.get("fields", [])})
         for n in sorted(chunks_for_fields(fields, [j[0] for j in jobs])):
@@ -149,26 +178,42 @@ def main(argv=None):
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--max-revisions", type=int, default=2)
+    ap.add_argument("--mode", choices=["kit", "parts"], default="kit")
+    ap.add_argument("--budget-usd", type=float, default=1.0, help="HARD cap: stops starting new kits once the estimated spend reaches it")
+    ap.add_argument("--price-per-m", type=float, default=0.0, help="USD per million sampled tokens (looked up for known models)")
     ap.add_argument("--out", type=Path, default=DATA / "sft_train.jsonl")
     a = ap.parse_args(argv)
     if a.split == "test":
         raise SystemExit("Refusing to build training data from the held-out test split.")
+    price = a.price_per_m or (PRICES.get(a.model, 0.0) if a.provider != "ollama" else 0.0)
+    if a.provider != "ollama" and not price:
+        raise SystemExit(f"No known price for '{a.model}'. Pass --price-per-m so the spend cap can work.")
     teacher = provider_from_args(a)
     log_path = a.out.with_suffix(".log.jsonl")
     done_ids = {json.loads(l)["id"] for l in log_path.read_text().splitlines()} if log_path.exists() else set()
+    prior = sum(json.loads(l)["tokens"] for l in log_path.read_text().splitlines()) if log_path.exists() else 0
     sets = [fs for fs in load(DATA / "train_factsets.jsonl") if fs["id"] not in done_ids]
     sets = sets[: a.limit] if a.limit else sets
     a.out.parent.mkdir(parents=True, exist_ok=True)
-    ok = rev = tok = 0
+    ok = rev = n_done = 0
+    tok = prior
+    stopped = False
     with ThreadPoolExecutor(max_workers=a.workers) as pool, a.out.open("a") as out, log_path.open("a") as log:
-        for i, r in enumerate(pool.map(lambda fs: build_one(teacher, fs, max_revisions=a.max_revisions), sets), start=1):
-            for e in r["examples"]:
-                out.write(json.dumps(e, ensure_ascii=False) + "\n")
-            log.write(json.dumps({k: r[k] for k in ("id", "accepted", "rounds", "tokens", "reason")}) + "\n")
-            out.flush(); log.flush()
-            ok += r["accepted"]; rev += r["rounds"]; tok += r["tokens"]
-            print(f"[{i}/{len(sets)}] {r['id']} {'kept' if r['accepted'] else 'REJECTED ' + r['reason'][:80]} (revisions: {r['rounds']})", flush=True)
-    print(f"\nkept {ok}/{len(sets)} kits, {rev} revision rounds, {tok} teacher tokens -> {a.out}")
+        for start in range(0, len(sets), a.workers):
+            if spend_usd(tok, price) >= a.budget_usd:
+                stopped = True
+                break
+            batch = sets[start:start + a.workers]
+            for r in pool.map(lambda fs: build_one(teacher, fs, max_revisions=a.max_revisions, mode=a.mode), batch):
+                n_done += 1
+                for e in r["examples"]:
+                    out.write(json.dumps(e, ensure_ascii=False) + "\n")
+                log.write(json.dumps({k: r[k] for k in ("id", "accepted", "rounds", "tokens", "reason")}) + "\n")
+                out.flush(); log.flush()
+                ok += r["accepted"]; rev += r["rounds"]; tok += r["tokens"]
+                print(f"[{n_done}/{len(sets)}] {r['id']} {'kept' if r['accepted'] else 'REJECTED ' + r['reason'][:80]} (revisions: {r['rounds']}) spend ~${spend_usd(tok, price):.2f}", flush=True)
+    print(f"\nkept {ok}/{n_done} kits, {rev} revision rounds, {tok} teacher tokens (~${spend_usd(tok, price):.2f} of ${a.budget_usd:.2f} cap)"
+          + (" -- STOPPED at the spend cap" if stopped else "") + f" -> {a.out}")
 
 
 if __name__ == "__main__":

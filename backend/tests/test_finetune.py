@@ -187,7 +187,7 @@ class FakeTeacher(LLMProvider):
 
 def test_teacher_keeps_clean_kits_and_builds_part_level_chat_examples():
     t = FakeTeacher(good_kit())
-    r = teacher.build_one(t, FS)
+    r = teacher.build_one(t, FS, mode="parts")
     assert r["accepted"] and r["rounds"] == 0 and r["tokens"] == 15 * 5  # 4 core parts + 1 platform
     assert len(r["examples"]) == 5
     app_jobs = {n: u for n, _, u in CopyService(t)._chunks(ProductInput.model_validate(FS["product"]), CreativeSettings.model_validate(FS["settings"]))}
@@ -213,7 +213,7 @@ def test_teacher_target_uses_ground_truth_missing_information():
 def test_violations_trigger_a_targeted_revision_with_the_checkers_findings():
     bad = good_kit(); bad["short_description"] = "A cheap candle"
     t = FakeTeacher(bad)
-    r = teacher.build_one(t, FS)
+    r = teacher.build_one(t, FS, mode="parts")
     assert r["accepted"] and r["rounds"] == 1
     revisions = [u for _, u in t.calls if "## REVISION" in u]
     assert len(revisions) == 1  # only the part holding the problem is rewritten, not the whole kit
@@ -224,7 +224,7 @@ def test_violations_trigger_a_targeted_revision_with_the_checkers_findings():
 
 def test_kits_that_cannot_be_fixed_are_rejected_not_trained_on():
     bad = good_kit(); bad["short_description"] = "A cheap candle"
-    r = teacher.build_one(FakeTeacher(bad, fix_on_revision=False), FS, max_revisions=2)
+    r = teacher.build_one(FakeTeacher(bad, fix_on_revision=False), FS, max_revisions=2, mode="parts")
     assert not r["accepted"] and r["examples"] == [] and r["rounds"] == 2 and "forbidden_word" in r["reason"]
 
 
@@ -239,3 +239,43 @@ def test_report_renders_a_comparison_table(tmp_path):
     f = tmp_path / "a.json"; f.write_text(json.dumps({"model": "gemma3:12b", "aggregate": agg}))
     out = report.table([f])
     assert "gemma3:12b (n=3)" in out and "67%" in out and "12.5" in out
+
+
+# ---------------- kit mode + spend cap ----------------
+def test_kit_mode_uses_one_call_and_still_builds_part_level_examples():
+    t = FakeTeacher(good_kit())
+    r = teacher.build_one(t, FS, mode="kit")
+    assert r["accepted"] and len(t.calls) == 1 and len(r["examples"]) == 5
+    assert r["tokens"] == 15  # one call, not five: that's the saving
+    for ex in r["examples"]:  # the student still gets the per-part prompts the app really sends
+        assert ex["messages"][1]["content"].count("## PRODUCT FACTS") == 1 and "## TASK" in ex["messages"][1]["content"]
+
+
+def test_kit_mode_revises_the_whole_kit_with_the_checkers_findings():
+    bad = good_kit(); bad["short_description"] = "A cheap candle"
+    t = FakeTeacher(bad)
+    r = teacher.build_one(t, FS, mode="kit")
+    assert r["accepted"] and r["rounds"] == 1 and len(t.calls) == 2
+    assert "'cheap' is a forbidden word" in t.calls[1][1]
+
+
+def test_spend_math_and_unknown_models_need_a_price():
+    assert teacher.spend_usd(1_000_000, 7.5) == 7.5 and teacher.spend_usd(200_000, 1.335) == pytest.approx(0.267)
+    with pytest.raises(SystemExit) as e:
+        teacher.main(["--provider", "openai", "--base-url", "http://x", "--model", "mystery-model"])
+    assert "price" in str(e.value).lower()
+
+
+def test_spend_cap_stops_starting_new_kits(tmp_path, monkeypatch):
+    t = FakeTeacher(good_kit())
+    monkeypatch.setattr(teacher, "provider_from_args", lambda a: t)
+    monkeypatch.setattr(teacher, "load", lambda p: [{**FS, "id": f"train-{i:04d}"} for i in range(1, 21)])
+    out = tmp_path / "sft.jsonl"
+    # each kit costs 15 tokens at $1,000,000 per million = $15; cap $40 -> 3 kits (the batch that crosses the cap finishes), then stop
+    teacher.main(["--provider", "openai", "--base-url", "http://x", "--model", "m", "--price-per-m", "1000000", "--budget-usd", "40",
+                  "--workers", "1", "--out", str(out)])
+    log = [json.loads(l) for l in (tmp_path / "sft.log.jsonl").read_text().splitlines()]
+    assert 1 <= len(log) <= 4 and len(log) < 20
+    teacher.main(["--provider", "openai", "--base-url", "http://x", "--model", "m", "--price-per-m", "1000000", "--budget-usd", "40",
+                  "--workers", "1", "--out", str(out)])  # resuming counts what was already spent
+    assert len((tmp_path / "sft.log.jsonl").read_text().splitlines()) == len(log)
