@@ -29,6 +29,22 @@ def load_env() -> None:
 TINKER_OAI = "https://tinker.thinkingmachines.dev/services/tinker-prod/oai/api/v1"
 
 
+def schema_skeleton(schema: dict):
+    """A compact example of the JSON shape (type names as placeholders). Hosts that can't enforce a schema need to be TOLD
+    the exact field names, otherwise the model improvises and omits required fields."""
+    t = schema.get("type")
+    if t == "object":
+        return {k: schema_skeleton(v) for k, v in (schema.get("properties") or {}).items()}
+    if t == "array":
+        return [schema_skeleton(schema.get("items") or {"type": "string"})]
+    return "string"
+
+
+def shape_instruction(schema: dict) -> str:
+    return ("\n\nReply with ONE JSON object with exactly this shape and these keys (replace each \"string\" with real text; "
+            "use [] or \"\" when you have nothing to say, never null):\n" + json.dumps(schema_skeleton(schema)))
+
+
 def extract_json(text: str) -> dict:
     """Pull a JSON object out of model text: strips reasoning tags and markdown fences, tolerates chatter around it."""
     text = re.sub(r"<think>.*?</think>", "", text or "", flags=re.S).strip()
@@ -75,7 +91,7 @@ class OpenAICompatProvider(LLMProvider):
         for attempt in range(3):
             body = {"model": self.model, "temperature": temperature, "max_tokens": self.max_tokens,
                     "messages": [{"role": "system", "content": system},
-                                 {"role": "user", "content": user + ("" if mode != "none" else "\n\nReply with one JSON object only.")}]}
+                                 {"role": "user", "content": user + ("" if mode != "none" else shape_instruction(schema))}]}
             if mode == "json_schema":
                 body["response_format"] = {"type": "json_schema", "json_schema": {"name": "kit_part", "schema": schema}}
             elif mode == "json_object":
@@ -102,7 +118,7 @@ class TinkerNativeProvider(LLMProvider):
     """Samples a Tinker-hosted base model or checkpoint with the native SDK (needs `pip install tinker` + TINKER_API_KEY)."""
     name = "tinker"
 
-    def __init__(self, base_model: str, max_tokens: int = 2048):
+    def __init__(self, base_model: str, max_tokens: int = 4096):
         self.model, self.max_tokens = base_model, max_tokens
         self._sampler = self._tok = None
 
@@ -121,9 +137,11 @@ class TinkerNativeProvider(LLMProvider):
         from tinker import types
         self._init()
         t0 = time.monotonic()
-        text = self._tok.apply_chat_template([{"role": "system", "content": system},
-                                              {"role": "user", "content": user + "\n\nReply with one JSON object only."}],
-                                             tokenize=False, add_generation_prompt=True)
+        msgs = [{"role": "system", "content": system}, {"role": "user", "content": user + shape_instruction(schema)}]
+        try:  # hybrid-reasoning models (Qwen3 family) otherwise spend your tokens "thinking" first
+            text = self._tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False)
+        except TypeError:
+            text = self._tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
         prompt = types.ModelInput.from_ints(self._tok.encode(text))
         params = types.SamplingParams(max_tokens=self.max_tokens, temperature=temperature)
         res = asyncio.run(self._sampler.sample_async(prompt=prompt, num_samples=1, sampling_params=params))

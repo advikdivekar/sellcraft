@@ -12,3 +12,5 @@ rembg[cpu]>=2.0.60
 numpy>=1.26
 cryptography>=42
 opencv-contrib-python-headless>=4.9
+jinja2>=3.1
+tinker>=0.33

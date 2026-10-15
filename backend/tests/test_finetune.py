@@ -279,3 +279,29 @@ def test_spend_cap_stops_starting_new_kits(tmp_path, monkeypatch):
     teacher.main(["--provider", "openai", "--base-url", "http://x", "--model", "m", "--price-per-m", "1000000", "--budget-usd", "40",
                   "--workers", "1", "--out", str(out)])  # resuming counts what was already spent
     assert len((tmp_path / "sft.log.jsonl").read_text().splitlines()) == len(log)
+
+
+def test_schema_skeleton_tells_hosts_without_schema_enforcement_the_exact_fields():
+    from finetune.runners import schema_skeleton, shape_instruction
+    sk = schema_skeleton(prompts.build_fields_schema(prompts.CORE_CHUNKS[3]))
+    assert list(sk) == prompts.CORE_CHUNKS[3] and sk["video_hook"] == "string" and sk["video_storyboard"][0] == {"time": "string", "visual": "string", "on_screen_text": "string"}
+    full = schema_skeleton(prompts.build_schema([Platform.etsy, Platform.instagram]))
+    assert set(full["platform_outputs"]) == {"etsy", "instagram"} and full["platform_outputs"]["etsy"]["tags"] == ["string"]
+    assert "never null" in shape_instruction({"type": "object", "properties": {}})
+
+
+def test_openai_provider_without_json_mode_includes_the_shape_in_the_prompt():
+    seen = {}
+    def handler(req):
+        seen["user"] = json.loads(req.content)["messages"][1]["content"]
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"a": "x"}'}}]})
+    _oai(handler, json_mode="none").generate_json("s", "write it", prompts.build_fields_schema(["video_hook"]))
+    assert '"video_hook": "string"' in seen["user"]
+
+
+def test_teacher_note_lists_the_risky_words_and_targets_have_no_nulls():
+    assert "perfect" in teacher.TEACHER_STYLE and "any number at all" in teacher.TEACHER_STYLE
+    kit = good_kit(); kit["target_audience"] = None
+    r = teacher.build_one(FakeTeacher(kit), FS, mode="kit")
+    ex = next(e for e in r["examples"] if e["meta"]["part"] == "core:0")
+    assert json.loads(ex["messages"][2]["content"])["target_audience"] == ""

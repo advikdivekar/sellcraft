@@ -20,7 +20,7 @@ from pathlib import Path
 from app.errors import AppError
 from app.schemas import CreativeSettings, ProductInput
 from app.services import prompts
-from app.services.copy import CopyService
+from app.services.copy import RISKY, CopyService, normalize
 
 from .factsets import load
 from .runners import add_provider_args, provider_from_args
@@ -28,13 +28,21 @@ from .scoring import score
 
 DATA = Path(__file__).parent / "data"
 
+_RISKY = ", ".join(RISKY)
 TEACHER_STYLE = """
 
 COPYWRITING STANDARD (teacher note)
 You are an elite direct-response copywriter with ten years of experience writing product pages that convert for small
 brands. Write vivid, specific, human copy: concrete sensory words, varied sentence rhythm, a strong first line, and no
 clichés ("elevate", "game-changer", "unleash"). Short beats long. Never trade truth for flair: every claim, number and
-material must come from the PRODUCT FACTS, and anything not given stays out of the copy."""
+material must come from the PRODUCT FACTS, and anything not given stays out of the copy.
+
+Drafts most often fail in two ways, so check yourself before answering:
+1. Praise words the seller never supplied. Do not use any of these unless the word itself appears in the facts: {risky}.
+   Also avoid similar flattery (stunning, beautiful, premium quality, must-have, irresistible). When the facts are thin,
+   write SHORTER copy.
+2. Numbers the seller never supplied. Do not write any number at all (hours, days, percentages, years, quantities) unless
+   it appears in the facts. Do not number lists in the text.""".replace("{risky}", _RISKY)
 
 # USD per million tokens to SAMPLE (prompt + completion counted at the same rate, which over-estimates: a safe cap).
 # From Tinker's Models & Pricing page, Oct 2026. Unknown models need --price-per-m.
@@ -160,7 +168,7 @@ def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float =
         return {"id": fs["id"], "accepted": False, "rounds": rounds, "tokens": tokens[0],
                 "reason": "; ".join(f"{h['code']}:{h['detail']}" for h in sc["hard"])[:300], "examples": []}
 
-    final = merged()
+    final = normalize(merged())  # null -> "" / [] so targets always match the schema the student is trained on
     final["missing_information"] = fs["expected_missing"]  # ground truth, known because the facts are synthetic
     ex = []
     for n, _, user in jobs:
