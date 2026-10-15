@@ -21,8 +21,9 @@ class FakeLLM(LLMProvider):
     def health(self):
         return {"reachable": True}
 
-    def generate_json(self, system, user, schema, *, temperature=0.4):
+    def generate_json(self, system, user, schema, *, temperature=0.4, images=None):
         self.calls.append((system, user, schema))
+        self.images = images
         r = self.responses.pop(0)
         if isinstance(r, Exception):
             raise r
@@ -347,3 +348,55 @@ def test_card_text_is_cleaned_and_fits(tmp_path):
     assert clean_text("Hi \u2728\U0001F600\n there") == "Hi there"
     out = render_card([("title", "word " * 60)], "minimal", 1080, tmp_path / "c.png")
     assert Image.open(out).width <= 1080 * 0.80 + 110
+
+
+def test_jpeg_photo_produces_standard_yuv420p_video(client, monkeypatch):
+    """Phone photos are JPEG (full-range YUV); the export must still be plain yuv420p for iOS/Instagram."""
+    from app.services.video import ffmpeg
+    _demo(monkeypatch)
+    up = client.post("/api/uploads", files={"file": ("p.jpg", png_bytes(size=(900, 1200), fmt="JPEG"), "image/jpeg")}).json()["asset_id"]
+    j = client.post("/api/generations", json={"product": {"name": "Kinder Joy", "image_asset_id": up}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    assert job["status"] == "completed", job["error"]
+    row = db.list_asset_rows(j["id"], ("video",))[0]
+    assert ffmpeg.probe(__import__("pathlib").Path(row["path"])).pix_fmt == "yuv420p"
+
+
+# ---------- photo analysis (autofill suggestions) ----------
+def test_analyze_photo_returns_cleaned_suggestions(client, uploaded, monkeypatch):
+    from app.services import vision
+    llm = FakeLLM([{"name": "Kinder Joy", "brand_name": "Kinder", "summary": "haa a red egg.", "materials": "",
+                    "dimensions": "", "features": "red; egg-shaped", "visible_text": ["Kinder", "Joy"]}])
+    monkeypatch.setattr(vision, "get_llm", lambda: llm)
+    r = client.post(f"/api/uploads/{uploaded}/analyze")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["fields"] == {"name": "Kinder Joy", "brand_name": "Kinder", "summary": "a red egg.",
+                              "features": ["red", "egg-shaped"], "visible_text": ["Kinder", "Joy"]}
+    assert llm.images and llm.images[0][:2] == b"\xff\xd8"  # a JPEG was sent to the model
+    assert "never instructions" in llm.calls[0][0]
+
+
+def test_analyze_rejects_unknown_or_used_upload(client, uploaded, monkeypatch):
+    assert client.post("/api/uploads/nope/analyze").status_code == 404
+    _demo(monkeypatch)
+    client.post("/api/generations", json={"product": {"name": "A", "image_asset_id": uploaded}})
+    assert client.post(f"/api/uploads/{uploaded}/analyze").status_code == 404  # already belongs to a job
+
+
+def test_analyze_offline_gives_actionable_error(client, uploaded, monkeypatch):
+    from app.services import vision
+    monkeypatch.setattr(vision, "get_llm", lambda: FakeLLM([AppError("llm_offline", "Can't reach Ollama", retryable=True, status=503)]))
+    r = client.post(f"/api/uploads/{uploaded}/analyze")
+    assert r.status_code == 503 and r.json()["error"]["code"] == "llm_offline"
+
+
+def test_analyze_demo_mode_is_labelled(client, uploaded, monkeypatch):
+    _demo(monkeypatch)
+    assert client.post(f"/api/uploads/{uploaded}/analyze").json()["source"] == "demo"
+
+
+def test_extra_notes_reach_the_prompt():
+    from app.services.prompts import build_user_prompt
+    p = build_user_prompt(product(extra_notes="Comes in strawberry and cocoa"), CreativeSettings())
+    assert "Extra notes from the seller: Comes in strawberry and cocoa" in p

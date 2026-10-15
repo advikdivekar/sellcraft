@@ -6,7 +6,7 @@ from ..config import get_settings
 from ..errors import AppError
 from ..schemas import (CopyOutput, CreateGenerationRequest, GenerationJob, JobStatus,
                        RegenerateCopyRequest)
-from ..services import jobs, storage
+from ..services import jobs, storage, vision
 from ..services.copy import CopyService
 from ..services.llm.ollama import OllamaProvider
 from ..services.video import ffmpeg
@@ -43,6 +43,15 @@ def providers_status():
 @router.post("/uploads", status_code=201)
 def upload(file: UploadFile = File(...)):
     return storage.save_upload(file)
+
+
+@router.post("/uploads/{asset_id}/analyze")
+def analyze_upload(asset_id: str):
+    """Suggest form fields from a not-yet-used upload. Suggestions only: the seller confirms them."""
+    row = db.get_asset_row(asset_id)
+    if row is None or row["kind"] != "image" or row["job_id"] is not None:
+        raise AppError("upload_not_found", "Photo not found. Upload it again.", status=404)
+    return vision.analyze(storage.asset_file(row))
 
 
 @router.post("/generations", status_code=202)

@@ -23,7 +23,7 @@ def assemble(clip: Path, cards: list[tuple[Path, float, float, float]], *, durat
     if not cards:
         parts.append("[0:v]null[o0]")
         last = "o0"
-    parts.append(f"[{last}]format=yuv420p[v]")
+    parts.append(f"[{last}]scale=out_range=tv,format=yuv420p[v]")
     args += ["-filter_complex", ";".join(parts), "-map", "[v]"]
     if audio:
         args += ["-i", str(audio), "-map", f"{len(cards) + 1}:a", "-af", "loudnorm=I=-16:TP=-1.5:LRA=11,apad",

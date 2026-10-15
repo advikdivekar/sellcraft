@@ -20,6 +20,7 @@ export interface ProductInput {
   brand_name?: string | null;
   brand_voice?: string | null;
   care_instructions?: string | null;
+  extra_notes?: string | null;
   forbidden_words: string[];
 }
 
@@ -81,4 +82,10 @@ export interface ProviderStatus {
   video: { provider: string; method: string };
   voiceover: { configured: boolean };
   demo_mode: boolean;
+}
+
+export interface PhotoAnalysis {
+  source: string;
+  note?: string;
+  fields: { name?: string; brand_name?: string; summary?: string; materials?: string; dimensions?: string; features?: string[]; visible_text?: string[] };
 }

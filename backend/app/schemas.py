@@ -66,6 +66,7 @@ class ProductInput(BaseModel):
     brand_name: str | None = Field(default=None, max_length=80)
     brand_voice: str | None = Field(default=None, max_length=500)
     care_instructions: str | None = Field(default=None, max_length=500)
+    extra_notes: str | None = Field(default=None, max_length=1000)
     forbidden_words: list[str] = Field(default_factory=list, max_length=30)
 
     @field_validator("name")
@@ -83,7 +84,7 @@ class ProductInput(BaseModel):
 
     @field_validator(
         "summary", "price", "currency", "materials", "dimensions", "audience",
-        "brand_name", "brand_voice", "care_instructions",
+        "brand_name", "brand_voice", "care_instructions", "extra_notes",
     )
     @classmethod
     def _blank_to_none(cls, v: str | None) -> str | None:

@@ -1,4 +1,4 @@
-import type { CopyOutput, CreativeSettings, GenerationJob, ProductInput, ProviderStatus, Tone } from "./types";
+import type { PhotoAnalysis, CopyOutput, CreativeSettings, GenerationJob, ProductInput, ProviderStatus, Tone } from "./types";
 
 export class ApiError extends Error {
   constructor(public code: string, message: string, public retryable = false, public fields?: { field: string; message: string }[]) {
@@ -33,6 +33,7 @@ export const api = {
     fd.append("file", file, name);
     return request<{ asset_id: string; width: number; height: number }>("/api/uploads", { method: "POST", body: fd });
   },
+  analyze: (assetId: string) => request<PhotoAnalysis>(`/api/uploads/${assetId}/analyze`, { method: "POST" }),
   createJob: (product: ProductInput, settings: CreativeSettings) =>
     request<GenerationJob>("/api/generations", json("POST", { product, settings })),
   getJob: (id: string) => request<GenerationJob>(`/api/generations/${id}`),

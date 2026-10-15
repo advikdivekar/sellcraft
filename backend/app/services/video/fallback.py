@@ -43,7 +43,7 @@ class AnimatedPhotoFallbackProvider(ImageToVideoProvider):
             f"[a]scale={W // 4}:{H // 4}:force_original_aspect_ratio=increase,crop={W // 4}:{H // 4},"
             f"boxblur=12:3,scale={W}:{H},drawbox=x=0:y=0:w=iw:h=ih:color={tint}@{alpha}:t=fill[bg];"
             f"[b]scale=w='{fw}*{z}':h='{fh}*{z}':eval=frame:flags=bicubic[fg];"
-            f"[bg][fg]overlay=x='(W-w)/2{sway_x}':y='{cy}-h/2':eval=frame,format=yuv420p[v]"
+            f"[bg][fg]overlay=x='(W-w)/2{sway_x}':y='{cy}-h/2':eval=frame,scale=out_range=tv,format=yuv420p[v]"
         )
         ffmpeg.run([
             "-loop", "1", "-framerate", str(FPS), "-t", str(duration), "-i", str(image),

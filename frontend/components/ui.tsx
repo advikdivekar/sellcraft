@@ -35,14 +35,15 @@ export function Card({ children, className }: { children: ReactNode; className?:
   return <section className={cx("rounded-2xl border border-border bg-surface p-4 sm:p-5", className)}>{children}</section>;
 }
 
-export function Field({ label, hint, optional, error, children }: {
-  label: string; hint?: string; optional?: boolean; error?: string; children: ReactNode;
+export function Field({ label, hint, optional, error, suggested, children }: {
+  label: string; hint?: string; optional?: boolean; error?: string; suggested?: boolean; children: ReactNode;
 }) {
   return (
     <label className="block">
       <span className="mb-1.5 flex items-baseline justify-between gap-2 text-sm font-medium">
         <span>{label}</span>
-        {optional && <span className="text-xs font-normal text-muted">optional</span>}
+        {suggested ? <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">From photo: check it</span>
+          : optional && <span className="text-xs font-normal text-muted">optional</span>}
       </span>
       {children}
       {hint && !error && <span className="mt-1 block text-xs text-muted">{hint}</span>}

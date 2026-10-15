@@ -17,5 +17,6 @@ class LLMProvider(ABC):
     def health(self) -> dict: ...
 
     @abstractmethod
-    def generate_json(self, system: str, user: str, schema: dict, *, temperature: float = 0.4) -> LLMResult:
+    def generate_json(self, system: str, user: str, schema: dict, *, temperature: float = 0.4,
+                      images: list[bytes] | None = None) -> LLMResult:
         """Return parsed JSON that conforms (best effort) to `schema`. Raises AppError on failure."""

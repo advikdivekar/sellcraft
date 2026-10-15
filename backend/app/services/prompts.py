@@ -88,7 +88,7 @@ def clean_fact(text: str | None) -> str | None:
 def _facts(p: ProductInput) -> str:
     p = p.model_copy(update={
         "name": clean_fact(p.name) or p.name,
-        **{k: clean_fact(getattr(p, k)) for k in ("summary", "materials", "dimensions", "audience", "brand_voice", "care_instructions")},
+        **{k: clean_fact(getattr(p, k)) for k in ("summary", "materials", "dimensions", "audience", "brand_voice", "care_instructions", "extra_notes")},
         "features": [c for c in map(clean_fact, p.features) if c],
         "benefits": [c for c in map(clean_fact, p.benefits) if c],
     })
@@ -97,9 +97,9 @@ def _facts(p: ProductInput) -> str:
             ("Materials / ingredients", p.materials), ("Dimensions / specs", p.dimensions),
             ("Main features", "; ".join(p.features) or None), ("Verified benefits", "; ".join(p.benefits) or None),
             ("Target audience", p.audience), ("Brand voice", p.brand_voice),
-            ("Care / usage", p.care_instructions)]
+            ("Care / usage", p.care_instructions), ("Extra notes from the seller", p.extra_notes)]
     lines = [f"- {k}: {v}" for k, v in rows if v]
-    absent = [k for k, v in rows if not v and k not in ("Brand voice", "Brand")]
+    absent = [k for k, v in rows if not v and k not in ("Brand voice", "Brand", "Extra notes from the seller")]
     lines.append("- Not provided: " + (", ".join(absent) or "none"))
     return "\n".join(lines)
 

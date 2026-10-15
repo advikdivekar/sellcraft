@@ -1,3 +1,4 @@
+import base64
 import json
 import time
 
@@ -32,13 +33,14 @@ class OllamaProvider(LLMProvider):
             out["hint"] = f"Model not installed. Run: ollama pull {self.model}"
         return out
 
-    def generate_json(self, system, user, schema, *, temperature=0.4) -> LLMResult:
+    def generate_json(self, system, user, schema, *, temperature=0.4, images=None) -> LLMResult:
         payload = {
             "model": self.model,
             "stream": False,
             "format": schema,
             "options": {"temperature": temperature},
-            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            "messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": user, **({"images": [base64.b64encode(i).decode() for i in images]} if images else {})}],
         }
         t0 = time.monotonic()
         try:
