@@ -305,3 +305,139 @@ def test_teacher_note_lists_the_risky_words_and_targets_have_no_nulls():
     r = teacher.build_one(FakeTeacher(kit), FS, mode="kit")
     ex = next(e for e in r["examples"] if e["meta"]["part"] == "core:0")
     assert json.loads(ex["messages"][2]["content"])["target_audience"] == ""
+
+
+# ---------------- training script (offline) ----------------
+class FakeTok:
+    eos_token = "<eos>"
+
+    def __init__(self, rerender_last=False):
+        self.rerender_last = rerender_last
+
+    def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=False, enable_thinking=None):
+        assert enable_thinking is False  # thinking must be off, in training and at inference
+        s = "".join(f"<{m['role']}>{m['content']}</{m['role']}>" for m in msgs)
+        if self.rerender_last and msgs[-1]["role"] == "assistant":
+            s = s.replace("<assistant>", "<assistant!>")  # a template that renders the final turn differently
+        return s + ("<assistant>" if add_generation_prompt else "")
+
+    def encode(self, text, add_special_tokens=False):
+        return [ord(c) for c in text]
+
+    def decode(self, ids):
+        return "".join(chr(i) for i in ids)
+
+
+MSGS = [{"role": "system", "content": "S"}, {"role": "user", "content": "U"}, {"role": "assistant", "content": '{"a": 1}'}]
+
+
+def test_completion_is_everything_after_the_generation_prompt_including_the_stop_token():
+    from finetune import train_tinker as tt
+    tok = FakeTok()
+    prompt, comp = tt.split_prompt_completion(tok, MSGS)
+    assert tok.decode(prompt) == "<system>S</system><user>U</user><assistant>"
+    assert tok.decode(comp) == '{"a": 1}</assistant>'  # the model learns to stop, not just to start
+
+
+def test_completion_falls_back_to_content_plus_eos_when_the_template_rerenders_the_turn():
+    from finetune import train_tinker as tt
+    tok = FakeTok(rerender_last=True)
+    _, comp = tt.split_prompt_completion(tok, MSGS)
+    assert tok.decode(comp) == '{"a": 1}<eos>'
+
+
+def test_datum_trains_only_on_completion_tokens():
+    from types import SimpleNamespace
+    from finetune import train_tinker as tt
+    types = SimpleNamespace(Datum=lambda **k: SimpleNamespace(**k), ModelInput=SimpleNamespace(from_ints=lambda tokens: SimpleNamespace(tokens=tokens)))
+    prompt, comp = [1, 2, 3, 4], [9, 8]
+    d = tt.make_datum(types, prompt, comp)
+    full = prompt + comp
+    assert d.model_input.tokens == full[:-1] and d.loss_fn_inputs["target_tokens"] == full[1:]
+    assert d.loss_fn_inputs["weights"] == [0.0, 0.0, 0.0, 1.0, 1.0] and len(d.loss_fn_inputs["weights"]) == len(d.model_input.tokens)
+
+
+def test_plan_prices_the_run_and_main_refuses_to_exceed_the_cap(tmp_path, monkeypatch, capsys):
+    from finetune import train_tinker as tt
+    data = tmp_path / "d.jsonl"
+    data.write_text("".join(json.dumps({"messages": MSGS}) + "\n" for _ in range(1000)))
+    monkeypatch.setattr(tt, "load_tokenizer", lambda m: FakeTok())
+    p = tt.plan(FakeTok(), tt.load_examples(data), epochs=3, price=0.737)
+    assert p["examples"] == 1000 and p["train_tokens"] == p["tokens_per_epoch"] * 3
+    assert p["est_usd"] == pytest.approx(p["train_tokens"] / 1e6 * 0.737, abs=0.01)
+    tt.main(["--data", str(data), "--dry-run"])  # free, never calls Tinker
+    assert "estimated $" in capsys.readouterr().out
+    monkeypatch.setattr(tt, "TRAIN_PRICES", {"Qwen/Qwen3.5-4B": 100000.0})  # absurd price -> must refuse before any network call
+    with pytest.raises(SystemExit) as e:
+        tt.main(["--data", str(data), "--budget-usd", "1"])
+    assert "exceeds" in str(e.value)
+
+
+def test_unknown_base_model_has_no_price_so_training_refuses():
+    from finetune import train_tinker as tt
+    with pytest.raises(SystemExit) as e:
+        tt.main(["--base-model", "mystery/model"])
+    assert "price" in str(e.value).lower()
+
+
+# ---------------- independent judge ----------------
+def test_judge_prompt_pairs_facts_with_copy_and_parses_flags():
+    from finetune import judge
+    class J(LLMProvider):
+        name = model = "j"
+        def health(self): return {}
+        def generate_json(self, system, user, schema, *, temperature=0.4, images=None):
+            self.user = user
+            return LLMResult(data={"unsupported": ["Available now", "  "]}, model="j")
+    j = J()
+    kit = good_kit()
+    flags = judge.judge_kit(j, FS, kit)
+    assert flags == ["Available now"]  # blanks dropped
+    assert "name: Soy Candle" in j.user and "feature: 45 hour burn time" in j.user and "COPY:" in j.user and "social_caption: Meet the soy candle." in j.user
+    assert "missing_information" not in j.user and "claims_requiring_review" not in j.user  # bookkeeping fields are not copy
+
+
+# ---------------- v2: audit findings folded into the checker and the teacher loop ----------------
+def test_number_words_are_checked_like_digits():
+    kit = good_kit(); kit["social_caption"] = "Fifty milligrams of calm for your evening."
+    sc = scoring.score(FS, kit)
+    assert any(h["code"] == "invented_number" and h["detail"] == "fifty" for h in sc["hard"])
+    fs = {**FS, "product": {**FS["product"], "features": ["fifty hour burn time"]}}  # given in the facts, in words: fine
+    ok = good_kit(fs); ok["social_caption"] = "Burns for fifty hours."
+    assert not any(h["detail"] == "fifty" for h in scoring.score(fs, ok)["hard"])
+
+
+@pytest.mark.parametrize("phrase", ["Available now.", "A great gift idea.", "Perfect for a birthday party."])
+def test_invented_urgency_and_occasions_are_flagged_by_the_app_check_too(phrase):
+    from app.services.copy import risky_terms
+    kit = good_kit(); kit["social_caption"] = phrase
+    from app.schemas import CopyOutput
+    copy = CopyOutput.model_validate({**kit, "platform_outputs": kit["platform_outputs"]})
+    assert risky_terms(copy, ProductInput.model_validate(FS["product"]))
+    given = ProductInput.model_validate({**FS["product"], "audience": "gift shoppers, birthday gifts"})
+    assert "birthday" not in risky_terms(copy, given)  # stated in the facts, so allowed
+    gifty = ProductInput.model_validate({**FS["product"], "audience": "gift shoppers"})
+    kit2 = good_kit(); kit2["social_caption"] = "A great gift idea."
+    assert "gift idea" not in risky_terms(CopyOutput.model_validate({**kit2, "platform_outputs": kit2["platform_outputs"]}), gifty)  # for gifting is stated
+
+
+def test_judge_findings_force_a_revision_and_block_acceptance_until_clean():
+    class Judge(LLMProvider):
+        name = model = "judge"
+        def __init__(self): self.n = 0
+        def health(self): return {}
+        def generate_json(self, system, user, schema, *, temperature=0.4, images=None):
+            self.n += 1
+            return LLMResult(data={"unsupported": ["creates a satisfying crackle"] if self.n == 1 else []}, model="judge")
+    t, j = FakeTeacher(good_kit()), Judge()
+    r = teacher.build_one(t, FS, mode="kit", judge=j)
+    assert r["accepted"] and r["rounds"] == 1 and j.n == 2
+    assert 'independent reviewer found this statement is not supported by the facts: "creates a satisfying crackle"' in t.calls[1][1]
+    class Stubborn(Judge):
+        def generate_json(self, *a, **k): return LLMResult(data={"unsupported": ["still invented"]}, model="judge")
+    r2 = teacher.build_one(FakeTeacher(good_kit()), FS, mode="kit", judge=Stubborn())
+    assert not r2["accepted"] and "judge_unsupported" in r2["reason"]
+
+
+def test_teacher_note_separates_tone_from_embellishment():
+    assert "TONE COMES FROM WORD CHOICE AND RHYTHM ONLY" in teacher.TEACHER_STYLE and "occasions" in teacher.TEACHER_STYLE

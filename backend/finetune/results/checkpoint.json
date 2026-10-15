@@ -1,0 +1,8 @@
+{
+ "base_model": "Qwen/Qwen3.5-4B",
+ "sampler_path": "tinker://5ba7b6dc-50fc-5142-8c29-c1c733f4af9a:train:0/sampler_weights/sellcraft-copy-v1",
+ "epochs": 3,
+ "examples": 418,
+ "lr": 0.0002,
+ "rank": 32
+}

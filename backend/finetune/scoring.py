@@ -17,6 +17,8 @@ LABEL_KEYS = {"Summary": ["summary"], "Price": ["price", "cost"], "Materials / i
               "Dimensions / specs": ["dimension", "size", "spec"], "Main features": ["feature"], "Verified benefits": ["benefit"],
               "Target audience": ["audience"], "Care / usage": ["care", "usage"]}
 NUM = re.compile(r"\d+(?:[.,]\d+)?")
+NUMBER_WORDS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
+                "hundred": 100, "thousand": 1000, "dozen": 12}
 
 
 def _facts_blob(p: dict) -> str:
@@ -100,6 +102,12 @@ def score(factset: dict, data: dict | None, error: str | None = None) -> dict:
                 bad_nums.setdefault(m, set()).add(f)
     for m, fields in bad_nums.items():
         hard.append({"code": "invented_number", "detail": m, "fields": sorted(fields)})
+
+    # numbers written as words ("Fifty milligrams") slipped past the digit check once and misstated a dose
+    for f_, t_ in _texts(copy, skip=("claims_requiring_review", "missing_information", "video_generation_prompt", "video_storyboard", "hashtags", "tags", "keywords")):
+        for w, v in NUMBER_WORDS.items():
+            if re.search(rf"(?<!\w){w}(?!\w)", t_.lower()) and float(v) not in allowed and not any(w in x.lower() for x in [_facts_blob(factset["product"])]):
+                hard.append({"code": "invented_number", "detail": w, "fields": [f_]})
 
     if len(copy.video_hook.split()) > 8:
         soft.append({"code": "hook_too_long", "detail": str(len(copy.video_hook.split())), "fields": ["video_hook"]})

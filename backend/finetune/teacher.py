@@ -44,6 +44,8 @@ TONE IS PART OF THE JOB. The seller picked a tone and the copy must audibly soun
 - friendly: warm and conversational, like a small-shop owner talking across the counter; contractions are fine.
 - persuasive: lead with the strongest given fact and say why it matters; confident, direct, no pressure tactics.
 - straightforward: plain and factual, but still a natural human sentence, never a list of specs in prose form.
+TONE COMES FROM WORD CHOICE AND RHYTHM ONLY. Never add scenes, occasions (birthdays, holidays, gifts) unless the facts name them, sensory
+details (sounds, scents that "linger", textures), benefits, audiences, availability ("available now") or numbers that the facts do not state.
 Open with a hook, not with "This product is". Never pad: do not restate the obvious ("It is sold as a loose leaf product") or
 add empty sentences just to be longer. Every sentence must carry a fact or a feeling that the facts support.
 
@@ -100,7 +102,8 @@ def problems_text(hard: list[dict]) -> list[str]:
            "unsupported_claim": "'{detail}' is not supported by the facts; remove or replace it with something the facts support",
            "invented_number": "the number '{detail}' does not appear in the facts; remove it",
            "empty_required": "these required fields were empty: {detail}",
-           "invalid_output": "the output was not valid for the schema: {detail}"}
+           "invalid_output": "the output was not valid for the schema: {detail}",
+           "judge_unsupported": "an independent reviewer found this statement is not supported by the facts: \"{detail}\". Remove it or rewrite it using only the facts"}
     out = []
     for h in hard:
         where = f" (in {', '.join(h['fields'])})" if h.get("fields") else ""
@@ -114,7 +117,7 @@ def revise_prompt(user: str, draft: dict, problems: list[str]) -> str:
             "\n\nRewrite the draft and fix EVERY problem. Keep what was already good. Use only the facts. Return the same JSON keys.")
 
 
-def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float = 0.7, mode: str = "kit") -> dict:
+def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float = 0.7, mode: str = "kit", judge=None) -> dict:
     """mode 'kit': one teacher call writes the whole kit (the facts are sent once: ~40% fewer tokens, so cheaper).
     mode 'parts': one call per part, exactly like the app. Either way the STUDENT examples are per part."""
     product, settings = ProductInput.model_validate(fs["product"]), CreativeSettings.model_validate(fs["settings"])
@@ -154,7 +157,20 @@ def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float =
                 data.update(d)
         return data
 
-    sc = score(fs, merged())
+    def audited() -> dict:
+        """The code checker, plus (optionally) an independent model's list of unsupported statements."""
+        r = score(fs, merged())
+        if judge is not None and not r["hard"]:
+            from .judge import judge_kit
+            try:
+                for flag in judge_kit(judge, fs, merged()):
+                    r["hard"].append({"code": "judge_unsupported", "detail": flag[:120], "fields": []})
+            except AppError:
+                pass
+            r["ok"] = not r["hard"]
+        return r
+
+    sc = audited()
     rounds = 0
     while sc["hard"] and rounds < max_revisions and mode == "kit":
         rounds += 1
@@ -163,7 +179,7 @@ def build_one(teacher, fs: dict, *, max_revisions: int = 2, temperature: float =
             parts = {n: chunk_data(n, full) for n, _, _ in jobs}
         except AppError:
             break
-        sc = score(fs, merged())
+        sc = audited()
     while sc["hard"] and rounds < max_revisions and mode == "parts":
         rounds += 1
         fields = sorted({f for h in sc["hard"] for f in h.get("fields", [])})
@@ -197,6 +213,7 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--max-revisions", type=int, default=2)
     ap.add_argument("--mode", choices=["kit", "parts"], default="kit")
+    ap.add_argument("--judge-model", default="", help="local Ollama model that audits each kit for unsupported statements (e.g. gemma3:12b)")
     ap.add_argument("--budget-usd", type=float, default=1.0, help="HARD cap: stops starting new kits once the estimated spend reaches it")
     ap.add_argument("--price-per-m", type=float, default=0.0, help="USD per million sampled tokens (looked up for known models)")
     ap.add_argument("--out", type=Path, default=DATA / "sft_train.jsonl")
@@ -207,6 +224,10 @@ def main(argv=None):
     if a.provider != "ollama" and not price:
         raise SystemExit(f"No known price for '{a.model}'. Pass --price-per-m so the spend cap can work.")
     teacher = provider_from_args(a)
+    judge = None
+    if a.judge_model:
+        from app.services.llm.ollama import OllamaProvider
+        judge = OllamaProvider(model=a.judge_model, timeout=600)
     log_path = a.out.with_suffix(".log.jsonl")
     done_ids = {json.loads(l)["id"] for l in log_path.read_text().splitlines()} if log_path.exists() else set()
     prior = sum(json.loads(l)["tokens"] for l in log_path.read_text().splitlines()) if log_path.exists() else 0
@@ -222,7 +243,7 @@ def main(argv=None):
                 stopped = True
                 break
             batch = sets[start:start + a.workers]
-            for r in pool.map(lambda fs: build_one(teacher, fs, max_revisions=a.max_revisions, mode=a.mode), batch):
+            for r in pool.map(lambda fs: build_one(teacher, fs, max_revisions=a.max_revisions, mode=a.mode, judge=judge), batch):
                 n_done += 1
                 for e in r["examples"]:
                     out.write(json.dumps(e, ensure_ascii=False) + "\n")

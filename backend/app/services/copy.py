@@ -119,7 +119,11 @@ def forbidden_hits(copy: CopyOutput, words: list[str]) -> list[str]:
 RISKY = ["eco-friendly", "organic", "natural", "vegan", "hypoallergenic", "certified", "handmade", "waterproof",
          "guarantee", "guaranteed", "best", "#1", "premium", "healthy", "clinically", "award", "bestseller",
          "limited edition", "sale", "discount", "free shipping", "kids", "children", "women", "men", "girls", "boys",
-         "perfect", "delicious", "durable", "comfortable", "lifetime"]
+         "perfect", "delicious", "durable", "comfortable", "lifetime",
+         # embellishments found by an independent audit of a fine-tuned model: invented urgency, occasions and audiences
+         "available now", "in stock", "while supplies last", "gift idea", "gift ideas", "birthday", "holiday", "anniversary", "wedding"]
+# Occasion words are fine when the seller says the product is for gifting at all.
+GIFT_TERMS = {"gift idea", "gift ideas", "birthday", "holiday", "anniversary", "wedding"}
 
 
 def risky_terms(copy: CopyOutput, product: ProductInput) -> list[str]:
@@ -128,7 +132,7 @@ def risky_terms(copy: CopyOutput, product: ProductInput) -> list[str]:
                                    *product.features, *product.benefits])).lower()
     text = copy.model_dump_json(exclude={"claims_requiring_review", "missing_information"}).lower()
     pat = lambda w: re.compile(rf"(?<![\w-]){re.escape(w)}(?![\w-])")
-    return [w for w in RISKY if pat(w).search(text) and not pat(w).search(facts)]
+    return [w for w in RISKY if pat(w).search(text) and not pat(w).search(facts) and not (w in GIFT_TERMS and "gift" in facts)]
 
 
 class CopyService:

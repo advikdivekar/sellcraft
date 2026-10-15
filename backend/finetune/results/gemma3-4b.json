@@ -1,0 +1,2175 @@
+{
+ "model": "gemma3:4b",
+ "provider": "ollama",
+ "split": "test",
+ "aggregate": {
+  "n": 20,
+  "clean_kit_rate": 0.35,
+  "hard_violations_per_kit": 0.75,
+  "hard_rate": {
+   "invalid_output": 0.0,
+   "empty_required": 0.0,
+   "placeholder": 0.0,
+   "forbidden_word": 0.0,
+   "unsupported_claim": 0.65,
+   "invented_number": 0.0
+  },
+  "soft_rate": {
+   "hook_too_long": 0.0,
+   "voiceover_too_long": 0.0,
+   "storyboard_beats": 0.0,
+   "missed_missing_info": 0.6,
+   "false_missing_info": 0.05
+  },
+  "missing_info_recall": 0.79,
+  "mean_seconds": 13.5,
+  "mean_tokens": 2910
+ },
+ "items": [
+  {
+   "id": "test-0001",
+   "score": {
+    "id": "test-0001",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "children",
+      "fields": [
+       "benefits",
+       "tags"
+      ]
+     }
+    ],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Price, Target audience",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.714
+   },
+   "seconds": 16.9,
+   "tokens": 2661,
+   "data": {
+    "platform_outputs": {
+     "pinterest": {
+      "pin_title": "Magnetic Building Tiles – Creative Play for Little Hands",
+      "pin_description": "Magnetic Building Tiles offer engaging construction for ages 3 and up. Smooth sanded edges ensure safe play. Machine washable for easy cleaning.",
+      "keyword_phrases": [
+       "magnetic tiles",
+       "building blocks",
+       "toys for toddlers",
+       "early childhood development",
+       "educational toys"
+      ]
+     }
+    },
+    "product_title": "Magnetic Building Tiles",
+    "short_description": "Magnetic Building Tiles are recommended for ages 3 and up.",
+    "full_description": "These tiles feature smooth sanded edges. They are machine washable.",
+    "target_audience": "Recommended for ages 3 and up.",
+    "social_caption": "Magnetic Building Tiles. Recommended for ages 3 and up. Features smooth sanded edges.",
+    "hashtags": [
+     "magneticbuildingtiles",
+     "constructiontoys",
+     "earlylearning"
+    ],
+    "ad_headline": "Magnetic Building Tiles",
+    "call_to_action": "Explore creative building.",
+    "missing_information": [
+     "Summary",
+     "Materials / ingredients",
+     "Dimensions / specs",
+     "Verified benefits",
+     "Care / usage"
+    ],
+    "claims_requiring_review": [],
+    "key_features": [
+     "Magnetic Building Tiles",
+     "Recommended for ages 3 and up",
+     "Smooth sanded edges",
+     "Machine washable"
+    ],
+    "benefits": [
+     "Suitable for children aged 3 and up",
+     "Features smooth sanded edges",
+     "Can be cleaned with water"
+    ],
+    "keywords": [
+     "magnetic tiles",
+     "building blocks",
+     "tiles",
+     "construction"
+    ],
+    "tags": [
+     "magnetic",
+     "building",
+     "blocks",
+     "children",
+     "play"
+    ],
+    "seo_title": "Magnetic Building Tiles - Ages 3+",
+    "meta_description": "Magnetic Building Tiles are recommended for ages 3 and up. They feature smooth sanded edges and are machine washable.",
+    "video_hook": "Magnetic Building Tiles: Simple Play.",
+    "voiceover_script": "Magnetic Building Tiles are recommended for ages 3 and up. They feature smooth sanded edges and are machine washable.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly pans across the tiles.",
+      "on_screen_text": "Magnetic Building Tiles"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Close-up of the tiles showcasing their smooth edges.",
+      "on_screen_text": "Smooth Sanded Edges"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Tiles are shown being placed together.",
+      "on_screen_text": "Machine Washable Option"
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product name displayed.",
+      "on_screen_text": "Magnetic Building Tiles"
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only. Keep the product unchanged. Add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0002",
+   "score": {
+    "id": "test-0002",
+    "ok": true,
+    "hard": [],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Summary",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.75
+   },
+   "seconds": 13.2,
+   "tokens": 2957,
+   "data": {
+    "platform_outputs": {
+     "etsy": {
+      "title": "Citrus Grove Jar Candle",
+      "item_description": "The Citrus Grove Jar Candle features a coconut-soy blend and a wooden wick. It comes in a glass jar with a lid. Trim the wick to 1/4 in before lighting for even burning and to fill a small room with scent. The jar can be reused.",
+      "tags": [
+       "candle",
+       "scent",
+       "home fragrance",
+       "coconut",
+       "soy",
+       "wooden wick",
+       "glass jar",
+       "room scent",
+       "lighting",
+       "decor"
+      ],
+      "attributes": [
+       "material: coconut-soy blend",
+       "wick type: wooden wick",
+       "jar type: glass jar with lid"
+      ]
+     }
+    },
+    "product_title": "Citrus Grove Jar Candle",
+    "short_description": "Enjoy a delightful scent experience with this candle.",
+    "full_description": "The Citrus Grove Jar Candle features a glass jar with a lid. It utilizes a coconut-soy blend and a wooden wick. The candle can be reused. It is designed to fill a small room with scent and burns evenly. Trim the wick to 1/4 in before lighting.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "glass jar with lid",
+     "coconut-soy blend wax",
+     "wooden wick"
+    ],
+    "benefits": [
+     "fills a small room with scent",
+     "burns evenly",
+     "jar can be reused"
+    ],
+    "keywords": [
+     "candle",
+     "scent",
+     "wax",
+     "wick",
+     "jar"
+    ],
+    "tags": [
+     "candle",
+     "home fragrance",
+     "relaxation",
+     "decor"
+    ],
+    "seo_title": "Citrus Grove Jar Candle - Scented Candle with Wooden Wick",
+    "meta_description": "Enjoy a beautifully scented ambiance with the Citrus Grove Jar Candle. Features a glass jar with lid and a coconut-soy blend wax with a wooden wick. Burns evenly and the jar can be reused.",
+    "social_caption": "Bring the sunshine in with the Citrus Grove Jar Candle. Crafted with a coconut-soy blend and a wooden wick, this candle fills a small room with a beautiful scent and can be reused in its glass jar with lid.",
+    "hashtags": [
+     "citruscandle",
+     "candlelover",
+     "homedecor",
+     "scentedcandle",
+     "woodenwick",
+     "cozyvibes"
+    ],
+    "ad_headline": "Discover the Citrus Grove.",
+    "call_to_action": "Explore the collection today.",
+    "missing_information": [
+     "Dimensions / specs",
+     "Price",
+     "Target audience"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Citrus Grove: A fragrant escape.",
+    "voiceover_script": "Enjoy a small room filled with scent from the Citrus Grove Jar Candle. The coconut-soy blend burns evenly and the jar can be reused.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow zoom onto glass jar with lid.",
+      "on_screen_text": "A fragrant escape."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Static shot of the Citrus Grove Jar Candle.",
+      "on_screen_text": "Coconut-soy blend candle."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up of wooden wick.",
+      "on_screen_text": "Wooden wick burns evenly."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Static shot of the Citrus Grove Jar Candle.",
+      "on_screen_text": "Citrus Grove Jar Candle."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0003",
+   "score": {
+    "id": "test-0003",
+    "ok": true,
+    "hard": [],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Price",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.857
+   },
+   "seconds": 13.1,
+   "tokens": 3142,
+   "data": {
+    "platform_outputs": {
+     "facebook": {
+      "primary_text": "Create a calming evening ritual with Magnesium Bath Salts. Part of a relaxing evening routine.",
+      "headline": "Magnesium Bath Salts",
+      "description": "Enhance your relaxation. This product is part of a relaxing evening routine.",
+      "cta": "Discover More"
+     },
+     "pinterest": {
+      "pin_title": "Create a Relaxing Evening Routine with Magnesium Bath Salts",
+      "pin_description": "Transform your evening into a tranquil experience. These salts are part of a relaxing evening routine. Discover the simple pleasure of unwinding.",
+      "keyword_phrases": [
+       "bath salts",
+       "relaxing bath",
+       "evening routine",
+       "self care",
+       "relaxation",
+       "spa at home"
+      ]
+     }
+    },
+    "product_title": "Magnesium Bath Salts",
+    "short_description": "Part of a relaxing evening routine.",
+    "full_description": "These magnesium bath salts are part of a relaxing evening routine.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "Magnesium Bath Salts"
+    ],
+    "benefits": [
+     "part of a relaxing evening routine"
+    ],
+    "keywords": [
+     "bath salts",
+     "relaxation"
+    ],
+    "tags": [
+     "bath",
+     "relaxation",
+     "evening routine"
+    ],
+    "seo_title": "Magnesium Bath Salts - Relaxing Evening Routine",
+    "meta_description": "Create a relaxing evening routine with Magnesium Bath Salts. Part of a relaxing evening routine.",
+    "social_caption": "Transform your evening with Magnesium Bath Salts. Part of a relaxing routine.",
+    "hashtags": [
+     "bathsalts",
+     "relaxation",
+     "eveningroutine",
+     "selfcare"
+    ],
+    "ad_headline": "Create a calming moment.",
+    "call_to_action": "Discover the simple pleasure of a magnesium bath.",
+    "missing_information": [
+     "Summary",
+     "Materials / ingredients",
+     "Dimensions / specs",
+     "Main features",
+     "Target audience",
+     "Care / usage"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Create a calming evening ritual.",
+    "voiceover_script": "Part of a relaxing evening routine. Experience the soothing benefits.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow camera move, product on a dark surface.",
+      "on_screen_text": "A calming evening."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Slow camera move, product showcase.",
+      "on_screen_text": "Magnesium Bath Salts"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Slow camera move, product showcase.",
+      "on_screen_text": "Part of a routine."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Slow camera move, product showcase.",
+      "on_screen_text": "Magnesium Bath Salts"
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0004",
+   "score": {
+    "id": "test-0004",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "platform:pinterest",
+       "social_caption",
+       "voiceover_script"
+      ]
+     }
+    ],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 12.4,
+   "tokens": 2859,
+   "data": {
+    "platform_outputs": {
+     "pinterest": {
+      "pin_title": "Beaded Stretch Bracelet – Minimalist Style",
+      "pin_description": "An adjustable beaded stretch bracelet for a subtle, everyday look. Perfect for layering. Ships from a small studio. Ideal for gift shoppers.",
+      "keyword_phrases": [
+       "beaded bracelet",
+       "stretch bracelet",
+       "minimal jewelry",
+       "adjustable bracelet",
+       "gift for her",
+       "stackable bracelets"
+      ]
+     }
+    },
+    "product_title": "Beaded Stretch Bracelet",
+    "short_description": "A minimal jewelry piece.",
+    "full_description": "This beaded stretch bracelet is adjustable. It fits wrists 6-8 inches. The bracelet features an adjustable chain. It is lightweight for daily wear and easy to layer.",
+    "target_audience": "Gift shoppers",
+    "key_features": [
+     "adjustable chain",
+     "adjustable"
+    ],
+    "benefits": [
+     "lightweight for daily wear",
+     "easy to layer"
+    ],
+    "keywords": [
+     "bracelet",
+     "beaded",
+     "stretch"
+    ],
+    "tags": [
+     "jewelry",
+     "minimalist",
+     "gift shoppers"
+    ],
+    "seo_title": "Beaded Stretch Bracelet - Adjustable Design",
+    "meta_description": "A beaded stretch bracelet designed for minimal jewelry enthusiasts. Adjustable to fit wrists 6-8 inches. Ideal for gift shoppers.",
+    "social_caption": "A delicate beaded stretch bracelet. Perfect for layering. Ships from a small studio.",
+    "hashtags": [
+     "beadedbracelet",
+     "stretchbracelet",
+     "minimaljewelry",
+     "giftideas",
+     "jewelryaccessoires"
+    ],
+    "ad_headline": "Simple elegance.",
+    "call_to_action": "Discover the collection.",
+    "missing_information": [
+     "Materials",
+     "Care instructions",
+     "Price"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Minimalist bracelet. Effortless style.",
+    "voiceover_script": "This beaded stretch bracelet is adjustable. It fits wrists 6 to 8 inches. Perfect for gift shoppers.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly zooms in on the bracelet.",
+      "on_screen_text": "Minimalist bracelet"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Bracelet rotates on a neutral surface.",
+      "on_screen_text": "Adjustable beaded design"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close up of the adjustable chain.",
+      "on_screen_text": "Fits wrists 6-8 inches"
+     },
+     {
+      "time": "8-10s",
+      "visual": "Bracelet displayed against a simple background.",
+      "on_screen_text": "Beaded Stretch Bracelet"
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement. Focus on the bracelet. Neutral lighting."
+   }
+  },
+  {
+   "id": "test-0005",
+   "score": {
+    "id": "test-0005",
+    "ok": true,
+    "hard": [],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Summary, Price, Verified benefits, Target audience",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.333
+   },
+   "seconds": 12.8,
+   "tokens": 2692,
+   "data": {
+    "platform_outputs": {
+     "instagram": {
+      "hook": "Elevate your everyday meals.",
+      "reel_caption": "The matte glaze dinner plate from Juniper Co. offers a subtle, speckled finish. It’s designed for convenience. Top-rack dishwasher safe. Microwave safe.",
+      "hashtags": [
+       "tableware",
+       "dinnerware",
+       "home decor",
+       "juniperco",
+       "modern dining"
+      ],
+      "video_on_screen_text": [
+       "Juniper Co.",
+       "matte glaze plate"
+      ]
+     }
+    },
+    "product_title": "Matte Glaze Dinner Plate",
+    "short_description": "A dinner plate with a speckled glaze from Juniper Co.",
+    "full_description": "This dinner plate features a matte glaze. It is microwave safe. The plate is top-rack dishwasher safe.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "matte glaze",
+     "speckled glaze"
+    ],
+    "benefits": [
+     "microwave safe",
+     "top-rack dishwasher safe"
+    ],
+    "keywords": [
+     "dinner plate",
+     "Juniper Co"
+    ],
+    "tags": [
+     "tableware",
+     "plate"
+    ],
+    "seo_title": "Juniper Co Matte Glaze Dinner Plate",
+    "meta_description": "This dinner plate from Juniper Co features a matte glaze and speckled glaze finish. It is microwave safe and top-rack dishwasher safe.",
+    "social_caption": "Juniper Co matte glaze dinner plates offer a sophisticated addition to any table setting. Speckled glaze creates a unique visual.",
+    "hashtags": [
+     "JuniperCo",
+     "dinnerware",
+     "tableware",
+     "glaze",
+     "plate"
+    ],
+    "ad_headline": "Elevate your dining experience.",
+    "call_to_action": "Discover the collection.",
+    "missing_information": [
+     "Dimensions / specs",
+     "Materials / ingredients"
+    ],
+    "claims_requiring_review": [
+     "Gift appeal"
+    ],
+    "video_hook": "Juniper Co matte glaze plates.",
+    "voiceover_script": "Introducing the matte glaze dinner plate from Juniper Co. Top-rack dishwasher safe.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly pans across the plate.",
+      "on_screen_text": "Elegant dinnerware option."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Close-up shot of the speckled glaze.",
+      "on_screen_text": "Speckled glaze finish."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Plate positioned in a dishwasher rack.",
+      "on_screen_text": "Microwave safe design."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Plate displayed prominently.",
+      "on_screen_text": "Juniper Co. plates."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0006",
+   "score": {
+    "id": "test-0006",
+    "ok": true,
+    "hard": [],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Target audience",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.857
+   },
+   "seconds": 12.3,
+   "tokens": 2582,
+   "data": {
+    "platform_outputs": {
+     "facebook": {
+      "primary_text": "Stone & Thread presents the Slim Leather Cardholder. A thoughtful gift option.",
+      "headline": "Stone & Thread Cardholder",
+      "description": "Slim Leather Cardholder from Stone & Thread.",
+      "cta": "Shop Now"
+     }
+    },
+    "product_title": "Slim Leather Cardholder",
+    "short_description": "Stone & Thread: Slim Leather Cardholder for gift shoppers.",
+    "full_description": "The Slim Leather Cardholder is a product from Stone & Thread.",
+    "target_audience": "Gift shoppers",
+    "key_features": [
+     "Slim design"
+    ],
+    "benefits": [
+     "Suitable for gift shoppers"
+    ],
+    "keywords": [
+     "cardholder",
+     "leather",
+     "Stone & Thread"
+    ],
+    "tags": [
+     "gift",
+     "cardholder",
+     "leather",
+     "Stone & Thread"
+    ],
+    "seo_title": "Slim Leather Cardholder by Stone & Thread",
+    "meta_description": "A slim leather cardholder from Stone & Thread. Suitable for gift shoppers.",
+    "social_caption": "Stone & Thread presents the Slim Leather Cardholder. A thoughtful gift option.",
+    "hashtags": [
+     "StoneAndThread",
+     "LeatherCardholder",
+     "GiftIdeas",
+     "Accessories"
+    ],
+    "ad_headline": "The Slim Leather Cardholder from Stone & Thread.",
+    "call_to_action": "Explore the collection now.",
+    "missing_information": [
+     "Price",
+     "Materials",
+     "Dimensions",
+     "Main features",
+     "Verified benefits",
+     "Care / usage"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Stone & Thread Slim Leather Cardholder.",
+    "voiceover_script": "Discover the Stone & Thread Slim Leather Cardholder. A refined accessory for gift shoppers.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly pans across product.",
+      "on_screen_text": "Elegant leather design."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Product showcase – static shot.",
+      "on_screen_text": "Stone & Thread Cardholder."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up of cardholder.",
+      "on_screen_text": "Slim profile presented."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product shot with brand name.",
+      "on_screen_text": "Stone & Thread."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0007",
+   "score": {
+    "id": "test-0007",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "platform:instagram",
+       "social_caption"
+      ]
+     }
+    ],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Summary",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.8
+   },
+   "seconds": 14.6,
+   "tokens": 3269,
+   "data": {
+    "platform_outputs": {
+     "etsy": {
+      "title": "Slim Leather Cardholder - 4 x 3 in",
+      "item_description": "This cardholder is designed for people who carry light. It measures 4 inches by 3 inches.",
+      "tags": [
+       "cardholder",
+       "slim",
+       "leather",
+       "small",
+       "wallet"
+      ],
+      "attributes": [
+       "Dimensions: 4 x 3 in"
+      ]
+     },
+     "instagram": {
+      "hook": "Keep it simple. This slim cardholder fits what you need.",
+      "reel_caption": "Looking for a sleek way to carry just your essentials? This cardholder is 4 x 3 inches – perfect for people who carry light. It’s a great addition to your everyday carry. ",
+      "hashtags": [
+       "#cardholder",
+       "#slimwallet",
+       "#mensaccessories",
+       "#giftideas",
+       "#smallbusiness"
+      ],
+      "video_on_screen_text": [
+       "Slim Leather Cardholder",
+       "4 x 3 inches"
+      ]
+     }
+    },
+    "product_title": "Slim Leather Cardholder",
+    "short_description": "A compact cardholder.",
+    "full_description": "This cardholder measures 4 x 3 in. It is designed for people who carry light.",
+    "target_audience": "people who carry light",
+    "key_features": [
+     "Slim design",
+     "4 x 3 in dimensions"
+    ],
+    "benefits": [
+     "Suitable for people who carry light"
+    ],
+    "keywords": [
+     "cardholder",
+     "slim",
+     "small wallet"
+    ],
+    "tags": [
+     "cardholder",
+     "wallet",
+     "slim wallet"
+    ],
+    "seo_title": "Slim Leather Cardholder - 4 x 3 in",
+    "meta_description": "A slim leather cardholder, measuring 4 x 3 inches, designed for people who carry light.",
+    "social_caption": "A simple cardholder, perfect for those who carry light. Measures 4 x 3 in.",
+    "hashtags": [
+     "cardholder",
+     "slimwallet",
+     "leather",
+     "accessories"
+    ],
+    "ad_headline": "A Compact Cardholder",
+    "call_to_action": "Shop now for 88 USD",
+    "missing_information": [
+     "Materials / ingredients",
+     "Main features",
+     "Verified benefits",
+     "Care / usage"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "A slim cardholder for light carry.",
+    "voiceover_script": "This Slim Leather Cardholder measures 4 x 3 inches. It’s designed for people who carry light.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Soft light, product photo.",
+      "on_screen_text": "A slim cardholder."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Product photo, focus on dimensions.",
+      "on_screen_text": "4 x 3 inches."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Product photo, close-up of the cardholder.",
+      "on_screen_text": "Designed for light carry."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product photo.",
+      "on_screen_text": "Slim Leather Cardholder. 88 USD."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement, product unchanged. Focus on the product's dimensions."
+   }
+  },
+  {
+   "id": "test-0008",
+   "score": {
+    "id": "test-0008",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "handmade",
+      "fields": [
+       "tags"
+      ]
+     }
+    ],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Summary",
+      "fields": [
+       "missing_information"
+      ]
+     },
+     {
+      "code": "false_missing_info",
+      "detail": "Dimensions / specs",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.75
+   },
+   "seconds": 13.5,
+   "tokens": 3031,
+   "data": {
+    "platform_outputs": {
+     "etsy": {
+      "title": "Saltwater Studio Hand-Stitched Key Fob – 5 in Long",
+      "item_description": "Saltwater Studio presents this hand-stitched key fob. It measures 5 inches in length. The fob develops a patina with use and ages well. It fits in a front pocket. Cleaning is simple – wipe with a damp cloth. This key fob is produced in limited runs.",
+      "tags": [
+       "key fob",
+       "hand stitched",
+       "Saltwater Studio",
+       "fob",
+       "leather accessory"
+      ],
+      "attributes": [
+       "Dimensions: 5 in long"
+      ]
+     }
+    },
+    "product_title": "Hand-Stitched Key Fob",
+    "short_description": "A meticulously crafted key fob from Saltwater Studio.",
+    "full_description": "This key fob is hand-stitched. It measures 5 inches in length. The fob develops a patina with use. It ages well with use. Wipe with a damp cloth for care.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "Hand-stitched",
+     "Develops a patina"
+    ],
+    "benefits": [
+     "Fits in a front pocket",
+     "Ages well with use"
+    ],
+    "keywords": [
+     "key fob",
+     "Saltwater Studio",
+     "hand-stitched",
+     "patina"
+    ],
+    "tags": [
+     "key fob",
+     "Saltwater Studio",
+     "handmade"
+    ],
+    "seo_title": "Saltwater Studio Hand-Stitched Key Fob - 5 in Long",
+    "meta_description": "A hand-stitched key fob from Saltwater Studio. This item is 5 in long and develops a patina with age. Fits in a front pocket.",
+    "social_caption": "Saltwater Studio’s Hand-Stitched Key Fob. A timeless accessory. Designed to develop a patina with age. Fits in a front pocket.",
+    "hashtags": [
+     "SaltwaterStudio",
+     "HandStitched",
+     "KeyFob",
+     "LeatherAccessory",
+     "MinimalistDesign"
+    ],
+    "ad_headline": "Saltwater Studio: Hand-Stitched Key Fob",
+    "call_to_action": "Discover the collection.",
+    "missing_information": [
+     "Materials",
+     "Dimensions",
+     "Price",
+     "Target audience"
+    ],
+    "claims_requiring_review": [
+     "ages well with use"
+    ],
+    "video_hook": "Hand-stitched fob from Saltwater Studio.",
+    "voiceover_script": "The Hand-Stitched Key Fob from Saltwater Studio. It develops a patina and ages well with use. Wipe with a damp cloth.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly focuses on the fob.",
+      "on_screen_text": "A refined accessory."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Close-up of the fob's stitching.",
+      "on_screen_text": "Hand-stitched with care."
+     },
+     {
+      "time": "6-8s",
+      "visual": "The fob is shown fitting into a pocket.",
+      "on_screen_text": "Fits in a front pocket."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product shot of the fob.",
+      "on_screen_text": "Saltwater Studio. Explore now."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement. Focus on the fob. Lighting is neutral."
+   }
+  },
+  {
+   "id": "test-0009",
+   "score": {
+    "id": "test-0009",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "social_caption"
+      ]
+     }
+    ],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Summary, Price, Target audience, Care / usage",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.333
+   },
+   "seconds": 12.6,
+   "tokens": 2684,
+   "data": {
+    "platform_outputs": {
+     "etsy": {
+      "title": "Waterproof Dry Bag - Interior Pocket",
+      "item_description": "Keep your contents organized with this waterproof dry bag. Made in limited runs.",
+      "tags": [
+       "dry bag",
+       "waterproof",
+       "organizer",
+       "pocket",
+       "portable"
+      ],
+      "attributes": [
+       "Features: Interior pocket"
+      ]
+     }
+    },
+    "product_title": "waterproof dry bag",
+    "short_description": "Keep your contents organised with this waterproof dry bag.",
+    "full_description": "This waterproof dry bag features an interior pocket to keep your contents organised. It is made in limited runs.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "interior pocket"
+    ],
+    "benefits": [
+     "keeps contents organised"
+    ],
+    "keywords": [
+     "dry bag",
+     "waterproof",
+     "organisation"
+    ],
+    "tags": [
+     "waterproof",
+     "organisation",
+     "dry bag"
+    ],
+    "seo_title": "Waterproof Dry Bag - Keeps Contents Organised",
+    "meta_description": "This waterproof dry bag features an interior pocket to keep your contents organised.",
+    "social_caption": "Keep your essentials organised with the waterproof dry bag. Made in limited runs, it’s perfect for keeping contents secure.",
+    "hashtags": [
+     "drybag",
+     "waterproof",
+     "organisation",
+     "accessories"
+    ],
+    "ad_headline": "Secure Your Belongings",
+    "call_to_action": "Shop now",
+    "missing_information": [
+     "Dimensions / specs",
+     "Materials / ingredients"
+    ],
+    "claims_requiring_review": [
+     "Made in limited runs"
+    ],
+    "video_hook": "Protect your essentials. Stay organised.",
+    "voiceover_script": "Keep your belongings organised with this waterproof dry bag. Made in limited runs.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly zooms in on the dry bag.",
+      "on_screen_text": "Introducing the dry bag"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Product showcase – dry bag rotates slowly.",
+      "on_screen_text": "Features an interior pocket."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up shot of the interior pocket.",
+      "on_screen_text": "Organise your belongings inside."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Dry bag remains stationary.",
+      "on_screen_text": "Waterproof dry bag. Now available."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0010",
+   "score": {
+    "id": "test-0010",
+    "ok": true,
+    "hard": [],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Verified benefits, Care / usage",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.5
+   },
+   "seconds": 13.5,
+   "tokens": 2836,
+   "data": {
+    "platform_outputs": {
+     "facebook": {
+      "primary_text": "The silver moon necklace from Copper Kettle is designed for people who like minimal jewelry. It features a crescent moon pendant.",
+      "headline": "Silver Moon Necklace",
+      "description": "A simple and elegant necklace from Copper Kettle.",
+      "cta": "Discover more"
+     }
+    },
+    "product_title": "silver moon necklace",
+    "short_description": "A silver moon necklace for people who like minimal jewelry.",
+    "full_description": "The silver moon necklace is a crescent moon pendant. It is designed for people who like minimal jewelry. It ships from a small studio.",
+    "target_audience": "people who like minimal jewelry",
+    "key_features": [
+     "crescent moon pendant"
+    ],
+    "benefits": [
+     "Designed for people who like minimal jewelry"
+    ],
+    "keywords": [
+     "silver moon necklace",
+     "minimal jewelry",
+     "Copper Kettle"
+    ],
+    "tags": [
+     "silver jewelry",
+     "moon pendant",
+     "necklace",
+     "minimalist jewelry"
+    ],
+    "seo_title": "Silver Moon Necklace by Copper Kettle",
+    "meta_description": "The Silver Moon Necklace from Copper Kettle is designed for people who appreciate minimal jewelry. Featuring a crescent moon pendant.",
+    "social_caption": "The silver moon necklace from Copper Kettle. Designed for those who appreciate simple elegance.",
+    "hashtags": [
+     "silverjewelry",
+     "moonjewelry",
+     "minimaljewelry",
+     "copperkettle",
+     "necklace"
+    ],
+    "ad_headline": "Discover the silver moon necklace.",
+    "call_to_action": "Shop now and add a touch of understated beauty to your look.",
+    "missing_information": [
+     "Materials",
+     "Dimensions / specs"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Silver Moon Necklace by Copper Kettle.",
+    "voiceover_script": "Discover the silver moon necklace from Copper Kettle. A simple design for those who appreciate minimal jewelry.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow, elegant camera movement, focusing on the silver moon necklace.",
+      "on_screen_text": "A beautiful pendant."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Close-up shot of the crescent moon pendant.",
+      "on_screen_text": "Crescent moon pendant design."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Focus on the pendant, highlighting its shape.",
+      "on_screen_text": "Simple and elegant style."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product shot with Copper Kettle branding subtly visible.",
+      "on_screen_text": "Copper Kettle. Shop now."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement, slow pan across the silver moon necklace. Clean lighting."
+   }
+  },
+  {
+   "id": "test-0011",
+   "score": {
+    "id": "test-0011",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "platform:instagram",
+       "social_caption"
+      ]
+     }
+    ],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 13.7,
+   "tokens": 2923,
+   "data": {
+    "platform_outputs": {
+     "instagram": {
+      "hook": "Start your day with a kick.",
+      "reel_caption": "Saltwater Studio Chili Crisp Oil – perfect for breakfast lovers. Made with chili flakes, sesame, and neutral oil. Refrigerate after opening. 24 GBP.",
+      "hashtags": [
+       "#chilicrisp",
+       "#breakfast",
+       "#saltwaterstudio"
+      ],
+      "video_on_screen_text": [
+       "Saltwater Studio Chili Crisp Oil",
+       "Chili Flakes, Sesame, Neutral Oil"
+      ]
+     }
+    },
+    "product_title": "Chili Crisp Oil",
+    "short_description": "Chili Crisp Oil from Saltwater Studio.",
+    "full_description": "Saltwater Studio presents Chili Crisp Oil. This product contains chili flakes, sesame, and neutral oil. It is priced at 24 GBP. It is intended for breakfast lovers. Refrigerate after opening. Unopened, it keeps for 3 months.",
+    "target_audience": "breakfast lovers",
+    "social_caption": "Saltwater Studio Chili Crisp Oil. Perfect for breakfast lovers.",
+    "hashtags": [
+     "SaltwaterStudio",
+     "ChiliCrispOil",
+     "Breakfast",
+     "Food"
+    ],
+    "ad_headline": "Saltwater Studio Chili Crisp Oil",
+    "call_to_action": "Explore now.",
+    "missing_information": [
+     "Dimensions / specs",
+     "Main features"
+    ],
+    "claims_requiring_review": [],
+    "key_features": [
+     "Chili Crisp Oil",
+     "Saltwater Studio brand"
+    ],
+    "benefits": [
+     "keeps for 3 months unopened",
+     "good on yogurt"
+    ],
+    "keywords": [
+     "chili",
+     "crisp oil",
+     "sesame",
+     "chili flakes",
+     "neutral oil"
+    ],
+    "tags": [
+     "breakfast lovers",
+     "gift shoppers"
+    ],
+    "seo_title": "Saltwater Studio Chili Crisp Oil - 24 GBP",
+    "meta_description": "Saltwater Studio Chili Crisp Oil is available for 24 GBP. It contains chili flakes, sesame, and neutral oil. Keeps for 3 months unopened; good on yogurt.",
+    "video_hook": "Saltwater Studio Chili Crisp Oil.",
+    "voiceover_script": "Saltwater Studio Chili Crisp Oil. Made with chili flakes, sesame, and neutral oil. Keeps for 3 months unopened. Good on yogurt.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly pans across the product.",
+      "on_screen_text": "Saltwater Studio Chili Crisp Oil"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Close-up shot of the product bottle.",
+      "on_screen_text": "Chili Flakes, Sesame, Oil"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Shot of the product bottle.",
+      "on_screen_text": "3 Months Unopened"
+     },
+     {
+      "time": "8-10s",
+      "visual": "Shot of the product bottle.",
+      "on_screen_text": "Saltwater Studio. Explore now."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0012",
+   "score": {
+    "id": "test-0012",
+    "ok": true,
+    "hard": [],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Price, Target audience",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.667
+   },
+   "seconds": 13.6,
+   "tokens": 2604,
+   "data": {
+    "platform_outputs": {
+     "facebook": {
+      "primary_text": "A set of 24 magnetic building tiles. Painted with water-based paint.",
+      "headline": "Magnetic Building Tiles",
+      "description": "Includes a set of 24 magnetic building tiles.",
+      "cta": "Shop Now"
+     }
+    },
+    "product_title": "magnetic building tiles",
+    "short_description": "A set of 24 magnetic building tiles.",
+    "full_description": "This set contains 24 magnetic building tiles. The tiles are painted with water-based paint.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "set of 24",
+     "painted with water-based paint"
+    ],
+    "benefits": [
+     "missing_information"
+    ],
+    "keywords": [
+     "magnetic building tiles"
+    ],
+    "tags": [
+     "magnetic",
+     "building tiles"
+    ],
+    "seo_title": "Magnetic Building Tiles - Set of 24",
+    "meta_description": "A set of 24 magnetic building tiles. Painted with water-based paint.",
+    "social_caption": "A set of 24 magnetic building tiles is available. Painted with water-based paint.",
+    "hashtags": [
+     "#magneticbuildingtiles",
+     "#buildingtoys"
+    ],
+    "ad_headline": "Magnetic Building Tiles – Set of 24",
+    "call_to_action": "Explore the set.",
+    "missing_information": [
+     "Summary",
+     "Materials / ingredients",
+     "Verified benefits",
+     "Care / usage"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Magnetic building tiles set of 24.",
+    "voiceover_script": "This set includes twenty-four magnetic building tiles. They are painted with water-based paint.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly zooms in on the product.",
+      "on_screen_text": "Magnetic building tiles"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Product shot – tiles are displayed.",
+      "on_screen_text": "Set of twenty-four tiles"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up of painted surface.",
+      "on_screen_text": "Painted with water-based paint"
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product shot – tiles are displayed.",
+      "on_screen_text": "Magnetic building tiles. Shop now."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0013",
+   "score": {
+    "id": "test-0013",
+    "ok": true,
+    "hard": [],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 13.5,
+   "tokens": 2803,
+   "data": {
+    "platform_outputs": {
+     "shopify": {
+      "page_copy": "Ember & Oak Magnetic Building Tiles are designed for parents. These tiles offer easy play for small hands.",
+      "feature_bullets": [
+       "Machine washable for convenient cleaning.",
+       "Constructed with ABS plastic and magnets."
+      ],
+      "seo_title": "Ember & Oak Magnetic Building Tiles",
+      "meta_description": "Ember & Oak Magnetic Building Tiles are designed for easy play for small hands. Machine washable ABS plastic with magnets."
+     }
+    },
+    "product_title": "Magnetic Building Tiles",
+    "short_description": "Magnetic Building Tiles for parents.",
+    "full_description": "Ember & Oak Magnetic Building Tiles are designed for parents. The tiles feature ABS plastic and magnets. They are machine washable. Wipe clean for care. Easy for small hands.",
+    "target_audience": "parents",
+    "social_caption": "Ember & Oak Magnetic Building Tiles offer easy construction for small hands. Machine washable for effortless care.",
+    "hashtags": [
+     "EmberAndOak",
+     "magneticbuildingtiles",
+     "constructiontoys",
+     "parenting"
+    ],
+    "ad_headline": "Build with Ease.",
+    "call_to_action": "Explore the collection today.",
+    "missing_information": [
+     "Dimensions / specs"
+    ],
+    "claims_requiring_review": [],
+    "key_features": [
+     "Magnetic Building Tiles",
+     "Machine washable",
+     "Easy for small hands"
+    ],
+    "benefits": [
+     "Designed for parents"
+    ],
+    "keywords": [
+     "magnetic tiles",
+     "building tiles",
+     "Ember & Oak"
+    ],
+    "tags": [
+     "magnetic",
+     "building",
+     "toys",
+     "ABS plastic",
+     "magnets"
+    ],
+    "seo_title": "Ember & Oak Magnetic Building Tiles - For Parents",
+    "meta_description": "Ember & Oak Magnetic Building Tiles are designed for parents. These tiles feature magnets and are machine washable. Easy for small hands.",
+    "video_hook": "Magnetic Building Tiles by Ember & Oak.",
+    "voiceover_script": "Ember & Oak Magnetic Building Tiles are designed for parents. They are machine washable and easy for small hands.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow camera move across product.",
+      "on_screen_text": "Magnetic Building Tiles"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Product showcase – tiles arranged.",
+      "on_screen_text": "ABS plastic, magnets"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up of tile.",
+      "on_screen_text": "Easy for small hands"
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product shot with brand logo.",
+      "on_screen_text": "Ember & Oak – 37 USD"
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0014",
+   "score": {
+    "id": "test-0014",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "call_to_action",
+       "platform:facebook",
+       "platform:instagram",
+       "voiceover_script"
+      ]
+     }
+    ],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 14.8,
+   "tokens": 3217,
+   "data": {
+    "platform_outputs": {
+     "facebook": {
+      "primary_text": "Create a cozy evening with the Lavender Pillar Candle. Trim the wick to 1/4 in before lighting.",
+      "headline": "Lavender Pillar Candle",
+      "description": "Perfect for relaxing and enjoying a calm atmosphere.",
+      "cta": "Discover more"
+     },
+     "instagram": {
+      "hook": "Create a cozy evening with the Lavender Pillar Candle.",
+      "reel_caption": "Light this candle and unwind. Trim the wick to 1/4 inch before lighting. Perfect for relaxing moments.",
+      "hashtags": [
+       "#lavender",
+       "#pillarcandle",
+       "#cozyvibes",
+       "#relaxation",
+       "#homefragrance"
+      ],
+      "video_on_screen_text": [
+       "Lavender Pillar Candle",
+       "Trim wick to 1/4 in before lighting"
+      ]
+     }
+    },
+    "product_title": "Lavender Pillar Candle",
+    "short_description": "Lavender Pillar Candle for people who like cozy evenings.",
+    "full_description": "This candle is designed for people who like cozy evenings.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "Lavender Pillar Candle"
+    ],
+    "benefits": [
+     "For people who like cozy evenings."
+    ],
+    "keywords": [
+     "candle",
+     "lavender"
+    ],
+    "tags": [
+     "candle",
+     "lavender",
+     "cozy"
+    ],
+    "seo_title": "Lavender Pillar Candle - Cozy Evenings",
+    "meta_description": "Lavender Pillar Candle for people who like cozy evenings. Trim wick to 1/4 in before lighting.",
+    "social_caption": "Create cozy evenings with the Lavender Pillar Candle. Trim the wick to 1/4 in before lighting.",
+    "hashtags": [
+     "lavender",
+     "candle",
+     "cozy",
+     "evening"
+    ],
+    "ad_headline": "Relax with the Lavender Pillar Candle.",
+    "call_to_action": "Discover the perfect addition to your relaxing moments.",
+    "missing_information": [
+     "Price",
+     "Materials / ingredients",
+     "Dimensions / specs",
+     "Main features",
+     "Verified benefits",
+     "Target audience"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Create cozy evenings with this candle.",
+    "voiceover_script": "Lavender Pillar Candle. Trim wick to 1/4 in before lighting. Perfect for cozy evenings.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow camera move, focusing on the candle.",
+      "on_screen_text": "Relaxing atmosphere begins."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Slow, elegant camera move showcasing the candle.",
+      "on_screen_text": "Lavender Pillar Candle."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up of the candle.",
+      "on_screen_text": "Trim wick before lighting."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Final shot of the candle.",
+      "on_screen_text": "Lavender Pillar Candle."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0015",
+   "score": {
+    "id": "test-0015",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "premium",
+      "fields": [
+       "video_generation_prompt"
+      ]
+     },
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "meta_description",
+       "social_caption"
+      ]
+     }
+    ],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Summary, Verified benefits, Care / usage",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.4
+   },
+   "seconds": 12.9,
+   "tokens": 2741,
+   "data": {
+    "platform_outputs": {
+     "etsy": {
+      "title": "Silver Moon Necklace by Copper Kettle",
+      "item_description": "The Silver Moon Necklace is a handmade piece from Copper Kettle. It comes in a gift box. This necklace is designed for people who appreciate minimal jewelry.",
+      "tags": [
+       "necklace",
+       "jewelry",
+       "minimalist",
+       "copper",
+       "gift box",
+       "handmade",
+       "silver",
+       "moon"
+      ],
+      "attributes": [
+       "Brand: Copper Kettle",
+       "Price: 28 INR"
+      ]
+     }
+    },
+    "product_title": "Silver Moon Necklace",
+    "short_description": "A beautiful, handmade necklace from Copper Kettle.",
+    "full_description": "This necklace is a minimal piece designed for those who appreciate simple elegance. It comes in a gift box. The price is 28 INR.",
+    "target_audience": "people who like minimal jewelry",
+    "key_features": [
+     "handmade",
+     "comes in a gift box"
+    ],
+    "benefits": [
+     "suitable for people who like minimal jewelry"
+    ],
+    "keywords": [
+     "necklace",
+     "silver moon",
+     "Copper Kettle"
+    ],
+    "tags": [
+     "jewelry",
+     "minimalist",
+     "gift box"
+    ],
+    "seo_title": "Silver Moon Necklace by Copper Kettle",
+    "meta_description": "A handmade silver moon necklace from Copper Kettle, presented in a gift box. Perfect for those who appreciate minimal jewelry.",
+    "social_caption": "Introducing the Silver Moon Necklace from Copper Kettle. This handmade piece is perfect for those who appreciate minimal jewelry. It arrives in a gift box, ready to present.",
+    "hashtags": [
+     "minimaljewelry",
+     "copperkettle",
+     "handmadejewelry",
+     "silvernecklace",
+     "giftbox"
+    ],
+    "ad_headline": "The Silver Moon Necklace: A Simple Statement.",
+    "call_to_action": "Add this handmade necklace to your collection today!",
+    "missing_information": [
+     "Materials / ingredients",
+     "Dimensions / specs"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Silver Moon Necklace: Minimalist beauty.",
+    "voiceover_script": "The Silver Moon Necklace, handmade by Copper Kettle, arrives in a gift box. Priced at 28 INR, it’s designed for those who appreciate simple jewelry.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow zoom onto the necklace.",
+      "on_screen_text": "Elegant silver design."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Product showcase – slow pan across the necklace.",
+      "on_screen_text": "Handmade by Copper Kettle."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up on the gift box.",
+      "on_screen_text": "Presented in a gift box."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Final shot of the necklace.",
+      "on_screen_text": "Silver Moon Necklace. 28 INR."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement, slow pan. Focus on the necklace’s design. Premium studio lighting."
+   }
+  },
+  {
+   "id": "test-0016",
+   "score": {
+    "id": "test-0016",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "platform:instagram",
+       "platform:shopify",
+       "voiceover_script"
+      ]
+     }
+    ],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 14.5,
+   "tokens": 3533,
+   "data": {
+    "platform_outputs": {
+     "shopify": {
+      "page_copy": "Little Fern Chili Crisp Oil. Perfect for breakfast lovers. This small batch oil features chili flakes, sesame, and neutral oil.",
+      "feature_bullets": [
+       "Vegetarian",
+       "Resealable pouch",
+       "Small batch"
+      ],
+      "seo_title": "Chili Crisp Oil - Little Fern",
+      "meta_description": "Little Fern Chili Crisp Oil. A flavorful oil with chili flakes, sesame, and neutral oil. Ideal for breakfast. 6 oz jar."
+     },
+     "instagram": {
+      "hook": "Start your day with a vibrant kick.",
+      "reel_caption": "Little Fern Chili Crisp Oil. Crafted with chili flakes, sesame, and neutral oil. Perfect on yogurt. Presented in a 6 oz jar. Vegetarian. Small batch production. Refrigerate after opening. 19 EUR.",
+      "hashtags": [
+       "chili",
+       "oil",
+       "breakfast",
+       "littlefern",
+       "food",
+       "flavor",
+       "vegetarian"
+      ],
+      "video_on_screen_text": [
+       "Chili Crisp Oil",
+       "Little Fern"
+      ]
+     }
+    },
+    "social_caption": "Little Fern Chili Crisp Oil. A flavorful addition to breakfast.",
+    "hashtags": [
+     "chili",
+     "oil",
+     "breakfast",
+     "littlefern"
+    ],
+    "ad_headline": "Chili Crisp Oil from Little Fern.",
+    "call_to_action": "Discover the flavor.",
+    "missing_information": [],
+    "claims_requiring_review": [],
+    "product_title": "Chili Crisp Oil",
+    "short_description": "Chili Crisp Oil for breakfast lovers.",
+    "full_description": "Little Fern Chili Crisp Oil is crafted with chili flakes, sesame, and neutral oil. This product is vegetarian. It is packaged in a 6 oz jar with a resealable pouch. Small batch production is utilized. It is good on yogurt.",
+    "target_audience": "breakfast lovers",
+    "key_features": [
+     "vegetarian",
+     "resealable pouch",
+     "small batch"
+    ],
+    "benefits": [
+     "good on yogurt"
+    ],
+    "keywords": [
+     "chili crisp oil",
+     "little fern",
+     "breakfast"
+    ],
+    "tags": [
+     "chili",
+     "sesame",
+     "oil",
+     "vegetarian"
+    ],
+    "seo_title": "Little Fern Chili Crisp Oil - 6 oz Jar",
+    "meta_description": "Little Fern Chili Crisp Oil is a vegetarian option for breakfast lovers. This small batch oil is available in a 6 oz jar with a resealable pouch.",
+    "video_hook": "Chili Crisp Oil. Breakfast perfection.",
+    "voiceover_script": "Little Fern Chili Crisp Oil. A flavorful addition to your breakfast. Perfect on yogurt.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Simple motion. Camera focuses on the jar.",
+      "on_screen_text": "Chili Crisp Oil"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Camera showcases the 6 oz jar. Lighting is neutral.",
+      "on_screen_text": "Little Fern"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Camera focuses on the jar. Slight zoom.",
+      "on_screen_text": "Good on yogurt"
+     },
+     {
+      "time": "8-10s",
+      "visual": "Camera slowly pans back to show the entire jar.",
+      "on_screen_text": "Little Fern Chili Crisp Oil"
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement. Focus on the jar. Neutral lighting. Maintain product appearance."
+   }
+  },
+  {
+   "id": "test-0017",
+   "score": {
+    "id": "test-0017",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "social_caption"
+      ]
+     }
+    ],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 12.3,
+   "tokens": 2681,
+   "data": {
+    "platform_outputs": {
+     "shopify": {
+      "page_copy": "This set includes 20 pieces made from wool felt.",
+      "feature_bullets": [
+       "Set of 20 pieces",
+       "Made from wool felt"
+      ],
+      "seo_title": "Felt Play Food Set - 20 Pieces",
+      "meta_description": "A set of 20 pieces made from wool felt. Spot clean only."
+     }
+    },
+    "product_title": "Felt Play Food Set",
+    "short_description": "A set of 20 pieces made from wool felt.",
+    "full_description": "This set includes 20 pieces. The pieces are made from wool felt. Spot clean only.",
+    "target_audience": "missing_information",
+    "key_features": [
+     "Set of 20 pieces",
+     "Wool felt material"
+    ],
+    "benefits": [
+     "Includes 20 individual items"
+    ],
+    "keywords": [
+     "felt",
+     "play food",
+     "set"
+    ],
+    "tags": [
+     "felt play food",
+     "toys",
+     "wool felt"
+    ],
+    "seo_title": "Felt Play Food Set - 20 Piece Collection",
+    "meta_description": "A collection of 20 felt play food items made from wool felt. Spot clean only.",
+    "social_caption": "Introduce little ones to imaginative play with this set of 20 wool felt play food pieces. Perfect for creating scenes and stories.",
+    "hashtags": [
+     "playfood",
+     "felttoys",
+     "kidsplay",
+     "giftideas",
+     "toyfood"
+    ],
+    "ad_headline": "A delightful set for little chefs.",
+    "call_to_action": "Explore the set today.",
+    "missing_information": [
+     "Summary",
+     "Price",
+     "Main features",
+     "Verified benefits",
+     "Target audience"
+    ],
+    "claims_requiring_review": [
+     ""
+    ],
+    "video_hook": "A delightful felt play food set.",
+    "voiceover_script": "This set of 20 pieces is made from wool felt. Spot clean only.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow zoom onto the product photo.",
+      "on_screen_text": "A charming play food set."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Static shot of the set of 20 pieces.",
+      "on_screen_text": "Twenty pieces of wool felt."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up on a single piece.",
+      "on_screen_text": "Made from wool felt."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product photo remains static.",
+      "on_screen_text": "Felt Play Food Set."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement, slow zoom. Keep the product unchanged. Add no labels, logos or text."
+   }
+  },
+  {
+   "id": "test-0018",
+   "score": {
+    "id": "test-0018",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "best",
+      "fields": [
+       "platform:instagram"
+      ]
+     },
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "meta_description",
+       "platform:facebook",
+       "platform:instagram",
+       "social_caption",
+       "voiceover_script"
+      ]
+     }
+    ],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 15.0,
+   "tokens": 3607,
+   "data": {
+    "platform_outputs": {
+     "facebook": {
+      "primary_text": "The Silver Moon Necklace. A simple piece, perfect for layering and easy to wear. It comes beautifully packaged, making it a thoughtful gift for someone special. \n\nGive the gift of understated elegance.",
+      "headline": "Silver Moon Necklace",
+      "description": "Handmade necklace. Comes in a gift box. Lightweight for daily wear.",
+      "cta": "Shop Now"
+     },
+     "instagram": {
+      "hook": "A little piece of moonlight, ready to be gifted.",
+      "reel_caption": "Introducing the Silver Moon Necklace – a simple, handmade treasure perfect for someone who appreciates understated elegance. It comes beautifully packaged in a gift box, making it a thoughtful present for any occasion. Lightweight and easy to layer, it’s designed for everyday wear. Avoid perfume and water to keep it looking its best. This necklace is made for gift shoppers.",
+      "hashtags": [
+       "#silverjewelry",
+       "#moonnecklace",
+       "#minimaljewelry",
+       "#handmadejewelry",
+       "#giftideas",
+       "#jewelrygift"
+      ],
+      "video_on_screen_text": [
+       "Silver Moon Necklace",
+       "Handmade",
+       "Presented in a gift box"
+      ]
+     }
+    },
+    "product_title": "Silver Moon Necklace",
+    "short_description": "A simple silver necklace for those who appreciate minimal design.",
+    "full_description": "The Silver Moon Necklace is a delicate piece, crafted for individuals who enjoy understated jewelry. It’s presented in a gift box, making it a thoughtful option for gift shoppers. This necklace is lightweight and designed for easy layering, suitable for daily wear. Please avoid exposure to perfume and water.",
+    "target_audience": "gift shoppers",
+    "key_features": [
+     "handmade",
+     "gift box included"
+    ],
+    "benefits": [
+     "easy to layer",
+     "lightweight"
+    ],
+    "keywords": [
+     "necklace",
+     "moon",
+     "silver",
+     "minimal jewelry",
+     "gift"
+    ],
+    "tags": [
+     "jewelry",
+     "necklace",
+     "silver",
+     "gift",
+     "minimalist"
+    ],
+    "seo_title": "Silver Moon Necklace - Minimal Jewelry for Gift Shoppers",
+    "meta_description": "A handmade silver moon necklace, perfect for layering and presented in a gift box. Ideal for gift shoppers seeking simple, elegant jewelry.",
+    "social_caption": "A delicate silver moon, crafted with care. Perfect for someone who appreciates simple beauty. Presented in a gift box, it's a thoughtful gesture for a special person.",
+    "hashtags": [
+     "silverjewelry",
+     "moonnecklace",
+     "minimaljewelry",
+     "giftideas",
+     "handmadejewelry"
+    ],
+    "ad_headline": "A Subtle Shine – The Silver Moon Necklace",
+    "call_to_action": "Give the gift of understated elegance.",
+    "missing_information": [
+     "Materials",
+     "Dimensions / specs"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "A simple silver moon necklace.",
+    "voiceover_script": "The Silver Moon Necklace, handmade and presented in a gift box. Easy to layer, lightweight for daily wear. Perfect for gift shoppers.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Slow zoom onto the Silver Moon Necklace.",
+      "on_screen_text": "Minimal silver beauty."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Product showcase – static shot of the necklace.",
+      "on_screen_text": "Handmade silver necklace."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Close-up on the necklace’s weight.",
+      "on_screen_text": "Lightweight for daily wear."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Static shot of the necklace with gift box.",
+      "on_screen_text": "Silver Moon Necklace. 60 INR."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement, slow zoom. Focus on the product. Keep the product unchanged."
+   }
+  },
+  {
+   "id": "test-0019",
+   "score": {
+    "id": "test-0019",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "platform:pinterest"
+      ]
+     }
+    ],
+    "soft": [
+     {
+      "code": "missed_missing_info",
+      "detail": "Price",
+      "fields": [
+       "missing_information"
+      ]
+     }
+    ],
+    "missing_recall": 0.833
+   },
+   "seconds": 11.8,
+   "tokens": 2610,
+   "data": {
+    "platform_outputs": {
+     "pinterest": {
+      "pin_title": "Speckled Stoneware Mug – For Coffee Lovers",
+      "pin_description": "Elevate your daily coffee ritual with this 12 oz stoneware mug. Its subtle speckled design adds a touch of understated elegance to your table. Perfect for coffee lovers.",
+      "keyword_phrases": [
+       "stoneware mug",
+       "coffee mug",
+       "speckled mug",
+       "12 oz mug",
+       "tableware"
+      ]
+     }
+    },
+    "product_title": "Speckled Stoneware Mug",
+    "short_description": "A mug for coffee lovers.",
+    "full_description": "This mug holds 12 ounces. It is designed for coffee lovers.",
+    "target_audience": "coffee lovers",
+    "key_features": [
+     "Speckled Stoneware Mug",
+     "12 oz capacity"
+    ],
+    "benefits": [
+     "Suitable for coffee lovers"
+    ],
+    "keywords": [
+     "mug",
+     "stoneware",
+     "speckled"
+    ],
+    "tags": [
+     "coffee",
+     "drinkware"
+    ],
+    "seo_title": "Speckled Stoneware Mug - 12 oz",
+    "meta_description": "A stoneware mug with a speckled finish. Designed for coffee lovers. 12 oz capacity.",
+    "social_caption": "Elevate your daily ritual with the Speckled Stoneware Mug. Designed for coffee lovers.",
+    "hashtags": [
+     "stoneware",
+     "mug",
+     "coffee",
+     "drinkware"
+    ],
+    "ad_headline": "The Speckled Stoneware Mug.",
+    "call_to_action": "Discover the collection.",
+    "missing_information": [
+     "Summary",
+     "Materials / ingredients",
+     "Main features",
+     "Verified benefits",
+     "Care / usage"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Speckled Stoneware Mug for coffee lovers.",
+    "voiceover_script": "Enjoy your favorite beverage in this 12 oz Speckled Stoneware Mug. Designed for coffee lovers.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Simple camera movement, establishing shot.",
+      "on_screen_text": "A mug appears."
+     },
+     {
+      "time": "2-6s",
+      "visual": "Close-up of the mug. Steady camera.",
+      "on_screen_text": "12 oz capacity."
+     },
+     {
+      "time": "6-8s",
+      "visual": "Focus on the speckled design.",
+      "on_screen_text": "Distinctive speckled pattern."
+     },
+     {
+      "time": "8-10s",
+      "visual": "Camera slowly pulls back to show the full mug.",
+      "on_screen_text": "Speckled Stoneware Mug."
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement, slow pan across the mug. Focus on the speckled design. Lighting is neutral."
+   }
+  },
+  {
+   "id": "test-0020",
+   "score": {
+    "id": "test-0020",
+    "ok": false,
+    "hard": [
+     {
+      "code": "unsupported_claim",
+      "detail": "perfect",
+      "fields": [
+       "platform:shopify"
+      ]
+     }
+    ],
+    "soft": [],
+    "missing_recall": 1.0
+   },
+   "seconds": 12.3,
+   "tokens": 2765,
+   "data": {
+    "platform_outputs": {
+     "shopify": {
+      "page_copy": "Herbal Sleep Tea offers a calming experience. It contains 500 mg of chamomile, lemon balm, and lavender per capsule. It is intended for people who like winding down.",
+      "feature_bullets": [
+       "500 mg per capsule"
+      ],
+      "seo_title": "Herbal Sleep Tea - 34 GBP",
+      "meta_description": "Discover Herbal Sleep Tea. Contains chamomile, lemon balm, and lavender. 500 mg per capsule. Perfect for winding down."
+     }
+    },
+    "product_title": "Herbal Sleep Tea",
+    "short_description": "A blend of chamomile, lemon balm, and lavender.",
+    "full_description": "This tea contains chamomile, lemon balm, and lavender. Each capsule contains 500 mg of the blend. It is intended for people who like winding down.",
+    "target_audience": "people who like winding down",
+    "key_features": [
+     "500 mg per capsule"
+    ],
+    "benefits": [
+     "Designed for people who like winding down"
+    ],
+    "keywords": [
+     "chamomile",
+     "lemon balm",
+     "lavender",
+     "sleep tea"
+    ],
+    "tags": [
+     "Herbal Sleep Tea"
+    ],
+    "seo_title": "Herbal Sleep Tea - Chamomile, Lemon Balm & Lavender",
+    "meta_description": "This herbal sleep tea contains chamomile, lemon balm, and lavender. It is designed for people who like winding down.",
+    "social_caption": "Herbal Sleep Tea offers a calming experience. Contains 500 mg per capsule. Ingredients include chamomile, lemon balm, and lavender.",
+    "hashtags": [
+     "herbaltea",
+     "sleeptea",
+     "chamomile",
+     "lemonbalm",
+     "lavender"
+    ],
+    "ad_headline": "Herbal Sleep Tea",
+    "call_to_action": "Discover the blend.",
+    "missing_information": [
+     "Summary",
+     "Dimensions / specs",
+     "Verified benefits",
+     "Care / usage"
+    ],
+    "claims_requiring_review": [],
+    "video_hook": "Relax with Herbal Sleep Tea.",
+    "voiceover_script": "Herbal Sleep Tea contains chamomile, lemon balm, and lavender. Each capsule offers 500 mg of these ingredients.",
+    "video_storyboard": [
+     {
+      "time": "0-2s",
+      "visual": "Camera slowly pans across the product photo.",
+      "on_screen_text": "Herbal Sleep Tea"
+     },
+     {
+      "time": "2-6s",
+      "visual": "Close-up of the product photo.",
+      "on_screen_text": "Chamomile, Lemon Balm, Lavender"
+     },
+     {
+      "time": "6-8s",
+      "visual": "Focus on the product photo.",
+      "on_screen_text": "500 mg per capsule"
+     },
+     {
+      "time": "8-10s",
+      "visual": "Product photo remains static.",
+      "on_screen_text": "Herbal Sleep Tea – 34 GBP"
+     }
+    ],
+    "video_generation_prompt": "Subtle camera movement only; keep the product unchanged; add no labels, logos or text."
+   }
+  }
+ ]
+}
