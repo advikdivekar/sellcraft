@@ -1,5 +1,3 @@
-import shutil
-
 from fastapi import APIRouter, BackgroundTasks, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -11,6 +9,7 @@ from ..schemas import (CopyOutput, CreateGenerationRequest, GenerationJob, JobSt
 from ..services import jobs, storage
 from ..services.copy import CopyService
 from ..services.llm.ollama import OllamaProvider
+from ..services.video import ffmpeg
 
 router = APIRouter(prefix="/api")
 
@@ -34,7 +33,7 @@ def providers_status():
         {"mode": "ollama", **OllamaProvider().health()}
     return {
         "llm": llm,
-        "ffmpeg": {"available": shutil.which("ffmpeg") is not None and shutil.which("ffprobe") is not None},
+        "ffmpeg": {"available": ffmpeg.available()},
         "video": {"provider": s.video_provider, "method": "animated_photo" if s.video_provider == "fallback" else s.video_provider},
         "voiceover": {"configured": bool(s.elevenlabs_api_key)},
         "demo_mode": s.demo_mode,
@@ -82,6 +81,17 @@ def regenerate_copy(job_id: str, req: RegenerateCopyRequest):
     db.update_job(job_id, **fields)
     if req.tone and req.tone != job.settings.tone:
         db.update_job(job_id, settings=job.settings.model_copy(update={"tone": req.tone}))
+    return _job_or_404(job_id)
+
+
+@router.post("/generations/{job_id}/reassemble", status_code=202)
+def reassemble(job_id: str, bg: BackgroundTasks):
+    job = _job_or_404(job_id)
+    if job.copy_output is None or job.status in (JobStatus.queued, JobStatus.generating_copy,
+                                                  JobStatus.generating_video, JobStatus.assembling_video):
+        raise AppError("not_ready", "The video isn't ready to update yet.", status=409)
+    db.update_job(job_id, status=JobStatus.assembling_video, error=None)
+    bg.add_task(jobs.run_reassembly, job_id)
     return _job_or_404(job_id)
 
 

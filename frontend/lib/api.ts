@@ -39,6 +39,7 @@ export const api = {
   saveCopy: (id: string, copy: CopyOutput) => request<GenerationJob>(`/api/generations/${id}/copy`, json("PATCH", copy)),
   regenerate: (id: string, body: { section?: string | null; tone?: Tone | null; instructions?: string | null }) =>
     request<GenerationJob>(`/api/generations/${id}/regenerate-copy`, json("POST", body)),
+  reassemble: (id: string) => request<GenerationJob>(`/api/generations/${id}/reassemble`, { method: "POST" }),
   retry: (id: string) => request<GenerationJob>(`/api/generations/${id}/retry`, { method: "POST" }),
   assetUrl: (jobId: string, assetId: string) => `/api/generations/${jobId}/assets/${assetId}`,
 };

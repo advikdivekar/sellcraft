@@ -100,7 +100,7 @@ def get_job(job_id: str) -> GenerationJob | None:
         if not row:
             return None
         assets = [_asset(r) for r in c.execute(
-            "SELECT * FROM assets WHERE job_id=? ORDER BY created_at", (job_id,))]
+            "SELECT * FROM assets WHERE job_id=? AND kind != 'clip' ORDER BY created_at", (job_id,))]
     return _job(row, assets)
 
 
@@ -140,3 +140,14 @@ def attach_asset(asset_id: str, job_id: str) -> bool:
     with connect() as c:
         cur = c.execute("UPDATE assets SET job_id=? WHERE id=? AND job_id IS NULL", (job_id, asset_id))
         return cur.rowcount == 1
+
+
+def list_asset_rows(job_id: str, kinds: tuple[str, ...]) -> list[sqlite3.Row]:
+    marks = ",".join("?" * len(kinds))
+    with connect() as c:
+        return list(c.execute(f"SELECT * FROM assets WHERE job_id=? AND kind IN ({marks})", (job_id, *kinds)))
+
+
+def delete_asset(asset_id: str) -> None:
+    with connect() as c:
+        c.execute("DELETE FROM assets WHERE id=?", (asset_id,))

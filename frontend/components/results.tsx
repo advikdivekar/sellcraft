@@ -1,6 +1,6 @@
 "use client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Download, Info, Sparkles } from "lucide-react";
+import { AlertTriangle, Download, Film, Info, Loader2, Share2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { LISTING_SECTIONS, PLATFORMS, PLATFORM_FIELD_LABELS, SOCIAL_SECTIONS, TONES, VIDEO_SECTIONS, type SectionDef } from "@/lib/options";
 import { copyText } from "@/lib/image";
@@ -43,6 +43,20 @@ export function Results({ job }: { job: GenerationJob }) {
 
   const update = (j: GenerationJob) => qc.setQueryData(["job", job.id], j);
   const onError = (e: unknown) => setErr(e instanceof ApiError ? e.message : "Something went wrong.");
+
+  const reassemble = useMutation({ mutationFn: () => api.reassemble(job.id), onSuccess: update, onError });
+  const rendering = job.status === "generating_video" || job.status === "assembling_video";
+  const videoUrl = (id: string) => api.assetUrl(job.id, id);
+  async function shareVideo(id: string) {
+    try {
+      const blob = await (await fetch(videoUrl(id))).blob();
+      const file = new File([blob], `${slug(job.product.name)}.mp4`, { type: "video/mp4" });
+      if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: job.product.name });
+      else window.open(videoUrl(id), "_blank");
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") setErr("Couldn't open the share sheet. Use the Download link instead.");
+    }
+  }
 
   const save = useMutation({ mutationFn: (c: CopyOutput) => api.saveCopy(job.id, c), onSuccess: update, onError });
   const regen = useMutation({
@@ -129,11 +143,27 @@ export function Results({ job }: { job: GenerationJob }) {
           <>
             <div className="rounded-xl border border-border bg-background p-4">
               {video ? (
-                <video className="mx-auto max-h-[70dvh] rounded-lg" src={api.assetUrl(job.id, video.id)} controls playsInline preload="metadata" />
+                <>
+                  <video key={video.id} className="mx-auto max-h-[70dvh] rounded-lg" src={`${videoUrl(video.id)}#t=0.1`} controls playsInline preload="metadata" />
+                  <p className="mt-2 text-center text-xs text-muted">
+                    {video.method === "animated_photo"
+                      ? "Animated-photo ad: your own photo with motion and text, not AI-generated footage."
+                      : `AI-generated video (${video.method})`}
+                    {video.duration_seconds ? ` · ${video.duration_seconds.toFixed(0)}s · vertical 9:16` : ""}
+                  </p>
+                  <div className="mt-3 flex flex-wrap justify-center gap-2">
+                    <Button variant="secondary" size="sm" onClick={() => shareVideo(video.id)}><Share2 className="size-4" />Save / Share</Button>
+                    <Button variant="secondary" size="sm" busy={reassemble.isPending || job.status === "assembling_video"} onClick={() => reassemble.mutate()}>
+                      <Film className="size-4" />Update video text
+                    </Button>
+                  </div>
+                  <p className="mt-2 text-center text-xs text-muted">Edited the hook, feature or CTA? Update video text re-renders the words only. The motion isn&apos;t re-made.</p>
+                </>
+              ) : rendering ? (
+                <p className="flex items-center justify-center gap-2 py-6 text-sm text-muted"><Loader2 className="size-4 animate-spin" />Rendering your video…</p>
               ) : (
-                <p className="text-sm text-muted">The video isn&apos;t generated yet. The brief below is ready for it.</p>
+                <p className="text-sm text-muted">No video yet. See the message above to retry.</p>
               )}
-              {video && <p className="mt-2 text-center text-xs text-muted">{video.method === "animated_photo" ? "Animated-photo ad (your photo with motion and text, not AI-generated footage)" : `AI-generated video (${video.method})`}</p>}
             </div>
             {VIDEO_SECTIONS.map(core)}
             <p className={cx("-mt-3 text-xs", secs > 10 ? "text-danger" : "text-muted")}>
@@ -158,7 +188,7 @@ export function Results({ job }: { job: GenerationJob }) {
         <Button variant="secondary" onClick={() => copyText(asText(copy, platforms))}>Copy everything</Button>
         <Button variant="secondary" onClick={() => download(`${slug(job.product.name)}-listing.txt`, asText(copy, platforms), "text/plain")}><Download className="size-4" />Listing .txt</Button>
         <Button variant="secondary" onClick={() => download(`${slug(job.product.name)}-listing.json`, JSON.stringify(copy, null, 2), "application/json")}><Download className="size-4" />Listing .json</Button>
-        {video && <a className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-5 hover:bg-accent-soft" href={api.assetUrl(job.id, video.id)} download><Download className="size-4" />Video .mp4</a>}
+        {video && <a className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-surface px-5 hover:bg-accent-soft" href={videoUrl(video.id)} download={`${slug(job.product.name)}.mp4`}><Download className="size-4" />Video .mp4</a>}
       </Card>
     </div>
   );

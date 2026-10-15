@@ -29,8 +29,13 @@ export default function JobPage() {
       {job && (
         <>
           <h1 className="mb-5 text-2xl font-semibold tracking-tight">{job.product.name}</h1>
-          {job.status === "completed" && job.copy_output ? (
-            <Results job={job} />
+          {job.copy_output ? (
+            <div className="space-y-5">
+              {job.status !== "completed" && (
+                <Card><Progress job={job} onRetry={() => retry.mutate()} retrying={retry.isPending} /></Card>
+              )}
+              <Results job={job} />
+            </div>
           ) : (
             <Card><Progress job={job} onRetry={() => retry.mutate()} retrying={retry.isPending} /></Card>
           )}

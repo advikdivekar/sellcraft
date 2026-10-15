@@ -160,7 +160,10 @@ def test_job_completes_and_records_stages(client, uploaded):
     jobs.run_generation(job_id, CopyService(FakeLLM([good_llm_data()])))
     job = db.get_job(job_id)
     assert job.status.value == "completed" and job.copy_output is not None
-    assert [(s.name, s.status) for s in job.stages] == [("copy", "done"), ("video", "skipped")]
+    assert [(s.name, s.status) for s in job.stages] == [("copy", "done"), ("video", "done"), ("assembly", "done")]
+    vid = [a for a in job.assets if a.kind == "video"]
+    assert len(vid) == 1 and vid[0].method == "animated_photo" and abs(vid[0].duration_seconds - 10) < 0.5
+    assert all(a.kind != "clip" for a in job.assets)  # internal clip never exposed
 
 
 def test_job_failure_is_safe_and_retryable(client, uploaded):
@@ -257,3 +260,90 @@ def test_filler_words_removed_from_facts_but_real_words_kept():
     assert clean_fact("Umm, handmade hat") == "handmade hat"
     assert clean_fact("Haha-proof, hammock, Hahn ceramic") == "Haha-proof, hammock, Hahn ceramic"
     assert clean_fact("haa") is None
+
+
+# ---------- video ----------
+def _demo(monkeypatch):
+    from app import config
+    monkeypatch.setenv("DEMO_MODE", "true")
+    config.get_settings.cache_clear()
+
+
+def test_video_served_and_scoped_to_job(client, uploaded, monkeypatch):
+    _demo(monkeypatch)
+    j = client.post("/api/generations", json={"product": {"name": "A", "image_asset_id": uploaded, "features": ["x"]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    vid = next(a for a in job["assets"] if a["kind"] == "video")
+    r = client.get(f"/api/generations/{j['id']}/assets/{vid['id']}")
+    assert r.status_code == 200 and r.headers["content-type"] == "video/mp4" and r.content[4:8] == b"ftyp"
+    other = client.post("/api/uploads", files={"file": ("p.png", png_bytes(), "image/png")}).json()["asset_id"]
+    j2 = client.post("/api/generations", json={"product": {"name": "B", "image_asset_id": other}}).json()
+    assert client.get(f"/api/generations/{j2['id']}/assets/{vid['id']}").status_code == 404
+
+
+def test_video_failure_keeps_copy_and_retry_skips_copy(client, uploaded, monkeypatch):
+    from app.services.video import service as video
+    llm = FakeLLM([good_llm_data()])
+    job_id = _make_job(client, uploaded)
+    real = video.render_clip
+    monkeypatch.setattr(video, "render_clip", lambda job: (_ for _ in ()).throw(AppError("video_render_failed", "boom", retryable=True)))
+    jobs.run_generation(job_id, CopyService(llm))
+    job = db.get_job(job_id)
+    assert job.status.value == "failed" and job.error.code == "video_render_failed" and job.copy_output is not None
+    assert [(s.name, s.status) for s in job.stages] == [("copy", "done"), ("video", "failed")]
+    monkeypatch.setattr(video, "render_clip", real)
+    jobs.run_generation(job_id, CopyService(llm))  # FakeLLM has no responses left: copy must NOT be regenerated
+    assert db.get_job(job_id).status.value == "completed" and len(llm.calls) == 1
+
+
+def test_unknown_video_provider_fails_cleanly(client, uploaded, monkeypatch):
+    from app import config
+    monkeypatch.setenv("VIDEO_PROVIDER", "ltx")
+    config.get_settings.cache_clear()
+    job_id = _make_job(client, uploaded)
+    jobs.run_generation(job_id, CopyService(FakeLLM([good_llm_data()])))
+    job = db.get_job(job_id)
+    assert job.status.value == "failed" and job.error.code == "video_provider_unavailable" and job.copy_output
+
+
+def test_special_characters_render_safely(client, uploaded, monkeypatch):
+    _demo(monkeypatch)
+    nasty = "50% off' \"quoted\" {x} [y] ; $(rm -rf /) \\ \u2728 :colon"
+    j = client.post("/api/generations", json={"product": {"name": nasty, "image_asset_id": uploaded, "features": [nasty]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    assert job["status"] == "completed" and any(a["kind"] == "video" for a in job["assets"])
+
+
+def test_reassemble_replaces_video_without_new_clip(client, uploaded, monkeypatch):
+    _demo(monkeypatch)
+    j = client.post("/api/generations", json={"product": {"name": "A", "image_asset_id": uploaded, "features": ["x"]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    old = next(a for a in job["assets"] if a["kind"] == "video")["id"]
+    clip_before = [r["id"] for r in db.list_asset_rows(j["id"], ("clip",))]
+    edited = job["copy_output"] | {"video_hook": "A brand new hook"}
+    client.patch(f"/api/generations/{j['id']}/copy", json=edited)
+    assert client.post(f"/api/generations/{j['id']}/reassemble").status_code == 202
+    after = client.get(f"/api/generations/{j['id']}").json()
+    new = [a for a in after["assets"] if a["kind"] == "video"]
+    assert len(new) == 1 and new[0]["id"] != old and after["status"] == "completed"
+    assert [r["id"] for r in db.list_asset_rows(j["id"], ("clip",))] == clip_before
+    assert client.get(f"/api/generations/{j['id']}/assets/{old}").status_code == 404
+
+
+def test_validate_rejects_wrong_duration(tmp_path):
+    import subprocess
+    from app.services.video import ffmpeg
+    short = tmp_path / "s.mp4"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=c=red:s=1080x1920:d=3", "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", str(short)], check=True)
+    with pytest.raises(AppError) as e:
+        ffmpeg.validate(short, target=10.0, size=(1080, 1920))
+    assert e.value.code == "video_bad_duration"
+
+
+def test_card_text_is_cleaned_and_fits(tmp_path):
+    from PIL import Image
+    from app.services.video.cards import clean_text, render_card
+    assert clean_text("Hi \u2728\U0001F600\n there") == "Hi there"
+    out = render_card([("title", "word " * 60)], "minimal", 1080, tmp_path / "c.png")
+    assert Image.open(out).width <= 1080 * 0.80 + 110
