@@ -73,6 +73,9 @@ def _validate(data: dict, platforms: list[Platform]) -> CopyOutput:
     except ValidationError as e:
         raise AppError("llm_invalid_output", f"The model's output didn't match the expected format: {e.error_count()} problems.",
                        retryable=True, status=502)
+    if re.search(r"\{[A-Za-z_]+\}|\[[A-Za-z_ ]+\]", copy.model_dump_json()):
+        raise AppError("llm_placeholder_output", "The model left template placeholders in its output.",
+                       retryable=True, status=502)
     empty = [f for f in REQUIRED_NONEMPTY if not getattr(copy, f).strip()]
     empty += [f"platform_outputs.{p.value}" for p in platforms if not any(copy.platform_outputs.get(p.value, {}).values())]
     if empty:

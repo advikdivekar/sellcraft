@@ -61,6 +61,8 @@ Hard rules:
 - If useful information is absent (e.g. materials, size, price), do NOT guess; list it in "missing_information" and leave details out of the copy.
 - List any phrase in your copy that makes a claim the seller should double-check in "claims_requiring_review".
 - Never use words from the seller's FORBIDDEN WORDS list.
+- Never output template placeholders such as {hook} or [name]; write the final text.
+- Do not assume who the buyer is (gender, age, occasion) unless the facts say so. Do not claim fit, comfort, durability or quality that the facts don't state.
 - Keep calls to action suitable for the platform; no fake urgency ("only 3 left", "sale ends tonight").
 - The video does not render text; on-screen text is added later, so keep hooks short (max 8 words).
 - voiceover_script must be readable aloud in about 10 seconds (maximum 25 words).

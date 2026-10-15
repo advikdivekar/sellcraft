@@ -242,3 +242,10 @@ def test_retry_only_for_failed_jobs(client, uploaded, monkeypatch):
     r = client.post(f"/api/generations/{j['id']}/retry")
     assert r.status_code == 202
     assert client.get(f"/api/generations/{j['id']}").json()["status"] == "completed"
+
+
+def test_placeholder_output_is_repaired():
+    bad = good_llm_data(); bad["social_caption"] = "{hook} Meet the moon."
+    llm = FakeLLM([bad, good_llm_data()])
+    res = CopyService(llm).generate(product(), CreativeSettings())
+    assert "{" not in res.copy.social_caption and len(llm.calls) == 2
