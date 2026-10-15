@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     vision_model: str = ""  # defaults to OLLAMA_MODEL; must be a multimodal model (Gemma 3 is)
     demo_mode: bool = False
 
+    superres_model: str = "fsrcnn"  # fsrcnn (fast) | espcn (fastest) | edsr (best, ~10x slower); "off" disables upscaling
     cutout_model: str = "silueta"  # rembg model: silueta (44 MB, fast) or u2net (176 MB, slightly cleaner edges)
     video_provider: str = "fallback"
     video_provider_url: str = ""

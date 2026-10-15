@@ -10,6 +10,7 @@ from .assemble import assemble
 from .base import ImageToVideoProvider, size_for
 from .cards import clean_text, render_card
 from .base import ClipResult
+from .deck import Slide, build as build_deck
 from .provider import StudioAdProvider
 
 
@@ -92,3 +93,23 @@ def clear_outputs(job_id: str, *, kinds: tuple[str, ...]) -> None:
 
 def remove_job_dir(job_id: str) -> None:
     shutil.rmtree(get_settings().output_path / job_id, ignore_errors=True)
+
+
+def render_deck(job: GenerationJob) -> tuple[list[Slide], list[str]]:
+    """Stage: deck. Lays the refined product images on designed slides using the (editable) copy."""
+    from PIL import Image
+    copy = job.copy_output
+    if copy is None:
+        raise AppError("no_copy", "There's no copy to build the image deck from yet.", status=409)
+    rows = db.list_asset_rows(job.id, ("product_src",))
+    products = []
+    for r in sorted(rows, key=lambda r: Path(r["path"]).name):  # product-0.png, product-1.png, ... = upload order
+        with Image.open(r["path"]) as im:
+            products.append(im.convert("RGBA"))
+    if not products:
+        raise AppError("deck_inputs_missing", "The refined product images are missing. Use Try again to rebuild them.", retryable=True, status=409)
+    d = job_dir(job.id)
+    for old in d.glob("deck-*.jpg"):
+        old.unlink(missing_ok=True)
+    return build_deck(products, style=job.settings.visual_style.value, copy=copy, product_name=job.product.name,
+                      brand=job.product.brand_name, out_dir=d)

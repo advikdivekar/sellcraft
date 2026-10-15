@@ -149,6 +149,8 @@ def download_kit(job_id: str):
     name = export.slug(job.product.name)
     files = [(f"{name}-ad.mp4", p) for p in _paths(job, "video")]
     files += [(f"photos/{name}-studio-{i}.jpg", p) for i, p in enumerate(_paths(job, "studio_image"), start=1)]
+    files += [(f"deck/{name}-slide-{i:02d}-{a.method}.jpg", p) for i, (a, p) in enumerate(
+        ((a, storage.asset_file(db.get_asset_row(a.id))) for a in job.assets if a.kind == "deck_slide"), start=1)]
     files += [(f"photos/{name}-white-background-{i}.jpg", p) for i, p in enumerate(_paths(job, "catalog_image"), start=1)]
     files += [(f"photos/{name}-transparent-{i}.png", p) for i, p in enumerate(_paths(job, "cutout_image"), start=1)]
     data = export.kit_zip(name=name, copy=job.copy_output, platforms=job.settings.platforms, files=files)

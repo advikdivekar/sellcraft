@@ -175,7 +175,7 @@ class StageEntry(BaseModel):
 
 class GeneratedAsset(BaseModel):
     id: str
-    kind: str  # image | studio_image | catalog_image | cutout_image | video | audio | clip(internal)
+    kind: str  # image | studio_image | catalog_image | cutout_image | deck_slide | video | audio | clip/product_src(internal)
     mime: str
     method: str | None = None  # upload | studio_cutout | animated_photo | ltx | elevenlabs
     duration_seconds: float | None = None
@@ -218,8 +218,8 @@ class PublishRequest(BaseModel):
 
 
 # Share of the overall bar each stage owns (copy and video run at the same time, so both advance together).
-STAGE_WEIGHTS = {"copy": 0.50, "video": 0.30, "voiceover": 0.05, "assembly": 0.15}
-STAGE_PHASE = {"copy": "Writing your copy", "video": "Building studio photos and video",
+STAGE_WEIGHTS = {"copy": 0.48, "video": 0.30, "deck": 0.05, "voiceover": 0.04, "assembly": 0.13}
+STAGE_PHASE = {"copy": "Writing your copy", "video": "Refining photos and building the video", "deck": "Designing your image deck",
                "voiceover": "Generating voiceover", "assembly": "Adding text to the video"}
 
 

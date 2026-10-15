@@ -50,7 +50,11 @@ class StudioAdProvider(ImageToVideoProvider):
             img = ImageOps.exif_transpose(raw).convert("RGB")
         cut = studio.cutout(img)
         stats = studio.measure(img, cut)  # what the photo shows -> drives the clean-up and the backdrop
-        prod = studio.enhance(cut) if cut is not None else studio.framed(img)
+        refined: list[str] = []
+        if cut is not None:
+            prod, refined = studio.refine(cut, stats.sharpness)  # retouch the product itself, not just the backdrop
+        else:
+            prod = studio.framed(img)
         palette, palette_note = studio.adapt_palette(style, stats) if cut is not None else (None, None)
         lay = studio.layout(W, H, prod)
         layer = studio.product_layer(prod, lay, style)
@@ -69,12 +73,16 @@ class StudioAdProvider(ImageToVideoProvider):
         still_p = out_dir / f"studio-{i}.jpg"
         still.convert("RGB").save(still_p, quality=93)
         images.append(("studio_image", still_p))
+        src_p = out_dir / f"product-{i}.png"  # the refined product, reused later by the image deck
+        prod.save(src_p)
+        images.append(("product_src", src_p))
         if cut is not None:  # clean product-only assets are only meaningful when the background was really removed
-            cat_p, cut_p = out_dir / f"catalog-{i}.jpg", out_dir / f"cutout-{i}.png"
+            cat_p = out_dir / f"catalog-{i}.jpg"
             studio.catalog_image(prod).save(cat_p, quality=94)
-            prod.save(cut_p)
-            images += [("catalog_image", cat_p), ("cutout_image", cut_p)]
+            images += [("catalog_image", cat_p), ("cutout_image", src_p)]
         notes = [f"Photo {i + 1}: {w}." for w in stats.warnings]
+        if refined:
+            notes.append(f"Photo {i + 1}: refined the product itself ({', '.join(refined)}).")
         if palette_note:
             notes.append(f"Photo {i + 1}: {palette_note}")
         if cut is None:

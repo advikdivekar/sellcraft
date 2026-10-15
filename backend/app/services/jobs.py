@@ -65,7 +65,7 @@ def _stage_video(job_id, stages):
     """Studio-enhance the photos and render the motion clip. Needs no copy, so it starts immediately."""
     job = db.get_job(job_id)
     _set_stage(job_id, stages, "video", "running", progress=0.02)
-    video.clear_outputs(job_id, kinds=("clip", "video", "studio_image", "catalog_image", "cutout_image"))
+    video.clear_outputs(job_id, kinds=("clip", "video", "studio_image", "catalog_image", "cutout_image", "product_src", "deck_slide"))
     with tracing.span("video", "video.clip", style=job.settings.visual_style.value, photos=len(job.product.image_asset_ids)):
         res = video.render_clip(job, on_progress=lambda f: _set_stage(job_id, stages, "video", "running", progress=f))
     db.add_asset(kind="clip", mime="video/mp4", path=res.clip, method=res.method, job_id=job_id)
@@ -73,6 +73,24 @@ def _stage_video(job_id, stages):
         db.add_asset(kind=kind, mime="image/png" if path.suffix == ".png" else "image/jpeg", path=path, method=res.method, job_id=job_id)
     _set_stage(job_id, stages, "video", "done", res.method, res.notes)
     return res.clip, res.method
+
+
+def _stage_deck(job_id, stages):
+    """Image deck from the refined product images + the (possibly edited) copy. A deck problem never blocks the video."""
+    job = db.get_job(job_id)
+    _set_stage(job_id, stages, "deck", "running", progress=0.3)
+    for row in db.list_asset_rows(job_id, ("deck_slide",)):  # clear the previous deck first: new slides reuse the same file names
+        Path(row["path"]).unlink(missing_ok=True)
+        db.delete_asset(row["id"])
+    try:
+        with tracing.span("deck", "deck.build"):
+            slides, notes = video.render_deck(job)
+    except AppError as e:
+        _set_stage(job_id, stages, "deck", "failed", e.code, notes=[e.message])
+        return
+    for sl in slides:
+        db.add_asset(kind="deck_slide", mime="image/jpeg", path=sl.path, method=sl.kind, job_id=job_id)
+    _set_stage(job_id, stages, "deck", "done", f"{len(slides)} slides", notes=notes)
 
 
 def _stage_assembly(job_id, stages, clip, method):
@@ -103,6 +121,7 @@ def run_generation(job_id: str, copy_service: CopyService | None = None) -> None
                 clip, method = video_future.result()
             if job.settings.voiceover:
                 _set_stage(job_id, stages, "voiceover", "skipped", "Voiceover isn't enabled yet")
+            _stage_deck(job_id, stages)
             _stage_assembly(job_id, stages, clip, method)
         db.update_job(job_id, status=JobStatus.completed)
     except AppError as e:
@@ -123,6 +142,8 @@ def run_reassembly(job_id: str) -> None:
         if not rows:
             raise AppError("clip_missing", "The base video is missing. Use Try again to rebuild it.", retryable=True, status=409)
         old = db.list_asset_rows(job_id, ("video",))
+        stages = [s for s in stages if s.name != "deck"] + [s for s in job.stages if s.name == "deck"]
+        _stage_deck(job_id, stages)  # the deck shows the title, benefits and CTA, so it follows the copy edits too
         _stage_assembly(job_id, stages, Path(rows[0]["path"]), rows[0]["method"])
         for r in old:  # keep the previous video until the new one is verified
             Path(r["path"]).unlink(missing_ok=True)

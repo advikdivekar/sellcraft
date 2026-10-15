@@ -11,3 +11,4 @@ pytest-asyncio>=0.23
 rembg[cpu]>=2.0.60
 numpy>=1.26
 cryptography>=42
+opencv-contrib-python-headless>=4.9

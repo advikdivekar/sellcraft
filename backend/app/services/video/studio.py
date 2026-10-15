@@ -43,22 +43,28 @@ def warmup() -> None:
 
 
 def cutout(img: Image.Image) -> Image.Image | None:
-    """Return the product as a tight RGBA crop, or None if no clean subject was found."""
+    """Return the product as a tight RGBA crop at the photo's FULL resolution, or None if no clean subject was found.
+    The mask is predicted on a small copy (fast) and scaled up, so the product keeps all of its real pixels."""
     try:
         from rembg import remove
         work = img.convert("RGB")
-        work.thumbnail((1400, 1400))
+        if max(work.size) > 3000:
+            work.thumbnail((3000, 3000), Image.LANCZOS)
+        small = work.copy()
+        small.thumbnail((1400, 1400), Image.LANCZOS)
         with _lock:
-            out = remove(work, session=_get_session())
+            pred = remove(small, session=_get_session())
     except Exception:  # noqa: BLE001 - missing package, no network for the model download, etc.
         log.warning("background removal failed", exc_info=True)
         return None
-    alpha = out.getchannel("A")
-    cov = float((np.asarray(alpha) > 40).mean())
+    pred = _keep_main_subject(pred)
+    alpha_small = pred.getchannel("A")
+    cov = float((np.asarray(alpha_small) > 40).mean())
     if cov < 0.04 or cov > 0.96:  # nothing detected, or nothing was removed
         return None
-    out = _keep_main_subject(out)
-    alpha = out.getchannel("A")
+    alpha = alpha_small.resize(work.size, Image.LANCZOS)
+    out = work.convert("RGBA")
+    out.putalpha(alpha)
     box = alpha.point(lambda v: 255 if v > 24 else 0).getbbox()
     if not box:
         return None
@@ -97,30 +103,115 @@ def _decontaminate_edges(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
     return np.where(ring, fill, rgb)
 
 
-def enhance(rgba: Image.Image) -> Image.Image:
-    """Clean the cut-out: fix colour cast + exposure measured on the product only, tidy edge halos, add gentle
-    contrast/sharpness. Colours stay true to the product (every correction is capped)."""
-    arr = np.asarray(rgba.convert("RGBA")).astype(np.float32)
-    rgb, a = arr[..., :3], arr[..., 3]
+_sr_cache: dict = {}
+SR_URLS = {
+    "fsrcnn": "https://github.com/Saafke/FSRCNN_Tensorflow/raw/master/models/FSRCNN_x2.pb",
+    "espcn": "https://github.com/fannymonori/TF-ESPCN/raw/master/export/ESPCN_x2.pb",
+    "edsr": "https://github.com/Saafke/EDSR_Tensorflow/raw/master/models/EDSR_x2.pb",
+}
+
+
+def _superres_model():
+    """OpenCV dnn_superres network (x2). Downloads a small .pb once; None if unavailable (upscaling is then skipped)."""
+    name = get_settings().superres_model.lower()
+    if name not in SR_URLS:
+        return None
+    with _lock:
+        if name in _sr_cache:
+            return _sr_cache[name]
+        model = None
+        try:
+            import cv2
+            path = get_settings().db_path.parent / "models" / f"{name.upper()}_x2.pb"
+            if not path.exists():
+                import httpx
+                path.parent.mkdir(parents=True, exist_ok=True)
+                r = httpx.get(SR_URLS[name], follow_redirects=True, timeout=60)
+                r.raise_for_status()
+                tmp = path.with_suffix(".tmp")
+                tmp.write_bytes(r.content)
+                tmp.replace(path)
+            model = cv2.dnn_superres.DnnSuperResImpl_create()
+            model.readModel(str(path))
+            model.setModel(name, 2)
+        except Exception:  # noqa: BLE001
+            log.warning("super-resolution model unavailable; skipping upscaling", exc_info=True)
+        _sr_cache[name] = model
+        return model
+
+
+def refine(rgba: Image.Image, sharpness: float = 100.0) -> tuple[Image.Image, list[str]]:
+    """Retouch the PRODUCT pixels (not just the backdrop): denoise, AI upscale, recover local contrast, fix colour
+    cast and exposure, clean the edge halo, and sharpen in proportion to how soft the photo was. Never repaints
+    or invents detail the way a generative model would, so labels, logos and shape stay true.
+    Returns (image, what_was_done)."""
+    import cv2
+    done: list[str] = []
+    im = rgba.convert("RGBA")
+    if max(im.size) > 2000:  # keep processing time bounded on 12-MP phone photos
+        im.thumbnail((2000, 2000), Image.LANCZOS)
+    arr = np.asarray(im)
+    a = arr[..., 3]
+    bgr = cv2.cvtColor(arr[..., :3], cv2.COLOR_RGB2BGR)
     solid = a > 200
+
+    # 1. denoise (strength follows the measured noise)
+    gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    sigma = float(np.median(np.abs(cv2.Laplacian(gray, cv2.CV_32F)[solid])) / 0.6745) if solid.sum() > 200 else 0.0
+    if sigma > 1.6:
+        bgr = cv2.fastNlMeansDenoisingColored(bgr, None, float(np.clip(sigma * 0.7, 2.5, 7)), 4, 5, 15)
+        done.append("reduced camera noise")
+
+    # 2. AI super-resolution when the product has few pixels (x2, small neural net, runs on CPU)
+    if max(im.size) < 1100:
+        sr = _superres_model()
+        if sr is not None:
+            try:
+                bgr = sr.upsample(bgr)
+                a = np.asarray(Image.fromarray(a).resize((bgr.shape[1], bgr.shape[0]), Image.LANCZOS))
+                done.append("upscaled 2× with a super-resolution network")
+            except Exception:  # noqa: BLE001
+                log.warning("super-resolution failed", exc_info=True)
+    solid = a > 200
+
+    # 3. local contrast (CLAHE on lightness only), blended so it never looks processed
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+    l_eq = cv2.createCLAHE(clipLimit=1.8, tileGridSize=(6, 6)).apply(lab[..., 0])
+    lab[..., 0] = cv2.addWeighted(lab[..., 0], 0.55, l_eq, 0.45, 0)
+    bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+    done.append("recovered local contrast")
+
+    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32)
+    # 4. colour cast + exposure, measured on the product only and capped
     if solid.sum() > 200:
         px = rgb[solid]
         mean = px.mean(axis=0)
-        gray = float(mean.mean())
-        gain = np.clip(gray / np.maximum(mean, 1.0), 0.92, 1.08)  # gray-world, capped at +/-8%
-        if float(np.abs(mean - gray).max()) < 0.28 * gray:  # skip: strongly coloured products are not a cast
-            rgb = rgb * gain
+        g = float(mean.mean())
+        if float(np.abs(mean - g).max()) < 0.28 * g:  # strongly coloured products are not a cast
+            gain = np.clip(g / np.maximum(mean, 1.0), 0.92, 1.08)
+            if float(np.abs(gain - 1).max()) > 0.02:
+                rgb = rgb * gain
+                done.append("corrected colour cast")
         lo, hi = np.percentile(px.mean(axis=1), [1, 99])
-        if hi - lo > 30:  # stretch exposure, but never past a natural-looking range
-            k = float(np.clip(235.0 / max(hi, 1.0), 0.9, 1.25))
-            rgb = np.clip((rgb - lo * 0.5) * k, 0, 255)
+        if hi - lo > 30:
+            rgb = np.clip((rgb - lo * 0.5) * float(np.clip(235.0 / max(hi, 1.0), 0.9, 1.25)), 0, 255)
     rgb = _decontaminate_edges(rgb, a)
+
     out = Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8))
-    out = ImageEnhance.Contrast(out).enhance(1.04)
-    out = ImageEnhance.Sharpness(out).enhance(1.25).convert("RGBA")
-    alpha = Image.fromarray(a.astype(np.uint8)).filter(ImageFilter.MinFilter(5)).filter(ImageFilter.GaussianBlur(1.1))
+    out = ImageEnhance.Contrast(out).enhance(1.03)
+    out = ImageEnhance.Color(out).enhance(1.05)
+    # 5. sharpen in proportion to softness (soft photos get more, sharp ones barely any)
+    amount = 0.35 + 0.65 * float(np.clip((90 - sharpness) / 90, 0, 1))
+    out = out.filter(ImageFilter.UnsharpMask(radius=1.6, percent=int(100 + 120 * amount), threshold=2)).convert("RGBA")
+    if sharpness < 60:
+        done.append("sharpened a soft photo")
+    alpha = Image.fromarray(a).filter(ImageFilter.MinFilter(5)).filter(ImageFilter.GaussianBlur(1.1))
     out.putalpha(alpha)  # eroded + feathered edge: removes the light halo left by the old background
-    return out
+    return out, done
+
+
+def enhance(rgba: Image.Image) -> Image.Image:
+    return refine(rgba)[0]
 
 
 @dataclass

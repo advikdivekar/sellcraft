@@ -110,7 +110,7 @@ def get_job(job_id: str) -> GenerationJob | None:
         if not row:
             return None
         assets = [_asset(r) for r in c.execute(
-            "SELECT * FROM assets WHERE job_id=? AND kind != 'clip' ORDER BY created_at", (job_id,))]
+            "SELECT * FROM assets WHERE job_id=? AND kind NOT IN ('clip', 'product_src') ORDER BY created_at", (job_id,))]
     return _job(row, assets)
 
 

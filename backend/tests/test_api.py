@@ -827,3 +827,93 @@ def test_access_code_gates_the_api(client, monkeypatch):
 def test_access_gate_off_by_default(client):
     assert client.get("/api/access").json() == {"required": False, "granted": True}
     assert client.get("/api/providers/status").status_code == 200
+
+
+# ---------- image deck + product refinement ----------
+def _prod(w=900, h=1200, color=(200, 60, 50)):
+    from PIL import Image, ImageDraw
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(im).rounded_rectangle((20, 20, w - 20, h - 20), radius=120, fill=color + (255,))
+    return im
+
+
+def _copy(**kw):
+    from app.schemas import CopyOutput
+    base = dict(product_title="Moon Necklace", ad_headline="Wear the night sky", call_to_action="Shop now",
+                key_features=["925 sterling silver", "Adjustable chain"], benefits=["Hypoallergenic clasp", "Gift box included"])
+    return CopyOutput(**(base | kw))
+
+
+def test_deck_has_hero_benefits_detail_and_cta(tmp_path):
+    from PIL import Image
+    from app.services.video import deck
+    slides, notes = deck.build([_prod()], style="premium_studio", copy=_copy(), product_name="Moon Necklace", brand="Acme", out_dir=tmp_path)
+    assert [s.kind for s in slides] == ["hero", "benefits", "detail", "cta"] and notes == []
+    assert all(Image.open(s.path).size == (1080, 1350) for s in slides)
+
+
+def test_deck_benefits_use_only_supplied_facts_and_are_skipped_without_them(tmp_path):
+    from app.services.video import deck
+    heading, items = deck.benefit_items(_copy())
+    assert heading == "Why you’ll like it" and items == ["Hypoallergenic clasp", "Gift box included"]
+    heading, items = deck.benefit_items(_copy(benefits=["only one"]))  # <2 verified benefits -> falls back to features
+    assert heading == "Highlights" and items == ["925 sterling silver", "Adjustable chain"]
+    slides, notes = deck.build([_prod()], style="minimal", copy=_copy(benefits=[], key_features=["just one"]),
+                               product_name="X", brand=None, out_dir=tmp_path)
+    assert "benefits" not in [s.kind for s in slides] and any("benefits slide" in n for n in notes)
+
+
+def test_deck_skips_closeup_when_product_has_too_few_pixels_and_adds_angles(tmp_path):
+    from app.services.video import deck
+    slides, notes = deck.build([_prod(300, 400), _prod(500, 600), _prod(500, 600)], style="warm_cozy", copy=_copy(),
+                               product_name="X", brand=None, out_dir=tmp_path)
+    kinds = [s.kind for s in slides]
+    assert "detail" not in kinds and kinds.count("angle") == 2 and kinds[0] == "hero" and kinds[-1] == "cta"
+    assert any("close-up" in n.lower() for n in notes)
+
+
+def test_deck_text_fits_even_with_huge_strings(tmp_path):
+    from PIL import Image
+    from app.services.video import deck
+    long = "word " * 80
+    slides, _ = deck.build([_prod()], style="bold_colorful", copy=_copy(product_title=long, call_to_action=long, benefits=[long, long, long, long, long]),
+                           product_name=long, brand=long, out_dir=tmp_path)
+    assert all(Image.open(s.path).size == (1080, 1350) for s in slides)
+
+
+def test_job_builds_deck_assets_and_reassembly_refreshes_them(client, uploaded, monkeypatch):
+    _demo(monkeypatch)
+    j = client.post("/api/generations", json={"product": {"name": "A", "image_asset_ids": [uploaded], "features": ["x", "y"]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    deck_assets = [a for a in job["assets"] if a["kind"] == "deck_slide"]
+    assert job["status"] == "completed" and len(deck_assets) >= 2 and deck_assets[0]["method"] == "hero" and deck_assets[-1]["method"] == "cta"
+    assert any(s["name"] == "deck" and s["status"] == "done" for s in job["stages"])
+    assert all(a["kind"] != "product_src" for a in job["assets"])  # internal
+    edited = job["copy_output"] | {"call_to_action": "Order today"}
+    client.patch(f"/api/generations/{j['id']}/copy", json=edited)
+    client.post(f"/api/generations/{j['id']}/reassemble")
+    after = client.get(f"/api/generations/{j['id']}").json()
+    new = [a for a in after["assets"] if a["kind"] == "deck_slide"]
+    assert len(new) == len(deck_assets) and {a["id"] for a in new}.isdisjoint({a["id"] for a in deck_assets})
+    import io, zipfile
+    z = zipfile.ZipFile(io.BytesIO(client.get(f"/api/generations/{j['id']}/kit.zip").content))
+    assert any(n.startswith("deck/") and n.endswith("-hero.jpg") for n in z.namelist())
+
+
+def test_refine_denoises_upscales_and_keeps_colour():
+    import numpy as np
+    from PIL import Image
+    from app.services.video import studio
+    rng = np.random.default_rng(3)
+    base = np.zeros((500, 400, 4), np.uint8)
+    base[40:460, 40:360] = (210, 60, 50, 255)
+    noisy = base.copy()
+    noisy[..., :3] = np.clip(base[..., :3].astype(np.int16) + rng.normal(0, 8, (500, 400, 3)), 0, 255).astype(np.uint8)
+    src = Image.fromarray(noisy, "RGBA")
+    out, done = studio.refine(src, sharpness=30)
+    assert "reduced camera noise" in done and out.width >= 800  # denoised and upscaled
+    grid = lambda im: np.asarray(im.convert("RGB")).astype(np.float32)[240:760, 240:560]
+    baseline = grid(src.resize(out.size, Image.BICUBIC))
+    refined = grid(out)
+    assert refined.std(axis=(0, 1)).mean() < 0.85 * baseline.std(axis=(0, 1)).mean()  # visibly less noise than plain upscaling
+    assert refined[..., 0].mean() > refined[..., 1].mean() * 2.5  # a red product stays red
