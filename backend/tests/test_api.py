@@ -489,7 +489,7 @@ def test_framed_fallback_is_labelled_honestly(client, uploaded, monkeypatch):
     job = client.get(f"/api/generations/{j['id']}").json()
     assert next(a for a in job["assets"] if a["kind"] == "video")["method"] == "animated_photo"
     video_stage = next(s for s in job["stages"] if s["name"] == "video")
-    assert any("Background removal" in n for n in video_stage["notes"])
+    assert any("background removal" in n.lower() for n in video_stage["notes"])
 
 
 def test_copy_and_video_run_concurrently(client, uploaded, monkeypatch):
@@ -499,9 +499,9 @@ def test_copy_and_video_run_concurrently(client, uploaded, monkeypatch):
     started = {}
     real = video.render_clip
 
-    def spy(job):
+    def spy(job, **kw):
         started["video"] = time.monotonic()
-        return real(job)
+        return real(job, **kw)
 
     class SlowLLM(FakeLLM):
         def generate_json(self, *a, **k):
@@ -646,3 +646,89 @@ def test_publish_endpoint_needs_confirmation_and_config(client, uploaded, monkey
     r = client.post(f"/api/generations/{j['id']}/publish/shopify", json={"confirm": True})
     assert r.status_code == 409 and r.json()["error"]["code"] == "shopify_not_configured"
     assert client.get("/api/providers/status").json()["shopify"]["configured"] is False
+
+
+# ---------- progress, photo analysis, clean assets ----------
+def test_overall_progress_is_weighted_and_honest():
+    from app.schemas import CreativeSettings, JobStatus, StageEntry, overall_progress
+    st = lambda n, s, p=0.0: StageEntry(name=n, status=s, progress=p)
+    cs = CreativeSettings()
+    assert overall_progress([], cs, JobStatus.queued) == (0.0, "Getting started")
+    p, phase = overall_progress([st("copy", "running", 0.5), st("video", "running", 0.5)], cs, JobStatus.generating_copy)
+    assert p == pytest.approx((0.5 * 0.5 + 0.3 * 0.5) / 0.95, abs=1e-3) and phase == "Writing your copy + Building studio photos and video"
+    done, _ = overall_progress([st("copy", "done"), st("video", "done"), st("assembly", "running", 0.5)], cs, JobStatus.assembling_video)
+    assert 0.9 < done < 1.0
+    assert overall_progress([], cs, JobStatus.completed) == (1.0, None)
+    # a stage that claims 100% while still running must not push the bar to the end
+    assert overall_progress([st("copy", "running", 5.0)], cs, JobStatus.generating_copy)[0] < 0.6
+
+
+def test_job_progress_reaches_one_and_never_goes_backwards(client, uploaded, monkeypatch):
+    _demo(monkeypatch)
+    seen = []
+    real = db.update_job
+
+    def spy(job_id, **f):
+        real(job_id, **f)
+        if "stages" in f:
+            seen.append(db.get_job(job_id).progress)
+
+    monkeypatch.setattr(db, "update_job", spy)
+    job_id = _make_job(client, uploaded)
+    jobs.run_generation(job_id, CopyService(FakeLLM([good_llm_data()])))
+    assert seen and all(b >= a - 1e-9 for a, b in zip(seen, seen[1:]))
+    assert db.get_job(job_id).progress == 1.0
+
+
+def test_photo_quality_warnings():
+    from PIL import Image
+    from app.services.video import studio
+    tiny = Image.new("RGB", (300, 200), (120, 120, 120))
+    st = studio.measure(tiny, None)
+    assert any("low resolution" in w for w in st.warnings) and any("blurry" in w for w in st.warnings)
+
+
+def test_catalog_image_is_pure_white_background():
+    from PIL import Image
+    from app.services.video import studio
+    prod = Image.new("RGBA", (400, 300), (200, 40, 40, 255))
+    img = studio.catalog_image(prod, size=800)
+    assert img.size == (800, 800) and img.getpixel((5, 5)) == (255, 255, 255) and img.getpixel((795, 795)) == (255, 255, 255)
+    assert img.getpixel((400, 400))[0] > 150 and img.getpixel((400, 400))[1] < 100  # the product is there
+
+
+def test_backdrop_adapts_to_the_product():
+    from app.services.video.studio import PhotoStats, adapt_palette, SCENES
+    dark = PhotoStats(1000, 1000, brightness=0.08)
+    pal, note = adapt_palette("premium_studio", dark)
+    assert note and pal[0][0] > SCENES["premium_studio"][0][0]  # lighter backdrop for a dark product
+    warm = PhotoStats(1000, 1000, brightness=0.5, saturation=0.7, hue=15)
+    pal, note = adapt_palette("bold_colorful", warm)
+    assert note and pal[0] == (24, 120, 255)  # cool backdrop behind a warm product
+    assert adapt_palette("minimal", PhotoStats(1000, 1000, brightness=0.5))[1] is None  # no change needed
+
+
+def test_cleaning_keeps_product_colour_and_alpha():
+    from PIL import Image
+    from app.services.video import studio
+    prod = Image.new("RGBA", (200, 200), (0, 0, 0, 0))
+    for x in range(40, 160):
+        for y in range(40, 160):
+            prod.putpixel((x, y), (200, 60, 50, 255))
+    out = studio.enhance(prod)
+    r, g, b, a = out.getpixel((100, 100))
+    assert a == 255 and r > g > 0 and r > 170  # a red product stays red
+    assert out.getpixel((5, 5))[3] == 0
+
+
+@pytest.mark.real_cutout
+def test_real_cutout_produces_white_catalog_and_transparent_png(client, monkeypatch):
+    _demo(monkeypatch)
+    up = _upload(client, FIXTURE.read_bytes())
+    j = client.post("/api/generations", json={"product": {"name": "Biscuit", "image_asset_ids": [up]}}).json()
+    job = client.get(f"/api/generations/{j['id']}").json()
+    kinds = {a["kind"] for a in job["assets"]}
+    assert {"studio_image", "catalog_image", "cutout_image", "video"} <= kinds
+    cut = next(a for a in job["assets"] if a["kind"] == "cutout_image")
+    r = client.get(f"/api/generations/{j['id']}/assets/{cut['id']}")
+    assert r.headers["content-type"] == "image/png" and r.content[:4] == b"\x89PNG"

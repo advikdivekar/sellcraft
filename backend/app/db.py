@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 
 from .config import get_settings
-from .schemas import GeneratedAsset, GenerationJob, JobStatus
+from .schemas import CreativeSettings, GeneratedAsset, GenerationJob, JobStatus, StageEntry, overall_progress
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (
@@ -68,7 +68,10 @@ def _asset(row: sqlite3.Row) -> GeneratedAsset:
 
 
 def _job(row: sqlite3.Row, assets: list[GeneratedAsset]) -> GenerationJob:
+    stages = [StageEntry.model_validate(x) for x in json.loads(row["stages"])]
+    progress, phase = overall_progress(stages, CreativeSettings.model_validate(json.loads(row["settings"])), JobStatus(row["status"]))
     return GenerationJob.model_validate({
+        "progress": progress, "phase": phase,
         "id": row["id"],
         "status": row["status"],
         "created_at": row["created_at"],

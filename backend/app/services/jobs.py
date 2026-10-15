@@ -23,17 +23,19 @@ _stage_lock = threading.Lock()
 
 
 def _set_stage(job_id: str, stages: list[StageEntry], name: str, status: str, detail: str | None = None,
-               notes: list[str] | None = None) -> None:
+               notes: list[str] | None = None, progress: float | None = None) -> None:
     with _stage_lock:  # copy and video stages update this list from different threads
         now = db.now()
         for s in stages:
             if s.name == name:
                 s.status, s.detail = status, detail
                 s.notes = notes or s.notes
+                s.progress = 1.0 if status in ("done", "skipped") else (progress if progress is not None else s.progress)
                 s.finished_at = now if status != "running" else None
                 break
         else:
             stages.append(StageEntry(name=name, status=status, detail=detail, notes=notes or [], started_at=now,
+                                     progress=1.0 if status in ("done", "skipped") else (progress or 0.0),
                                      finished_at=now if status != "running" else None))
         db.update_job(job_id, stages=stages)
 
@@ -44,11 +46,11 @@ def _stage_copy(job_id, stages, copy_service):
         _set_stage(job_id, stages, "copy", "done", job.copy_source)
         return
     db.update_job(job_id, status=JobStatus.generating_copy)
-    _set_stage(job_id, stages, "copy", "running")
+    _set_stage(job_id, stages, "copy", "running", progress=0.02)
     svc = copy_service or CopyService()
     def partial(copy, done, total):  # show finished parts right away; the UI keeps them read-only until complete
         db.update_job(job_id, copy_output=copy)
-        _set_stage(job_id, stages, "copy", "running", f"{done}/{total} parts")
+        _set_stage(job_id, stages, "copy", "running", f"{done}/{total} parts", progress=done / total)
 
     with tracing.span("llm", "copy.generate", model=getattr(svc.llm, "model", "demo")) as sp:
         result = svc.generate(job.product, job.settings, on_progress=partial)
@@ -62,13 +64,13 @@ def _stage_copy(job_id, stages, copy_service):
 def _stage_video(job_id, stages):
     """Studio-enhance the photos and render the motion clip. Needs no copy, so it starts immediately."""
     job = db.get_job(job_id)
-    _set_stage(job_id, stages, "video", "running")
-    video.clear_outputs(job_id, kinds=("clip", "video", "studio_image"))
+    _set_stage(job_id, stages, "video", "running", progress=0.02)
+    video.clear_outputs(job_id, kinds=("clip", "video", "studio_image", "catalog_image", "cutout_image"))
     with tracing.span("video", "video.clip", style=job.settings.visual_style.value, photos=len(job.product.image_asset_ids)):
-        res = video.render_clip(job)
+        res = video.render_clip(job, on_progress=lambda f: _set_stage(job_id, stages, "video", "running", progress=f))
     db.add_asset(kind="clip", mime="video/mp4", path=res.clip, method=res.method, job_id=job_id)
-    for still in res.stills:
-        db.add_asset(kind="studio_image", mime="image/jpeg", path=still, method=res.method, job_id=job_id)
+    for kind, path in res.images:
+        db.add_asset(kind=kind, mime="image/png" if path.suffix == ".png" else "image/jpeg", path=path, method=res.method, job_id=job_id)
     _set_stage(job_id, stages, "video", "done", res.method, res.notes)
     return res.clip, res.method
 
@@ -76,7 +78,7 @@ def _stage_video(job_id, stages):
 def _stage_assembly(job_id, stages, clip, method):
     job = db.get_job(job_id)
     db.update_job(job_id, status=JobStatus.assembling_video)
-    _set_stage(job_id, stages, "assembly", "running")
+    _set_stage(job_id, stages, "assembly", "running", progress=0.3)
     with tracing.span("video", "video.assemble"):
         out, probe = video.render_final(job, clip)
     db.add_asset(kind="video", mime="video/mp4", path=out, method=method, duration_seconds=probe.duration, job_id=job_id)

@@ -149,6 +149,8 @@ def download_kit(job_id: str):
     name = export.slug(job.product.name)
     files = [(f"{name}-ad.mp4", p) for p in _paths(job, "video")]
     files += [(f"photos/{name}-studio-{i}.jpg", p) for i, p in enumerate(_paths(job, "studio_image"), start=1)]
+    files += [(f"photos/{name}-white-background-{i}.jpg", p) for i, p in enumerate(_paths(job, "catalog_image"), start=1)]
+    files += [(f"photos/{name}-transparent-{i}.png", p) for i, p in enumerate(_paths(job, "cutout_image"), start=1)]
     data = export.kit_zip(name=name, copy=job.copy_output, platforms=job.settings.platforms, files=files)
     return Response(data, media_type="application/zip", headers={"Content-Disposition": f'attachment; filename="{name}-kit.zip"'})
 
@@ -162,4 +164,4 @@ def publish_shopify(job_id: str, req: PublishRequest):
     videos = _paths(job, "video")
     return ShopifyPublisher().publish_draft(
         title=job.product.name, brand=job.product.brand_name, copy=job.copy_output,
-        images=_paths(job, "studio_image"), video=videos[0] if videos else None)
+        images=_paths(job, "studio_image") + _paths(job, "catalog_image"), video=videos[0] if videos else None)

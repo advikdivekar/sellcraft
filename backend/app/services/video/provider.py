@@ -1,4 +1,5 @@
 import logging
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -48,24 +49,38 @@ class StudioAdProvider(ImageToVideoProvider):
         with Image.open(path) as raw:
             img = ImageOps.exif_transpose(raw).convert("RGB")
         cut = studio.cutout(img)
+        stats = studio.measure(img, cut)  # what the photo shows -> drives the clean-up and the backdrop
         prod = studio.enhance(cut) if cut is not None else studio.framed(img)
+        palette, palette_note = studio.adapt_palette(style, stats) if cut is not None else (None, None)
         lay = studio.layout(W, H, prod)
         layer = studio.product_layer(prod, lay, style)
         m = MARGIN
-        bg = studio.scene(W + 2 * m, H + 2 * m, style, studio.Layout(lay.pw, lay.ph, lay.cx + m, lay.cy + m))
+        bg = studio.scene(W + 2 * m, H + 2 * m, style, studio.Layout(lay.pw, lay.ph, lay.cx + m, lay.cy + m), palette)
         layer_p, bg_p = out_dir / f"layer{i}.png", out_dir / f"bg{i}.png"
         layer.save(layer_p)
         bg.save(bg_p)
-        # a still product photo (4:5, Instagram feed shape) on the same backdrop
+        images = []
+        # a styled still (4:5, Instagram feed shape) on the same backdrop
         SW, SH = 1080, 1350
         slay = studio.layout(SW, SH, prod, cy_frac=0.46, w_frac=0.80, h_frac=0.70)
-        still = studio.scene(SW, SH, style, slay).convert("RGBA")
+        still = studio.scene(SW, SH, style, slay, palette).convert("RGBA")
         sl = studio.product_layer(prod, slay, style)
         still.alpha_composite(sl, (slay.cx - sl.width // 2, slay.cy - sl.height // 2))
         still_p = out_dir / f"studio-{i}.jpg"
         still.convert("RGB").save(still_p, quality=93)
+        images.append(("studio_image", still_p))
+        if cut is not None:  # clean product-only assets are only meaningful when the background was really removed
+            cat_p, cut_p = out_dir / f"catalog-{i}.jpg", out_dir / f"cutout-{i}.png"
+            studio.catalog_image(prod).save(cat_p, quality=94)
+            prod.save(cut_p)
+            images += [("catalog_image", cat_p), ("cutout_image", cut_p)]
+        notes = [f"Photo {i + 1}: {w}." for w in stats.warnings]
+        if palette_note:
+            notes.append(f"Photo {i + 1}: {palette_note}")
+        if cut is None:
+            notes.append(f"Photo {i + 1}: background removal wasn't possible, so it was shown as a framed photo.")
         return {"layer": layer_p, "bg": bg_p, "lay": lay, "LW": layer.width, "LH": layer.height,
-                "cutout": cut is not None, "still": still_p}
+                "cutout": cut is not None, "images": images, "notes": notes}
 
     def _shot(self, k: int, prep: dict, move: str, d: float, W: int, H: int, sweep: Path, sweep_w: int, out: Path) -> Path:
         z0, z1, dx, dyf, use_sweep = MOVES[move]
@@ -92,20 +107,37 @@ class StudioAdProvider(ImageToVideoProvider):
         return out
 
     def generate(self, images: list[Path], *, style: str, duration: float, size: tuple[int, int],
-                 out_dir: Path) -> ClipResult:
+                 out_dir: Path, on_progress=None) -> ClipResult:
         W, H = size
         out_dir.mkdir(parents=True, exist_ok=True)
-        with ThreadPoolExecutor(max_workers=3) as pool:
-            preps = list(pool.map(lambda a: self._prep(a[0], a[1], style, W, H, out_dir), enumerate(images)))
-        sweep = out_dir / "sweep.png"
-        sweep_w = studio.sweep_png(W, H, sweep)
         shots = plan_shots(len(images))
         k = len(shots)
-        d = (duration + (k - 1) * XF) / k
+        total, done, lock = len(images) + k + 1, [0], threading.Lock()
+
+        def tick():
+            with lock:
+                done[0] += 1
+                if on_progress:
+                    on_progress(done[0] / total)
+
+        def prep(a):
+            r = self._prep(a[0], a[1], style, W, H, out_dir)
+            tick()
+            return r
+
         with ThreadPoolExecutor(max_workers=3) as pool:
-            files = list(pool.map(
-                lambda a: self._shot(a[0], preps[a[1][0]], a[1][1], d, W, H, sweep, sweep_w, out_dir / f"shot{a[0]}.mp4"),
-                enumerate(shots)))
+            preps = list(pool.map(prep, enumerate(images)))
+        sweep = out_dir / "sweep.png"
+        sweep_w = studio.sweep_png(W, H, sweep)
+        d = (duration + (k - 1) * XF) / k
+
+        def shot(a):
+            f = self._shot(a[0], preps[a[1][0]], a[1][1], d, W, H, sweep, sweep_w, out_dir / f"shot{a[0]}.mp4")
+            tick()
+            return f
+
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            files = list(pool.map(shot, enumerate(shots)))
         clip = out_dir / "clip.mp4"
         parts, last = [], "0:v"
         for i in range(1, k):
@@ -116,9 +148,9 @@ class StudioAdProvider(ImageToVideoProvider):
             args += ["-i", str(f)]
         ffmpeg.run([*args, "-filter_complex", ";".join(parts), "-map", f"[{last}]", "-r", str(FPS), "-c:v", "libx264",
                     "-preset", "medium", "-crf", "16", "-pix_fmt", "yuv420p", "-t", f"{duration}", str(clip)])
-        for f in [*files, sweep, *(p_[k] for p_ in preps for k in ("bg", "layer"))]:  # intermediates; the clip + stills are kept
+        tick()
+        for f in [*files, sweep, *(p_[k_] for p_ in preps for k_ in ("bg", "layer"))]:  # intermediates; clip + images are kept
             f.unlink(missing_ok=True)
-        notes = [f"Background removal wasn't possible for photo {i + 1}, so it was shown as a framed photo."
-                 for i, p in enumerate(preps) if not p["cutout"]]
         method = "studio_cutout" if preps[0]["cutout"] else "animated_photo"
-        return ClipResult(clip=clip, method=method, stills=[p["still"] for p in preps], notes=notes)
+        return ClipResult(clip=clip, method=method, images=[im for p_ in preps for im in p_["images"]],
+                          notes=[n for p_ in preps for n in p_["notes"]])

@@ -1,9 +1,10 @@
 """Turns raw phone photos into studio-style product imagery: background removal (rembg, an open-source
 U2-Net model), mild tone enhancement, a designed backdrop per visual style, contact shadow and reflection.
 Everything is deterministic image processing; nothing here invents product details."""
+import colorsys
 import logging
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
@@ -56,6 +57,8 @@ def cutout(img: Image.Image) -> Image.Image | None:
     cov = float((np.asarray(alpha) > 40).mean())
     if cov < 0.04 or cov > 0.96:  # nothing detected, or nothing was removed
         return None
+    out = _keep_main_subject(out)
+    alpha = out.getchannel("A")
     box = alpha.point(lambda v: 255 if v > 24 else 0).getbbox()
     if not box:
         return None
@@ -64,15 +67,133 @@ def cutout(img: Image.Image) -> Image.Image | None:
     return out.crop(box)
 
 
-def enhance(rgba: Image.Image) -> Image.Image:
-    """Gentle tone clean-up (contrast, colour, sharpness). Colours stay true to the product."""
-    rgb, a = rgba.convert("RGB"), rgba.getchannel("A")
-    rgb = ImageEnhance.Contrast(rgb).enhance(1.05)
-    rgb = ImageEnhance.Color(rgb).enhance(1.07)
-    rgb = ImageEnhance.Sharpness(rgb).enhance(1.25)
-    out = rgb.convert("RGBA")
-    out.putalpha(a)
+def _keep_main_subject(rgba: Image.Image) -> Image.Image:
+    """Drop faint smudges and stray blobs: keep the largest connected region (plus any region >= 15% of it)."""
+    from scipy import ndimage
+    a = np.asarray(rgba.getchannel("A"))
+    labels, n = ndimage.label(a > 60)
+    if n < 1:
+        return rgba
+    sizes = ndimage.sum(np.ones_like(a, dtype=np.float32), labels, index=range(1, n + 1))
+    keep = [i + 1 for i, sz in enumerate(sizes) if sz >= 0.15 * sizes.max()]
+    mask = np.isin(labels, keep)
+    mask = ndimage.binary_dilation(mask, iterations=3)  # keep soft edge pixels next to the kept regions
+    # push faint alpha (smudges, halos) to fully transparent and near-solid to opaque
+    crisp = np.clip((a.astype(np.float32) - 50) / (215 - 50), 0, 1) * 255
+    out = rgba.copy()
+    out.putalpha(Image.fromarray((crisp * mask).astype(np.uint8)))
     return out
+
+
+def _decontaminate_edges(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
+    """Replace edge-pixel colours (which still carry the old background) with colours from just inside the subject."""
+    from scipy import ndimage
+    interior = ndimage.binary_erosion(alpha > 200, iterations=4).astype(np.float32)
+    if interior.sum() < 100:
+        return rgb
+    w = ndimage.gaussian_filter(interior, 5) + 1e-4
+    fill = np.stack([ndimage.gaussian_filter(rgb[..., c] * interior, 5) / w for c in range(3)], axis=-1)
+    ring = ((alpha > 0) & (interior == 0))[..., None]
+    return np.where(ring, fill, rgb)
+
+
+def enhance(rgba: Image.Image) -> Image.Image:
+    """Clean the cut-out: fix colour cast + exposure measured on the product only, tidy edge halos, add gentle
+    contrast/sharpness. Colours stay true to the product (every correction is capped)."""
+    arr = np.asarray(rgba.convert("RGBA")).astype(np.float32)
+    rgb, a = arr[..., :3], arr[..., 3]
+    solid = a > 200
+    if solid.sum() > 200:
+        px = rgb[solid]
+        mean = px.mean(axis=0)
+        gray = float(mean.mean())
+        gain = np.clip(gray / np.maximum(mean, 1.0), 0.92, 1.08)  # gray-world, capped at +/-8%
+        if float(np.abs(mean - gray).max()) < 0.28 * gray:  # skip: strongly coloured products are not a cast
+            rgb = rgb * gain
+        lo, hi = np.percentile(px.mean(axis=1), [1, 99])
+        if hi - lo > 30:  # stretch exposure, but never past a natural-looking range
+            k = float(np.clip(235.0 / max(hi, 1.0), 0.9, 1.25))
+            rgb = np.clip((rgb - lo * 0.5) * k, 0, 255)
+    rgb = _decontaminate_edges(rgb, a)
+    out = Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8))
+    out = ImageEnhance.Contrast(out).enhance(1.04)
+    out = ImageEnhance.Sharpness(out).enhance(1.25).convert("RGBA")
+    alpha = Image.fromarray(a.astype(np.uint8)).filter(ImageFilter.MinFilter(5)).filter(ImageFilter.GaussianBlur(1.1))
+    out.putalpha(alpha)  # eroded + feathered edge: removes the light halo left by the old background
+    return out
+
+
+@dataclass
+class PhotoStats:
+    """What we learned about a raw photo before processing it."""
+    width: int
+    height: int
+    sharpness: float = 0.0
+    brightness: float = 0.5  # of the product, 0..1
+    saturation: float = 0.0
+    hue: float = 0.0  # degrees
+    coverage: float = 0.0  # product share of the frame, 0..1
+    warnings: list[str] = field(default_factory=list)
+
+
+def measure(img: Image.Image, cut: Image.Image | None) -> PhotoStats:
+    st = PhotoStats(*img.size)
+    g = np.asarray(img.convert("L").resize((min(img.width, 900), int(img.height * min(img.width, 900) / img.width))), np.float32)
+    lap = g[1:-1, 1:-1] * 4 - g[:-2, 1:-1] - g[2:, 1:-1] - g[1:-1, :-2] - g[1:-1, 2:]
+    st.sharpness = float(lap.var())
+    if cut is not None:
+        arr = np.asarray(cut.convert("RGBA").resize((160, int(160 * cut.height / cut.width))))
+        solid = arr[..., 3] > 200
+        if solid.sum() > 50:
+            px = arr[..., :3][solid].astype(np.float32) / 255
+            st.brightness = float((px @ np.array([0.299, 0.587, 0.114])).mean())
+            hsv = np.array([colorsys.rgb_to_hsv(*p) for p in px[:: max(1, len(px) // 600)]])
+            st.saturation = float(hsv[:, 1].mean())
+            sat = hsv[hsv[:, 1] > 0.3]
+            if len(sat):
+                st.hue = float(np.degrees(np.arctan2(np.sin(sat[:, 0] * 2 * np.pi).mean(), np.cos(sat[:, 0] * 2 * np.pi).mean())) % 360)
+        st.coverage = float((np.asarray(cut.getchannel("A")) > 40).mean() * cut.width * cut.height / (img.width * img.height))
+    short = min(img.size)
+    if short < 900:
+        st.warnings.append(f"low resolution ({img.width}×{img.height}); the result may look soft")
+    if st.sharpness < 25:
+        st.warnings.append("looks blurry; hold the camera steady or tap to focus")
+    if cut is not None and st.coverage < 0.12:
+        st.warnings.append("the product is small in the frame; move closer")
+    if cut is not None and st.brightness < 0.12:
+        st.warnings.append("the product is very dark; add light if you can")
+    return st
+
+
+def adapt_palette(style: str, st: PhotoStats) -> tuple[tuple, str | None]:
+    """Choose the backdrop from what the photo shows, so the product stands out against it."""
+    top, bottom, spot, spot_k, refl, bokeh, block = SCENES.get(style, SCENES["minimal"])
+    note = None
+    shift = lambda c, d: tuple(int(np.clip(v + d, 0, 255)) for v in c)
+    if style == "premium_studio" and st.brightness < 0.22:
+        top, bottom, spot_k = shift(top, 34), shift(bottom, 40), spot_k + 0.14
+        note = "Used a lighter backdrop so your dark product stands out."
+    elif style == "minimal" and st.brightness > 0.82:
+        top, bottom = shift(top, -26), shift(bottom, -30)
+        note = "Used a slightly deeper backdrop so your light product stands out."
+    elif style == "bold_colorful" and st.saturation > 0.35 and (min(abs(st.hue - 20), 360 - abs(st.hue - 20)) < 45):
+        top, bottom, block = (24, 120, 255), (60, 220, 200), (255, 255, 255)
+        note = "Used a cool blue backdrop so your warm-coloured product stands out."
+    return (top, bottom, spot, spot_k, refl, bokeh, block), note
+
+
+def catalog_image(prod: Image.Image, size: int = 1600) -> Image.Image:
+    """Marketplace-style listing photo: product on pure white (RGB 255), centred, with a faint ground shadow."""
+    canvas = Image.new("RGB", (size, size), (255, 255, 255))
+    s = min(size * 0.84 / prod.width, size * 0.84 / prod.height)
+    p = prod.resize((max(2, int(prod.width * s)), max(2, int(prod.height * s))), Image.LANCZOS)
+    x, y = (size - p.width) // 2, (size - p.height) // 2
+    sh = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).ellipse((x + p.width * 0.1, y + p.height - p.height * 0.03, x + p.width * 0.9, y + p.height + p.height * 0.05), fill=(0, 0, 0, 38))
+    base = canvas.convert("RGBA")
+    base.alpha_composite(sh.filter(ImageFilter.GaussianBlur(size * 0.012)))
+    base.alpha_composite(p, (x, y))
+    return base.convert("RGB")
 
 
 def framed(img: Image.Image) -> Image.Image:
@@ -126,9 +247,9 @@ def product_layer(prod: Image.Image, lay: Layout, style: str) -> Image.Image:
     return layer
 
 
-def scene(W: int, H: int, style: str, lay: Layout) -> Image.Image:
+def scene(W: int, H: int, style: str, lay: Layout, palette: tuple | None = None) -> Image.Image:
     """Designed backdrop for a style, with a spotlight behind the product and a floor under it."""
-    top, bottom, spot, spot_k, _, bokeh, block = SCENES.get(style, SCENES["minimal"])
+    top, bottom, spot, spot_k, _, bokeh, block = palette or SCENES.get(style, SCENES["minimal"])
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     t = (yy / H)[..., None]
     arr = np.asarray(top, np.float32) * (1 - t) + np.asarray(bottom, np.float32) * t

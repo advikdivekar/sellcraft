@@ -166,6 +166,7 @@ class JobError(BaseModel):
 class StageEntry(BaseModel):
     name: str
     status: str  # running | done | skipped | failed
+    progress: float = 0.0  # 0..1 within this stage
     notes: list[str] = Field(default_factory=list)
     started_at: datetime | None = None
     finished_at: datetime | None = None
@@ -174,7 +175,7 @@ class StageEntry(BaseModel):
 
 class GeneratedAsset(BaseModel):
     id: str
-    kind: str  # image | studio_image | video | audio | clip(internal)
+    kind: str  # image | studio_image | catalog_image | cutout_image | video | audio | clip(internal)
     mime: str
     method: str | None = None  # upload | studio_cutout | animated_photo | ltx | elevenlabs
     duration_seconds: float | None = None
@@ -193,6 +194,8 @@ class GenerationJob(BaseModel):
     error: JobError | None = None
     stages: list[StageEntry] = Field(default_factory=list)
     assets: list[GeneratedAsset] = Field(default_factory=list)
+    progress: float = 0.0  # overall 0..1, computed from the real stage states
+    phase: str | None = None  # what is happening right now
 
 
 class CreateGenerationRequest(BaseModel):
@@ -212,3 +215,25 @@ class AnalyzePhotosRequest(BaseModel):
 
 class PublishRequest(BaseModel):
     confirm: bool = False
+
+
+# Share of the overall bar each stage owns (copy and video run at the same time, so both advance together).
+STAGE_WEIGHTS = {"copy": 0.50, "video": 0.30, "voiceover": 0.05, "assembly": 0.15}
+STAGE_PHASE = {"copy": "Writing your copy", "video": "Building studio photos and video",
+               "voiceover": "Generating voiceover", "assembly": "Adding text to the video"}
+
+
+def overall_progress(stages: list[StageEntry], settings: CreativeSettings, status: JobStatus) -> tuple[float, str | None]:
+    if status == JobStatus.completed:
+        return 1.0, None
+    active = {k: w for k, w in STAGE_WEIGHTS.items() if k != "voiceover" or settings.voiceover}
+    by = {s.name: s for s in stages}
+    total = sum(active.values())
+    got = 0.0
+    for k, w in active.items():
+        s = by.get(k)
+        if s is None:
+            continue
+        got += w * (1.0 if s.status in ("done", "skipped") else min(max(s.progress, 0.0), 0.98) if s.status == "running" else 0.0)
+    running = [STAGE_PHASE[s.name] for s in stages if s.status == "running" and s.name in STAGE_PHASE]
+    return round(got / total, 3), (" + ".join(running) if running else ("Getting started" if status == JobStatus.queued else None))

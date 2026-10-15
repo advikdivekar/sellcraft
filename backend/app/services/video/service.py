@@ -37,14 +37,14 @@ def _source_images(job: GenerationJob) -> list[Path]:
     return paths
 
 
-def render_clip(job: GenerationJob) -> ClipResult:
+def render_clip(job: GenerationJob, on_progress=None) -> ClipResult:
     """Stage: generating_video. Studio-enhances the photos and renders the motion clip (no text yet)."""
     provider = get_provider()
     if not provider.available():
         raise AppError("ffmpeg_missing", "FFmpeg isn't installed. Install it (brew install ffmpeg) and retry.", status=503)
     return provider.generate(_source_images(job), style=job.settings.visual_style.value,
                              duration=float(job.settings.duration_seconds), size=size_for(job.settings.aspect_ratio),
-                             out_dir=job_dir(job.id))
+                             out_dir=job_dir(job.id), on_progress=on_progress)
 
 
 def overlay_plan(copy: CopyOutput, product_name: str) -> dict:
