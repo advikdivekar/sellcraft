@@ -4,7 +4,7 @@
 **Event:** Hacktoberfest Open-Source AI Challenge, Week 2 — *Side Hustle*. Submissions due **Oct 18, 2026**.
 **Status:** Planning complete. Verdict: **GO** (scope-cut MVP).
 
-> **Scope decision:** ElevenLabs voiceover is **deferred** (no free tier). The TTS layer stays behind an interface so it can be added later (ElevenLabs, or the open-source Piper). The MVP produces a **silent video with on-screen text/captions**; the voiceover script is still generated and editable as text.
+> **Scope decision (updated Oct 15):** ElevenLabs is **back in**: we have an API key with ~10,000 free credits. Voiceover is optional per job, backend-only key, and the app still works silently if the key is missing or credits run out. Budget the credits: ~10 s of narration per ad, cache audio per script, and don't regenerate unless the script changes. No voice cloning.
 
 ---
 
@@ -41,7 +41,7 @@ The open-weight LLM (Gemma via Ollama) does the core content generation. It neve
  │   2 VideoService    → ImageToVideoProvider                         │
  │                        ├ AnimatedPhotoFallback (FFmpeg)  [default] │
  │                        └ LTXProvider (optional, GPU/hosted)        │
- │   3 TTSService      → (deferred) ElevenLabs / Piper                │
+ │   3 TTSService      → ElevenLabs (optional)                │
  │   4 AssemblyService → FFmpeg overlays + FFprobe validation         │
  │ Local file storage (UPLOAD_DIR / OUTPUT_DIR) + cleanup             │
  └──────┬───────────────────────┬──────────────────────┬──────────────┘
@@ -66,7 +66,7 @@ The open-weight LLM (Gemma via Ollama) does the core content generation. It neve
 | LLM model | **Gemma 3 (4B/12B)**, Llama, Qwen | Gemma (size by RAM) | verify tag with `ollama list` |
 | Structured output | **Ollama JSON-schema `format` + Pydantic + 1 repair retry** | same | |
 | Image→video | **FFmpeg fallback**, LTX-Video/LTX-2, hosted GPU | Fallback default, LTX adapter behind flag | label honestly |
-| TTS | ElevenLabs, Piper | **Deferred** | interface stubbed, UI shows "not configured" |
+| TTS | **ElevenLabs**, Piper | ElevenLabs (optional, key in `.env`) | free credits; silent fallback if unconfigured/exhausted |
 | Assembly | **FFmpeg (argv list, no shell)**, MoviePy | FFmpeg | |
 | Storage | **Local FS**, S3/R2 | Local FS | ephemeral on deploy |
 | Tests | **pytest + httpx + mocks**, Vitest/Playwright | pytest + manual E2E script | |
@@ -77,12 +77,12 @@ The open-weight LLM (Gemma via Ollama) does the core content generation. It neve
 **Provider interfaces**
 - `LLMProvider`: `health()`, `generate_json(prompt, schema)` → `OllamaProvider` (+ visibly-labelled `DemoProvider` when Ollama is offline)
 - `ImageToVideoProvider`: `available()`, `generate(image, motion_prompt, duration, aspect, ctx)` → `AnimatedPhotoFallbackProvider`, `LTXProvider`
-- `TTSProvider` (stub only in MVP): `available()`, `voices()`, `synthesize()`
+- `TTSProvider` → `ElevenLabsProvider`: `available()`, `voices()`, `synthesize()`
 
 **Prompt structure** (separate sections): `FACTS | PLATFORM | TONE | STYLE | OBJECTIVE | RULES | OUTPUT SCHEMA`.
 Rules: facts are the only source of truth; never invent specs, prices, discounts, reviews, certifications, "eco/organic/handmade/hypoallergenic" claims; flag gaps in `missing_information`; list risky phrasing in `claims_requiring_review`; honour the seller's forbidden words (post-check enforced in code).
 
-**Job states:** `queued → generating_copy → generating_video → assembling_video → completed` (or `failed`). `generating_voiceover` exists in the enum but is skipped in MVP. Copy-only regeneration never re-runs video.
+**Job states:** `queued → generating_copy → generating_video → assembling_video → completed` (or `failed`). `generating_voiceover` runs only when voiceover is enabled and ElevenLabs is configured; otherwise skipped. Copy-only regeneration never re-runs video.
 
 **Data models (Pydantic):** `ProductInput`, `CreativeSettings`, `CopyOutput` (+ per-platform outputs), `GenerationJob`, `GeneratedAsset`.
 Enums — Platform: instagram/facebook/pinterest/etsy/shopify · Tone: straightforward/persuasive/emotional/friendly/luxury/playful · Style: premium_studio/ugc/minimal/warm_cozy/bold_colorful · Objective: sales/awareness/gift/features.
@@ -173,7 +173,7 @@ sellcraft/
 ```
 
 ## 9. Config (`.env.example`, placeholders only)
-`OLLAMA_BASE_URL` `OLLAMA_MODEL` `VIDEO_PROVIDER` (`fallback`|`ltx`) `VIDEO_PROVIDER_URL` `VIDEO_PROVIDER_API_KEY` `UPLOAD_DIR` `OUTPUT_DIR` `DATABASE_URL` · (later) `ELEVENLABS_API_KEY` `ELEVENLABS_DEFAULT_VOICE_ID`
+`OLLAMA_BASE_URL` `OLLAMA_MODEL` `VIDEO_PROVIDER` (`fallback`|`ltx`) `VIDEO_PROVIDER_URL` `VIDEO_PROVIDER_API_KEY` `UPLOAD_DIR` `OUTPUT_DIR` `DATABASE_URL` · `ELEVENLABS_API_KEY` `ELEVENLABS_DEFAULT_VOICE_ID` `SENTRY_DSN` (optional)
 
 ## 10. Milestones (deadline Oct 18)
 
@@ -182,7 +182,8 @@ sellcraft/
 | **Day 1 (Oct 15–16)** | Scaffold + product form → Gemma copy → editable results | Real structured copy from local Gemma; edit/copy/regenerate section & tone |
 | **Day 2 (Oct 16–17)** | FFmpeg animated-photo MP4 + assembly + preview/download | ffprobe-verified ~10 s MP4 with overlays, labelled correctly |
 | **Day 3 (Oct 17–18)** | Polish, tests, README, real-seller test, DEV post | Tests pass; README run-through works; post submitted |
-| Stretch | LTX adapter, ElevenLabs/Piper voiceover, Render deploy | only if time/GPU/credits |
+| Day 2-3 add | ElevenLabs voiceover + audio mix; Sentry tracing; start recording Entire/DevRelay sessions from Day 1 | voiceover mixes into MP4; traces visible in Sentry |
+| Parallel/stretch | Tinker fine-tune (section 16); LTX adapter; deploy | only after core flow works |
 
 ## 11. Testing
 pytest with mocks (never live paid APIs): input validation, missing facts, structured-output validation, prompt building, Ollama-offline error, failed video, job state transitions, invalid upload, FFmpeg assembly + duration (if installed), asset authorization. Plus one repeatable manual E2E script.
@@ -199,7 +200,15 @@ pytest with mocks (never live paid APIs): input validation, missing facts, struc
 | Weak writing score | reserve final half-day for the post + user feedback |
 
 ## 13. Prize focus
-Main ($250, writing weighted most) · **Best Use of Gemma** ($200). Optional: Entire/DevRelay session share. ElevenLabs/Render/Temporal categories skipped for now.
+Only one win is possible, but we can enter several categories (confirm in the official rules). Entering: **Main ($250), Best Use of Gemma ($200), Best Use of Sentry Agent Tracing ($100), Best Use of Entire ($100), Best Use of Tinker ($200)**. ElevenLabs ($100) also applies naturally since voiceover is in.
+
+| Category | What we must ship / show |
+|---|---|
+| Gemma | Gemma via Ollama as the core generator; README + post explain model choice, local run, swap via `OLLAMA_MODEL`; check Gemma terms |
+| Sentry | `sentry-sdk` in FastAPI; traces/spans per job stage (copy, video, TTS, assembly) with latency; LLM token counts + cost ($0 local) as span data; screenshots of traces + one real debugging story in the post; scrub product text/PII (`send_default_pii=False`) |
+| Entire | Capture agent sessions (Entire / DevRelay) during the build and embed/link them in the post |
+| Tinker | Fine-tune a Gemma-family model for listing copy (see section 16); show measured improvement vs. base model |
+| ElevenLabs (bonus) | Voiceover integrated, key backend-only, graceful degradation |
 
 ## 14. Definition of done (MVP)
 1. Upload photo + facts. 2. Choose platform/tone/style/objective. 3. Gemma generates structured, editable copy. 4. Missing facts flagged, not invented. 5. Regenerate a single section/tone without touching video. 6. Valid ~10 s MP4 (labelled animated-photo ad unless a real model ran). 7. Preview + download. 8. Truthful progress/errors. 9. README setup works. 10. Tests pass. 11. No secrets committed. 12. Full flow (camera photo → generate → play video → copy/share) works on a real phone.
@@ -208,3 +217,17 @@ Main ($250, writing weighted most) · **Best Use of Gemma** ($200). Optional: En
 - Gemma size / RAM and whether Ollama + ffmpeg are installed (to be checked at scaffold time).
 - Real seller for the first-user feedback.
 - Local-only demo vs. deploy.
+- Confirm in the official rules whether one project may enter multiple categories.
+
+## 16. Tinker fine-tune plan (stretch, must show measurable improvement)
+**Goal:** fine-tune a Gemma model so listing copy follows the schema and the "never invent facts" rules better than the base model, at equal or lower cost/latency.
+
+1. **Check availability first:** confirm Tinker supports a Gemma model (else use the closest open model it offers and say so honestly). Claim credits at hacktoberfest.com/my/promos.
+2. **Data:** build a small dataset (~100-300 examples) of product facts + settings → ideal structured copy. Hand-write a seed set, expand with careful generation, then review. Include negative cases (sparse facts → `missing_information`, forbidden words honoured). Hold out ~20% as an eval set. No real customer data.
+3. **Eval harness (build before training):** score base vs. tuned on the held-out set: valid-JSON rate, schema pass rate, **hallucinated-claim rate** (claims not in the facts), forbidden-word violations, missing-info flagged correctly, latency, token cost.
+4. **Train** with Tinker (LoRA), export/serve the tuned weights through Ollama if licence and tooling allow; else document how it would be served.
+5. **Report** a before/after table in the DEV post.
+Risk: time. Gate: only start after Day 2 milestone is done; the app works without it (`OLLAMA_MODEL` just points at the base model).
+
+## 17. Secrets handling
+ElevenLabs/Sentry/Tinker keys live only in `backend/.env` (gitignored). Never paste keys into chat, commits or the frontend. `.env.example` has placeholders.
