@@ -23,7 +23,7 @@ for next. Use their words. If they were lukewarm, say so. Do not write this sect
 | **Gemma 3** (4B and 12B, through Ollama) | Writes the copy by default, reads the product photos to pre-fill the form, and acts as an independent judge |
 | **Qwen3.5-4B + LoRA, trained on Tinker** | A fine-tuned copy writer that follows the grounding rules |
 | **Sentry** | Traces every model call and records every flagged claim, without ever seeing product text |
-| **Entire** | [TODO after setup: link the checkpoints; see docs/DECISIONS.md] |
+| **Entire** | Records the Claude Code sessions that built this. 113 checkpoints across two sessions are pushed with the repo, and `docs/DECISIONS.md` ties each design decision to the session and commit it came from |
 
 ## The fine-tune, and the number I almost reported wrong
 I generated 400 synthetic fact sets, held out 60, and had a large open teacher model write and revise kits until each one passed a
@@ -83,4 +83,4 @@ fine-tune needs a cloud call.
 
 ## Categories
 Best Use of **Tinker** (LoRA fine-tune with a measured improvement over its base and over Gemma) · Best Use of **Gemma** (default
-writer, photo reader and independent judge) · Best Use of **Sentry Agent Tracing** · Best Use of **Entire** [TODO after setup].
+writer, photo reader and independent judge) · Best Use of **Sentry Agent Tracing** · Best Use of **Entire** (every decision in `docs/DECISIONS.md` links to its checkpoint; try `entire checkpoint explain 01M51MQH99N99QGA8RXNRSJTWF`).
