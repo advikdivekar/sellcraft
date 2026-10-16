@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>b0ek181hv</task-id>
+<tool-use-id>toolu_01SCfe96fbaHwVfNFjsi99b7</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-advikdivekar-Desktop-sellcraft/d1a90136-ab51-4450-87af-371f07f2f333/tasks/b0ek181hv.output</output-file>
+<status>completed</status>
+<summary>Background command "until ! pgrep -f "finetune.judge" &gt;/dev/null; do sleep 20; done; tail -8 /private/tmp/claude-502/judge3.log" completed (exit code 0)</summary>
+</task-notification>
