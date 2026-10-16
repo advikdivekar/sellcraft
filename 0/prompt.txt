@@ -1,0 +1,1889 @@
+❯  added new two recent videos are the reference video on how I want our product video to look like so please do that and that's it.
+  video can go more than 25 secs to upto 40-45 seconds
+
+---
+
+make two videos one with mobile recording, one with mac recording and 
+
+<pasted_content id="b453">
+# MOCHI — WORLD-CLASS STARTUP LAUNCH FILM
+## Master Director's Brief for Claude Code
+
+You are the creative director, motion designer, product filmmaker, animation engineer, sound designer, editor, and technical director responsible for producing the launch film for **Mochi**, an AI-powered marketing studio for product sellers.
+
+Your objective is to create an exceptionally polished, technically excellent, beautifully paced product demo film that could credibly accompany the launch of a strong Y Combinator-backed startup.
+
+Do not create a generic AI advertisement.
+
+Create a film that makes viewers immediately understand what Mochi does, see it working, appreciate why it is different, and want to try it.
+
+The finished video must combine:
+- The clarity and credibility of a YC startup product demo.
+- The visual precision of high-end SaaS launch films.
+- The typography, compositing, and transitions of a professional motion-design studio.
+- The satisfying pacing and subtle sound design of a premium technology commercial.
+- The authenticity of real software being used to solve a real problem.
+
+The quality bar is exceptionally high. The animation should feel fluid, deliberate, perfectly timed, and professionally art-directed. Every transition, camera move, sound, word, and UI element must serve the story.
+
+Build and render the actual video in code. Do not stop at a storyboard, an animation prototype, a static mockup, or a written production plan.
+
+Work autonomously through the complete production process, using the repository and the actual capabilities of the product as the source of truth.
+
+---
+
+# 1. UNDERSTAND THE PRODUCT BEFORE FILMING
+
+Before writing any animation code, inspect the existing Mochi repository.
+
+Read the available project documentation, paying particular attention to:
+
+- `plan.md`
+- `docs/RESULTS.md`
+- `docs/DECISIONS.md`
+- Existing frontend and backend code
+- Existing application screenshots
+- `docs/images/`
+- `docs/demo/sellcraft-demo-mobile.mp4`
+- The existing logo asset, if available
+- The existing product workflows and components
+
+The project was previously called SellCraft AI. The current product brand for the film is **Mochi**. Do not use the old brand name in the final film, except where it appears in historical development material that should not be shown.
+
+Understand what works today, what requires configuration, what is only planned, and which claims are supported by the implementation.
+
+Launch the real app locally if the environment supports it. Capture actual application states and record real workflows.
+
+Do not fabricate screenshots, invent unavailable features, or create a fictional interface that looks unrelated to the actual product.
+
+The purpose of the film is to show the real Mochi product at its absolute best.
+
+# 2. CREATIVE DIRECTION
+
+## The core concept
+
+**One product photo. A whole marketing kit.**
+
+A small seller has a product worth selling, but creating attractive product images, listing copy, platform-specific captions, and video ads takes time and effort.
+
+Mochi compresses that work into one coherent workflow.
+
+The film should begin with simplicity, introduce a little friction, then demonstrate the transformation from ordinary product photography into a complete marketing kit.
+
+The emotional progression is:
+
+Ordinary product → creative possibility → real transformation → complete marketing kit → confidence to publish.
+
+The audience should understand the product without needing a narrator to explain every interface element.
+
+## Brand personality
+
+Mochi should feel:
+- Smart, not pretentious.
+- Creative, not chaotic.
+- Fast, not rushed.
+- Premium, not corporate.
+- Approachable, not childish.
+- Technically impressive, not self-congratulatory.
+- Honest about what its AI actually does.
+
+Despite the playful name, do not make this a cartoon brand. Do not use mascot characters, kawaii graphics, excessive rounded bubbles, or candy-store aesthetics.
+
+Treat Mochi as a serious, modern startup with a distinctive name.
+
+## Overall aesthetic
+
+Use restrained, editorial, cinematic product storytelling.
+
+Think:
+- Oversized, beautifully typeset headlines.
+- Deep teal surfaces.
+- Extremely clean product UI captures.
+- Carefully composed product photography.
+- Small, precise annotations.
+- Fluid spatial transitions.
+- Layered image compositions.
+- Camera movement that guides attention.
+- Elegant cropping and reveals.
+- Subtle highlights and atmospheric depth.
+- Crisp, high-contrast typography.
+- Minimal but meaningful graphical flourishes.
+
+The video should alternate between expressive brand moments and clear demonstrations of working software.
+
+Avoid turning the entire video into abstract motion graphics. The application itself is the star.
+
+# 3. BRAND BIBLE
+
+Use the following established palette throughout the video.
+
+| Color | Hex | Role |
+|---|---|---|
+| Deep Ocean | `#003135` | Primary backgrounds, signature brand scenes |
+| Ocean Teal | `#024950` | Layered surfaces, secondary backgrounds |
+| Burnt Terracotta | `#964734` | Restrained contrast, selective accents |
+| Electric Turquoise | `#0FA4AF` | Active controls, highlights, transitions |
+| Ice Blue | `#AFDDE5` | Light surfaces, typography accents, subtle gradients |
+| White | `#FFFFFF` | Headlines and key interface elements |
+| Soft Neutral | `#F5F8F8` | Light application surfaces |
+
+Deep Ocean and Electric Turquoise are the signature colors.
+
+Create a smooth, sophisticated gradient language based on Deep Ocean, Ocean Teal, and Electric Turquoise.
+
+Use Burnt Terracotta only when it contributes a purposeful contrast. Do not distribute every palette color evenly across the film.
+
+Maintain readable text and accessible contrast.
+
+## Logo
+
+Inspect the assets available for the Mochi logo.
+
+Use the existing approved brand mark when available. Preserve its proportions, colors, and geometry.
+
+Create a beautiful logo reveal, but keep it understated: precise masking, a fluid geometric transition, or an elegant reveal from negative space.
+
+Do not morph the logo into an unrelated symbol. Do not invent a new logo during video production.
+
+The final logo must be sharp, clean, and suitable for reuse on a website, mobile app, and social media.
+
+## Typography
+
+Use a strong, contemporary sans-serif family such as Geist, Inter, or an available equivalent.
+
+Use editorial hierarchy:
+- Oversized but controlled headline typography.
+- Medium-weight supporting text.
+- Small uppercase labels used sparingly.
+- Clear UI annotations.
+- Consistent tracking and line height.
+
+Use font files already installed or available through the project. Verify the actual font renders correctly before final export.
+
+Typography should animate with intention: carefully timed masks, controlled tracking changes, positional reveals, and restrained scaling.
+
+Avoid generic bounce effects, random character-by-character animation, exaggerated elastic text, and excessively long headline sequences.
+
+Every text animation must end in a sharp, stable, readable state.
+
+# 4. TECHNICAL PRODUCTION SPECIFICATION
+
+First inspect the available dependencies and production environment.
+
+Prefer **Remotion with React and TypeScript** for the coded motion-graphics film if compatible with the environment. If an existing rendering framework is already established and better suited, use it rather than unnecessarily rebuilding the toolchain.
+
+Keep the video-production code isolated from the existing application. Do not break the working product while making the film.
+
+Use FFmpeg for supported video encoding, audio mixing, media processing, and validation.
+
+## Primary deliverable
+
+- Duration: approximately 65 seconds.
+- Resolution: 1920 × 1080.
+- Aspect ratio: 16:9.
+- Frame rate: 60 fps.
+- Format: MP4.
+- Video codec: H.264.
+- Audio: high-quality AAC.
+- Color: consistent SDR Rec. 709-compatible output.
+- Editing: deterministic frame-based animation.
+- Text: crisp, properly antialiased, never blurry.
+- Output: a complete, ready-to-share launch film.
+
+Render every frame deterministically. Avoid wall-clock-dependent animation, uncontrolled randomness, loading-time-dependent transitions, or frame-rate-dependent motion.
+
+Use absolute frame positions or normalized animation progress for all time-critical animation.
+
+At 60 fps, a 65-second video contains 3,900 frames. Plan the edit at frame-level precision.
+
+Create an additional vertical social cutdown only after the main film is complete and validated, if the production setup permits. The vertical edit must be deliberately recomposed for 9:16 rather than simply cropped from the horizontal video.
+
+## Production architecture
+
+Organize the production into reusable components.
+
+For example:
+
+- `BrandIntro`
+- `HeadlineReveal`
+- `ProductCapture`
+- `BrowserWindow`
+- `ImageUpload`
+- `ProductTransformation`
+- `CodeTypography`
+- `FeatureCallout`
+- `SplitScreen`
+- `Timeline`
+- `LogoReveal`
+- `SoundCue`
+- `SceneTransition`
+- `EndCard`
+
+Use reusable design tokens for typography, spacing, gradients, shadows, animation curves, and color.
+
+Store the approved beat sheet in a machine-readable file such as `beat-sheet.json`.
+
+Make it possible to change the duration, typography, color, and timing without rewriting the entire film.
+
+# 5. THE 65-SECOND STORYBOARD
+
+Follow this narrative structure closely. You may adjust timings slightly after reviewing the real footage, but preserve the story and overall rhythm.
+
+## SCENE 01 — THE HOOK
+### 00:00–00:04
+
+Start immediately. No long logo animation. No generic opening montage.
+
+Begin with a clean, pale neutral background or a carefully composed photograph of a real-looking consumer product.
+
+The product sits alone in a generous field of negative space.
+
+A subtle camera push begins.
+
+Tiny details emerge: surface texture, the edge of packaging, a clean highlight across the product.
+
+At approximately 00:01, large editorial typography enters with a confident, sharp reveal:
+
+**YOU HAVE A PRODUCT.**
+
+Brief pause.
+
+Then:
+
+**NOW MAKE IT SELL.**
+
+The second line should feel like a precise typographic impact, not a violent animation.
+
+Use a restrained low-frequency musical pulse, a tiny tonal accent, and a short whoosh synchronized with the second headline.
+
+Let the product visual remain the main focus.
+
+The initial four seconds must make the viewer stop scrolling.
+
+Do not spend the opening explaining what AI means.
+
+## SCENE 02 — THE FRICTION
+### 00:04–00:09
+
+The product remains centered while the surrounding space expands into a disciplined grid.
+
+Separate fragments of a seller's workflow appear around it:
+- A product image.
+- A listing description.
+- A collection of keywords.
+- A social caption.
+- A video timeline.
+
+Show these as distinct windows or neatly arranged editorial layers.
+
+The elements gradually drift apart, suggesting fragmented work without making the scene chaotic.
+
+Use small, crisp labels:
+
+`PRODUCT PHOTOS`
+
+`LISTING COPY`
+
+`SOCIAL POSTS`
+
+`VIDEO ADS`
+
+Each label enters at a different moment, precisely synchronized to the music.
+
+The elements should feel like parts of a workflow rather than generic floating widgets.
+
+Transition toward the actual Mochi application.
+
+## SCENE 03 — INTRODUCING MOCHI
+### 00:09–00:14
+
+The screen transitions into Deep Ocean.
+
+Reveal the Mochi wordmark with an elegant, geometric motion.
+
+Do not over-animate it.
+
+Place the headline in a carefully balanced composition:
+
+**Meet Mochi.**
+
+Then reveal:
+
+**One photo. A whole marketing kit.**
+
+Use Ice Blue or White for the primary text, with Electric Turquoise used for a single visual emphasis.
+
+A subtle turquoise gradient expands behind the application preview.
+
+Bring the real Mochi UI onto the canvas using a controlled scale-and-position transition.
+
+The application should look like a tangible product entering the stage.
+
+Keep this scene concise. The viewer should understand the proposition by the end of the four-to-five-second introduction.
+
+## SCENE 04 — THE REAL PRODUCT DEMO
+### 00:14–00:23
+
+This is the first major product demonstration.
+
+Show the actual Mochi application.
+
+The UI capture should be clean, crisp, readable, and free from unnecessary browser chrome unless that chrome helps establish authenticity.
+
+Demonstrate the real workflow:
+
+1. Add a product photograph.
+2. Enter or review the product facts.
+3. Select a publishing platform.
+4. Choose a tone or style.
+5. Generate the marketing kit.
+
+Use a genuine product example from the available demo assets where possible.
+
+If the sample product is unsuitable, create a neutral synthetic example with internally consistent, explicitly supplied product facts.
+
+Use a single consistent sample product for the entire film.
+
+Make the UI capture legible at 1080p. Crop away irrelevant empty areas without cutting off essential controls.
+
+### Camera and UI movement
+
+The UI should not simply sit motionless on screen.
+
+Use controlled virtual camera moves:
+- A subtle push toward the product upload area.
+- A small lateral movement to reveal the settings.
+- A clean zoom toward the generate action.
+- An elegant pullback before the results appear.
+
+Prefer accurate, perspective-free UI scaling or restrained 2.5D compositions over exaggerated perspective distortion.
+
+Use masks to introduce detail and emphasize the exact interaction being described.
+
+If a cursor is shown, its movements must match the real recorded interaction. Use a custom, minimal cursor and realistic easing. Do not teleport between unrelated controls.
+
+The cursor must never obscure important text.
+
+Use small editorial labels sparingly, for example:
+
+`01 — YOUR PRODUCT`
+
+`02 — YOUR STYLE`
+
+`03 — GENERATE`
+
+These labels should reinforce the workflow without cluttering the UI.
+
+## SCENE 05 — FROM ONE PHOTO TO STUDIO PHOTOGRAPHY
+### 00:23–00:32
+
+This is the key visual payoff.
+
+Begin with the original product photo.
+
+Show the product being extracted from its existing background through a clean, controlled reveal.
+
+Transition into the refined studio photograph.
+
+Use a seamless transformation:
+- The original background separates from the product.
+- The product silhouette resolves into a clean mask.
+- Lighting and contrast settle.
+- A carefully chosen backdrop appears.
+- A soft shadow or reflection emerges.
+- The final product photograph locks into place.
+
+Use elegant compositing, light sweeps, precise wipes, and smooth position interpolation.
+
+Create a hero composition in which the product remains the visual anchor while the backdrop transforms around it.
+
+Where possible, demonstrate genuine before-and-after outputs generated by Mochi.
+
+Show at least two distinct, real output images:
+- A polished studio photograph.
+- A clean marketplace-ready photograph or a designed campaign image.
+
+Arrange them into a beautifully composed image gallery. Use subtle depth and movement as the images enter.
+
+The transitions should be smooth enough to feel continuous, but restrained enough that the resulting photography remains believable.
+
+Do not simulate a generative video model inventing new footage. Mochi refines still photography through background removal and deterministic processing.
+
+Do not visually distort the packaging, labels, logo, or geometry of the real product.
+
+Optional small caption:
+
+**Studio-ready product visuals.**
+
+Keep the focus on the actual visual result.
+
+## SCENE 06 — COPY THAT STAYS TRUE TO YOUR FACTS
+### 00:32–00:41
+
+Transition from the refined product photography into the generated marketing content.
+
+Show the actual output of Mochi's copywriting workflow.
+
+The product photo slides into a compact media panel while the marketing copy enters beside it.
+
+Reveal a product title, a short description, and a platform-specific caption.
+
+Use authentic text generated from the example's supplied facts. Do not invent performance claims, endorsements, certifications, product properties, or benefits.
+
+Animate the copy elegantly:
+- A clean masked reveal for the title.
+- Measured line-by-line appearance for the description.
+- A restrained highlight for a key product feature.
+- A subtle transition into a second platform-specific output.
+
+Show the platform selection only if supported by the real interface.
+
+Use real, permitted platform names. Avoid presenting unofficial icons as official logos.
+
+The scene should demonstrate that the content is useful and relevant rather than merely long.
+
+Introduce a short headline:
+
+**Good marketing. Grounded in your facts.**
+
+Then show the independent claim-checking capability only if the actual application implementation and available evidence support the depiction.
+
+Do not claim that the model can never hallucinate. The product's fact-grounding rules and independent judge help reduce unsupported content; they do not prove perfect accuracy.
+
+The claim-checking sequence should feel like a practical trust mechanism rather than a fictional security animation.
+
+## SCENE 07 — THE VIDEO AD
+### 00:41–00:50
+
+This is the cinematic peak.
+
+Show the generated vertical video-ad asset inside a beautifully composed 9:16 preview.
+
+Let it appear as an actual video produced by Mochi.
+
+Demonstrate several distinct moments from that video, where supported by the rendered output:
+- Opening product hero shot.
+- A close-up created through a camera move.
+- A wider composed product view.
+- An end card or call to action.
+
+Use the true generated shots, titles, backgrounds, and animation.
+
+Cut to a second view in which the finished video is displayed next to the product imagery and the selected caption.
+
+Make the output feel like a cohesive marketing kit, not disconnected assets.
+
+Transition between product views with beautiful timing, carefully controlled movement, and subtle sound accents.
+
+Important: Mochi's current video system creates motion from product stills through image processing and FFmpeg animation. It does not generate new AI video footage.
+
+Represent the workflow accurately.
+
+Do not claim text-to-video, cinematic AI actors, newly generated live-action scenes, or any unavailable video capabilities.
+
+Optional headline:
+
+**Your product. In motion.**
+
+The motion of the demo itself must be excellent, but never invent capabilities simply to make the scene more impressive.
+
+## SCENE 08 — MADE TO BE USED
+### 00:50–00:57
+
+Shift from creative spectacle to practical utility.
+
+Show a neatly assembled finished kit containing:
+- The original product.
+- Refined product photographs.
+- Listing copy.
+- Social captions.
+- The vertical video ad.
+
+The individual assets should compose into a balanced editorial grid.
+
+Then demonstrate the actual supported next action.
+
+For example:
+- Export the completed campaign.
+- Show the real sharing interface or a supported export interaction.
+- Display the resulting Shopify draft workflow if it is configured and demonstrable.
+
+Do not show a product being published automatically.
+
+Mochi requires an explicit user action to export or send a product to Shopify as a draft. Publishing it live requires a subsequent action in Shopify.
+
+A restrained on-screen message could read:
+
+**Ready to export. Ready for your store.**
+
+If Shopify is shown, accurately identify the result as a draft.
+
+Never display a successful live Shopify connection unless it has actually been tested in the filmed environment. Mocked integrations must not be presented as successful live-store connections.
+
+## SCENE 09 — THE DIFFERENCE
+### 00:57–01:02
+
+The film's pacing relaxes.
+
+Transition to a dark, premium brand scene.
+
+Show the Mochi mark alongside three short principles:
+
+**Your machine. Your models. Your creative workflow.**
+
+Use this framing only in the context supported by the actual implementation.
+
+Mochi uses local Ollama inference for its Gemma-based copywriting and photo-reading workflow. Image processing, photo refinement, and video rendering also run locally.
+
+This allows the film to communicate a meaningful distinction: a local-first marketing studio built around open-weight models.
+
+Do not imply that every optional external integration runs locally. When the Shopify integration is used, selected product content is sent to the store after the user requests the draft. When Sentry is enabled, scrubbed operational metadata can be sent for observability.
+
+A concise alternative for the final scene:
+
+**Built with open models. Designed around your workflow.**
+
+Keep the scene elegant and restrained. This is a supporting differentiator, not a technical presentation.
+
+## SCENE 10 — THE END CARD
+### 01:02–01:05
+
+Return to the signature Deep Ocean background.
+
+The Mochi logo appears cleanly in the center or in a carefully composed offset layout.
+
+Headline:
+
+**One photo. A whole marketing kit.**
+
+Supporting line:
+
+**Mochi — your product marketing studio.**
+
+Final CTA:
+
+**Meet Mochi.**
+
+Use the actual landing-page URL only after discovering and verifying the correct URL from the project.
+
+Do not invent a domain.
+
+Let the final composition settle into stillness.
+
+Hold the final frame long enough to be read comfortably, then end with a clean audio resolution.
+
+Do not abruptly cut the sound or introduce an extra flashy effect at the end.
+
+The end card should also work as an independent brand frame.
+
+---
+
+# 6. MOTION DESIGN RULES
+
+The motion quality must be exceptional.
+
+Treat every animation as a designed movement with an explicit starting point, trajectory, acceleration, deceleration, and resting state.
+
+## Motion principles
+
+### A. Use continuous spatial logic
+
+When an element moves between two positions, it must travel along a coherent path.
+
+Avoid arbitrary cuts between unrelated scales or positions.
+
+When transitioning between scenes, find relationships between the outgoing and incoming compositions.
+
+For example, a product image can become the hero image inside the application, which can then become one tile in the finished marketing kit.
+
+The audience should feel that the story evolves continuously rather than restarting with each scene.
+
+### B. Use sophisticated easing
+
+Use carefully chosen easing functions.
+
+Favor smooth, controlled cubic Bézier curves and spring dynamics only where they genuinely improve the motion.
+
+A useful starting point for many UI and headline transitions is a cubic Bézier similar to:
+
+`cubic-bezier(0.22, 1, 0.36, 1)`
+
+Do not apply one easing function indiscriminately to every animation.
+
+Use different timing characteristics for:
+- Editorial headline reveals.
+- Camera pushes.
+- UI navigation.
+- Product-card entrances.
+- Background transitions.
+- Tiny interface details.
+
+Avoid default CSS ease, abrupt linear starts, overshoot-heavy bounce, excessive elastic movement, and uncontrolled spring wobble.
+
+If a spring is used, tune its damping and settle time carefully.
+
+### C. Animate with precision
+
+Use animation durations appropriate to the function:
+
+- UI state transitions: approximately 180–350 ms.
+- Small micro-interactions: approximately 120–220 ms.
+- Headline reveals: approximately 450–900 ms.
+- Major composition transitions: approximately 650–1,200 ms.
+- Slow cinematic pushes: adjusted to the shot duration.
+
+These are initial guidelines, not rigid limits.
+
+Use overlapping animations to create fluidity. A camera move, mask reveal, text entrance, and sound cue can cooperate rather than execute one after another.
+
+Avoid moving too many independent elements at once.
+
+### D. Use parallax sparingly
+
+Use restrained layered depth in hero and brand scenes.
+
+A foreground product, middle-ground interface, and background gradient may move at slightly different rates to produce subtle dimensionality.
+
+Depth should increase visual richness, not make the product feel like an interactive game menu.
+
+Do not apply exaggerated 3D rotations to flat UI screenshots.
+
+### E. Make typography part of the motion
+
+Text should be animated using layout, masking, and controlled movement rather than simple fade-ins for every scene.
+
+Consider:
+- Text revealed through a clipping mask.
+- Headlines moving a small distance into their final position.
+- Tracking that settles during a logo reveal.
+- A short word appearing as the preceding word resolves.
+- Small labels entering with precise stagger timing.
+- A headline changing through an intentional composition transition.
+
+Do not animate entire paragraphs word by word.
+
+The final state of every headline must remain sharp, readable, and stable.
+
+### F. Avoid motion-design clichés
+
+Do not use:
+- Endless floating glass cards.
+- Random particles everywhere.
+- Generic purple AI gradients.
+- Repeated spinning 3D cubes.
+- Constant glowing borders.
+- Unnecessary glitch effects.
+- Artificial camera shake.
+- Excessive bloom.
+- Oversized cursors.
+- Continuous parallax in every scene.
+- Random UI panels with meaningless values.
+
+Use effects only where they communicate product behavior or reinforce the story.
+
+---
+
+# 7. SOUND DESIGN AND MUSIC
+
+Sound design is mandatory, not an afterthought.
+
+Create a premium, modern electronic soundscape that supports the visual rhythm without overpowering the product.
+
+## Music direction
+
+Choose or produce a track that combines:
+- Minimal electronic percussion.
+- Warm, subtle bass.
+- Soft atmospheric textures.
+- A sophisticated pulse.
+- Carefully spaced musical accents.
+- A tasteful lift as the product transformation begins.
+
+The track should build gently across the film.
+
+Use a controlled introduction, a clear rhythmic identity for the product demo, a stronger moment during the video-ad reveal, and a resolved ending.
+
+Avoid generic corporate stock music, exaggerated orchestral trailers, aggressive EDM drops, and sounds that make the product feel unserious.
+
+Use properly licensed or original audio. Do not sample copyrighted music without appropriate permission.
+
+## Sound accents
+
+Create a coherent sound palette consisting of:
+- Small, precise clicks for meaningful interactions.
+- Soft whooshes for major transitions.
+- A warm tonal accent for the logo reveal.
+- A subtle low-end impact for the main proposition.
+- Light, restrained texture during the photography transformation.
+- A small payoff sound when the finished marketing kit appears.
+- A resolving sound at the final brand frame.
+
+Every sound should be synchronized to an intentional frame-level action.
+
+Do not place a whoosh on every movement.
+
+Do not stack so many sound effects that they become noisy or distracting.
+
+Use clean fades, sensible loudness, controlled low frequencies, and no clipping.
+
+If using narration, keep it optional and use a restrained, confident delivery. The film must remain understandable without narration.
+
+If a voiceover service is unavailable, do not block production or fabricate a voice asset. The visual storytelling, typography, and sound design should carry the film.
+
+---
+
+# 8. SCREEN CAPTURE AND PRODUCT AUTHENTICITY
+
+The application footage must be treated like professional product cinematography.
+
+## Capture real application states
+
+Use the actual app whenever feasible.
+
+Capture these states:
+1. Application ready for a new product.
+2. Product photos selected.
+3. Product facts entered or reviewed.
+4. Platform and tone selected.
+5. Generation in progress, if appropriate.
+6. Generated product photography.
+7. Finished listing copy.
+8. Finished image deck.
+9. Actual video-ad output.
+10. Export state or supported Shopify draft state.
+
+Use a consistent example throughout the film.
+
+Use believable sample product facts, and verify that every statement in the displayed generated copy is supported by those facts.
+
+When the real app generates assets, use those assets.
+
+Do not replace the product's real outputs with fabricated screenshots merely because fictional outputs are easier to animate.
+
+## Make the UI cinematic without making it fake
+
+You may:
+- Crop a screenshot to focus on the essential interaction.
+- Magnify a portion of the screen for a focused demonstration.
+- Use a custom frame to separate UI layers from the background.
+- Animate the movement between genuine states.
+- Add restrained explanatory captions.
+- Use masks to reveal relevant portions of the screen.
+
+You may not:
+- Redesign the app's functionality inside the video and pass it off as real.
+- Show unavailable buttons or working integrations.
+- Invent numerical results or customer testimonials.
+- Simulate a successful operation that failed in reality.
+- Alter product facts to manufacture better-looking copy.
+- Hide failures by portraying unfinished work as a completed result.
+
+If the environment cannot run a live integration, use a clearly identifiable prerecorded or mocked demonstration only where necessary, and do not claim the integration has been verified live.
+
+---
+
+# 9. THE SAMPLE PRODUCT
+
+Use one consistent example product for all the main scenes.
+
+First inspect the existing demo assets and reuse the best suitable example.
+
+If the existing example is not visually compelling, prepare a synthetic example with a clean product photograph and an explicitly defined set of facts.
+
+Prefer a product that photographs well against both dark and light backgrounds, has interesting physical details, and can be composed beautifully into a vertical ad.
+
+A reusable example could be a minimalist ceramic travel mug.
+
+Example factual source:
+
+- Product: ceramic travel mug.
+- Material: ceramic body.
+- Capacity: 350 ml.
+- Color: sage green.
+- Feature: reusable drinking vessel.
+- Audience: customers looking for a simple everyday mug.
+
+These facts are illustrative; verify them against the actual chosen sample product and update the creative accordingly.
+
+Generate all displayed product copy from the selected, verified facts wherever feasible.
+
+Use the same product consistently in:
+- The opening hook.
+- The upload experience.
+- The product cutout.
+- The studio photographs.
+- The listing copy.
+- The video ad.
+- The finished marketing kit.
+- The closing composition, when appropriate.
+
+Visual consistency across these scenes is essential.
+
+---
+
+# 10. ENGINEERING QUALITY
+
+The film must be engineered as carefully as it is designed.
+
+## Deterministic animation
+
+Represent scene timing and animation progress using absolute frame values.
+
+Create reusable animation helpers for:
+- Interpolation.
+- Easing.
+- Clamping.
+- Staggering.
+- Position and scale transitions.
+- Opacity and mask transitions.
+- Animated typography.
+- Scene-level timeline orchestration.
+
+Prevent animation states from depending on asynchronous image loading or the current wall clock.
+
+Preload and validate visual assets.
+
+Use frame-independent calculations so that frame 900 always renders identically, regardless of which frame is rendered before it.
+
+## Performance
+
+Avoid unnecessary recalculation, overly expensive filters, uncontrolled blur effects, and redundant rendering.
+
+Prefer GPU-friendly transforms when supported. Use image sequences or carefully managed caches when useful.
+
+Render the project in chunks during iteration.
+
+Verify fonts, images, video files, and audio files before the final full render.
+
+Do not wait until the final export to discover missing files or unsupported media.
+
+## Media integrity
+
+Validate:
+- All source images exist.
+- All displayed text is spelled correctly.
+- The logo asset is correct.
+- All video assets decode successfully.
+- The audio is present and properly mixed.
+- The output has the intended resolution and frame rate.
+- The finished file opens and plays correctly.
+- There is no accidental black frame at a scene boundary.
+- There are no clipped headlines or unintended layout shifts.
+- The ending does not truncate the logo or music.
+
+Use FFmpeg or equivalent tools to inspect the completed file and verify its technical properties.
+
+---
+
+# 11. MOTION CRITIQUE LOOP
+
+Do not judge the film solely by whether the source code runs.
+
+You must watch and critique the rendered video.
+
+Use this cycle:
+
+1. Produce the beat sheet.
+2. Create the first animation pass.
+3. Render low-resolution previews of individual scenes.
+4. Review the actual frames and scene transitions.
+5. Correct pacing, alignment, composition, and visual continuity.
+6. Render the complete draft.
+7. Inspect it at the intended playback size.
+8. Fix the weakest moments.
+9. Render the final version.
+10. Validate the exported file.
+
+Where supported, generate contact sheets of representative frames from every scene and inspect them visually.
+
+Inspect transitions especially closely at:
+- The opening hook.
+- The transition into the real application.
+- The image transformation.
+- The listing-copy reveal.
+- The video-ad reveal.
+- The finished-kit assembly.
+- The final logo.
+
+Use the following scoring system.
+
+| Category | Weight |
+|---|---:|
+| Visual design and brand adherence | 20% |
+| Motion smoothness and timing | 25% |
+| Product clarity and authenticity | 20% |
+| Narrative pacing and storytelling | 15% |
+| Typography and composition | 10% |
+| Sound design and final polish | 10% |
+
+A draft with any category below 8/10 is not ready for delivery.
+
+A high average score must not hide a major weakness in product authenticity, readability, or animation quality.
+
+If an issue cannot be fixed because an asset or capability is unavailable, document the limitation rather than pretending it has been resolved.
+
+Do not rewrite good code or discard strong scenes simply to create more iterations. Every iteration must improve the rendered result.
+
+---
+
+# 12. DELIVERABLES
+
+Save all production work in a dedicated directory without disrupting the existing app.
+
+Deliver:
+
+**1. Final launch film**
+- `mochi-launch.mp4`
+- 1920 × 1080.
+- Approximately 65 seconds.
+- 60 fps.
+- H.264 video and AAC audio.
+
+**2. Optional vertical social cutdown**
+- `mochi-launch-vertical.mp4`
+- 1080 × 1920.
+- Approximately 20–30 seconds.
+- Re-edited and recomposed for vertical viewing.
+
+Create this only after the horizontal film is complete.
+
+**3. Editable source project**
+- All animation components.
+- TypeScript or equivalent source files.
+- Reusable visual primitives.
+- Scene timing.
+- Color and typography tokens.
+- Build and render instructions.
+
+**4. Production documentation**
+- `beat-sheet.json`
+- `README.md`
+- Source asset manifest.
+- Any necessary license information for externally sourced audio or imagery.
+
+**5. Quality-control evidence**
+- A storyboard or contact sheet.
+- A list of validation checks.
+- Notes on any unavailable integrations or unverified claims.
+- The final render's technical properties.
+
+The finished video must be reproducible from the included source project and documented dependencies.
+
+---
+
+# 13. FINAL CREATIVE QUALITY BAR
+
+Before considering the project finished, ask:
+
+Would a founder confidently use this film on a product launch page?
+
+Would a viewer understand Mochi in the first five seconds?
+
+Does the film show the actual product solving a real problem?
+
+Are the best moments genuinely beautiful, rather than merely full of effects?
+
+Does every scene make the product feel more valuable?
+
+Are the UI, imagery, and typography sharp at 1080p?
+
+Are the transitions smooth, coherent, and intentional?
+
+Is there a satisfying visual payoff when the complete marketing kit appears?
+
+Is the music mixed professionally?
+
+Does the product remain believable throughout?
+
+Does the final logo feel like the natural conclusion of the film?
+
+If not, revise the relevant scenes and inspect the result again.
+
+Do not mistake technical complexity for visual excellence. Simplicity, timing, and composition are more important than the number of effects.
+
+The finished film should demonstrate sophisticated animation engineering, disciplined art direction, excellent pacing, and a deep understanding of the actual product.
+
+**The final objective is a launch film that feels unmistakably like Mochi: open-model-powered, local-first, product-focused, visually beautiful, and genuinely useful to sellers.**
+
+Start by inspecting the repository and existing brand assets. Build the beat sheet, produce the first scene, establish the visual language, and then complete, render, inspect, and refine the entire film. Do not stop after planning or implementing a partial prototype.
+</pasted_content id="b453">
+
+ and for the screen recording you use instad use screenshots and add smooth motions to it and show the website and whole thing in the video, like proper guide from start to end keep that things as well along with the curent style + the prompt that im giving you now
+
+---
+
+there are few overlapping points in the video + in screenrecording part as well at place it overlaps and make the video a bit fast paced + mention feautres, benefits, results. steps to follow like process like you upload then x then y then this then that and like that make it and '/Users/advikdivekar/Desktop/sellcraft/Screen Recording 2026-10-16 at 2.24.11 PM.mov' '/Users/advikdivekar/Desktop/sellcraft/Screen Recording 2026-10-16 at 2.25.20 PM.mov''/Users/advikdivekar/Desktop/sellcraft/Screen Recording 2026-10-16 at 2.26.34 PM.mov' shared 3 new videos use them as the reference take the best from that 3 only and make the product video as discussed and forget rest of the previous videos, if u need a better clip run it on your own and create a better clip and add good motions, transitions, animations. reference prompt 
+
+<pasted_content id="b453">
+# VIDEO PRODUCTION PROMPT 01 — PREMIUM MINIMALIST AI PRODUCT FILM
+
+Act as a world-class product film director, motion designer, product UI animator, cinematographer, and sound designer. Create a polished product film that recreates the visual direction, storytelling structure, and animation language of the supplied reference video.
+
+## OBJECTIVE
+
+Create a premium approximately 54-second product film for **Amii, an intelligent personal AI assistant that follows conversations, remembers context, organizes relevant information, proactively performs routines, and brings important decisions back to the user**.
+
+The film should look like a carefully art-directed launch video from a premium technology startup. It must feel restrained, intelligent, elegant, calm, and exceptionally polished.
+
+Do not make it look like a typical AI commercial, a generic SaaS explainer, a flashy futuristic trailer, or a social-media advertisement.
+
+## 1. VISUAL IDENTITY
+
+Aspect ratio: 16:9, 1920 × 1080.
+
+Color palette:
+- Background: warm off-white, pale ivory, and extremely light sage green.
+- Secondary colors: muted mint, soft grey, charcoal, and occasional muted green interface accents.
+- Text: dark charcoal or near-black.
+- Shadows: extremely soft, diffused, barely visible.
+- Gradients: subtle, organic, pale green-to-ivory gradients with almost imperceptible movement.
+
+The background should feel like a softly illuminated, seamless studio environment rather than a literal room.
+
+Use generous negative space. Never fill the screen simply because space is available.
+
+Typography should be elegant, contemporary, lightweight, and editorial. Use a refined sans-serif typeface with beautiful spacing, sharp readability, and restrained hierarchy. Small uppercase section labels should contrast with larger sentence-case product statements.
+
+The product interfaces and devices must be the visual heroes.
+
+## 2. PRODUCT VISUALS
+
+Create photorealistic yet clean product representations of:
+- A premium smartwatch with rounded black glass and a dark strap.
+- A modern smartphone with a slim bezel.
+- A minimal desktop application containing structured information cards, routines, contextual search, and connected-tool integrations.
+
+Devices should float naturally against the background or appear straight-on, with no distracting environment.
+
+Use realistic screen reflections, accurate device proportions, extremely soft contact shadows, and crisp interface elements.
+
+Avoid dramatic rotations, excessive perspective, aggressive camera moves, or exaggerated 3D effects.
+
+The user should feel as though they are viewing the product itself, not watching an abstract animation about AI.
+
+## 3. SHOT-BY-SHOT STORYBOARD
+
+### 00–06 seconds — Open with a real, useful moment
+
+Begin on an almost empty, pale sage-green background.
+
+A smartwatch gradually emerges from the soft background, centered slightly left of the frame. Its screen is clearly visible.
+
+A dark green notification card gently expands out of the watch interface. It says:
+
+“Suggested
+
+Prepare for your project sync at 14:00”
+
+On the right side, reveal two restrained text blocks:
+
+“ON YOUR WRIST”
+
+“Real-time Presence”
+
+“Amii understands the conversation as it unfolds.”
+
+The watch should remain visually dominant while the text appears with subtle opacity and position animation.
+
+The message should feel useful and contextual, not like a generic notification.
+
+### 06–12 seconds — Show the product, not just the promise
+
+Transition through a soft, luminous fade.
+
+The smartwatch becomes clearer and more detailed. Its on-screen interface shows a live conversation or meeting context, a small microphone indicator, and a suggested action.
+
+Keep the product in the same approximate position to create visual continuity.
+
+Animate the interface subtly, as though Amii is understanding an ongoing conversation.
+
+The background should gently shift between pale ivory and soft sage.
+
+### 12–18 seconds — Introduce the phone experience
+
+Let the watch dissolve into the background while a modern smartphone smoothly slides into the composition.
+
+Place the phone on the left and text on the right.
+
+Show:
+
+“ON YOUR PHONE”
+
+“Real-time Routine”
+
+“Tell Amii once. It keeps watch.”
+
+Inside the phone, show an elegant productivity interface with an assistant-generated suggestion card and a relevant calendar or project context.
+
+The notification should expand slightly, reveal its contents, and settle naturally into the interface.
+
+Make this transition fluid, as though the same assistant is moving seamlessly between devices.
+
+### 18–25 seconds — Introduce proactive desktop routines
+
+Shift into a desktop-product composition.
+
+On the left:
+
+“ON YOUR DESK”
+
+“Give it a standing brief.”
+
+On the right, display a clean routines interface with a heading:
+
+“Routines”
+
+“Background assistants that work proactively for you.”
+
+Include a refined card labeled “Suggested action,” with a short description and a small active toggle.
+
+The card should appear as if it is being assembled from subtle layers: first the panel, then the text, then the toggle.
+
+The interface must feel like real software that someone could use every day.
+
+### 25–31 seconds — Show continuity across devices
+
+Transition back to a floating smartphone.
+
+Show a project conversation or a weekly product-sync summary. Display a contextual card suggesting a useful follow-up action.
+
+Animate a small section of information becoming organized into a readable summary.
+
+The visual message is that Amii does not simply record information; it retains useful context and makes it available later.
+
+Maintain the same typographic hierarchy, device scale, lighting, and minimal composition established earlier.
+
+### 31–37 seconds — Turn scattered context into organized information
+
+Return to the desktop interface.
+
+On the left:
+
+“ON YOUR DESK”
+
+“What matters is already organized around the topic.”
+
+On the right, show a clean arrangement of information cards containing meeting notes, action items, key details, and relevant project context.
+
+Cards should gently align into a structured grid.
+
+Use subtle sliding and opacity transitions to suggest that information is automatically being organized.
+
+Do not fill the screen with decorative icons or meaningless dashboard widgets.
+
+Every visible element should support the story.
+
+### 37–43 seconds — Show contextual intelligence
+
+Display a simple conversational assistant interface on the right side of the frame.
+
+Its prompt reads:
+
+“What did Alex say about the Q3 budget?”
+
+Show relevant context already organized in the interface, with a clean input field and a small collection of supporting information.
+
+On the left, display:
+
+“ON YOUR DESK”
+
+“Ask from the context that is already there.”
+
+The interaction should feel effortless. No elaborate chatbot animation is needed.
+
+Use small, smooth cursor movements and precise interface transitions to make the demonstration credible.
+
+### 43–49 seconds — Connect the user's existing tools
+
+Show a desktop integration panel with a clean list of connected productivity tools.
+
+Each integration row should have an icon, name, and restrained connection status.
+
+On the left:
+
+“ON YOUR DESK”
+
+“Keep working across the tools you have connected.”
+
+The integration panel should appear with a gentle upward movement and then remain stable.
+
+Avoid the appearance of a crowded integrations marketplace.
+
+### 49–54 seconds — Finish with human judgment and the brand
+
+Transition to a smartphone containing an assistant-generated summary or action requiring the user's review.
+
+Display:
+
+“ON YOUR PHONE”
+
+“When your judgment is needed, Amii brings the work back to you.”
+
+Slowly fade the device away into the pale background.
+
+End with the Amii brand mark, centered against a clean ivory-and-sage background.
+
+The final logo should appear with a restrained fade. Allow it to breathe for a moment before the video ends.
+
+## 4. MOTION DESIGN
+
+Use:
+- Slow, elegant fades between major sections.
+- Small horizontal slides for section text.
+- Soft scale transitions for interface cards.
+- Gentle device reveals.
+- Consistent spacing and alignment.
+- Subtle, almost imperceptible background gradients.
+- Precise, restrained interface animation.
+
+Use motion to communicate continuity, context, and intelligence.
+
+Avoid:
+- Whip pans.
+- Glitch effects.
+- Fast zooms.
+- Excessive particles.
+- Neon lighting.
+- Futuristic holograms.
+- Rapid montage editing.
+- Flashy 3D transformations.
+- Excessive bouncy animation.
+
+The animation must feel calm, deliberate, and expensive.
+
+## 5. SOUND DESIGN
+
+Use a restrained ambient electronic soundtrack, with soft tonal layers and a gentle sense of progression.
+
+Add understated notification sounds or light interface accents only when they support the action.
+
+No dramatic cinematic booms, aggressive percussion, or exaggerated science-fiction effects.
+
+Let the on-screen statements communicate the story. Do not add an unnecessary narrator or invent spoken dialogue.
+
+## 6. TEXT AND RENDERING RULES
+
+All important product copy must be rendered as sharp, legible typography during editing or compositing.
+
+Do not depend on the video-generation model to invent text inside the phone, smartwatch, or computer screen.
+
+Ensure the same product branding, fonts, colors, and device appearance remain consistent throughout the film.
+
+Keep every important statement readable long enough to understand.
+
+## FINAL CREATIVE DIRECTION
+
+The final result should feel like a premium, minimalist AI product launch film: a beautifully art-directed environment, elegant typography, floating devices, useful product interactions, soft transitions, and a compelling narrative about an assistant that works across the user's day.
+
+Recreate the visual language and storyboard of the supplied reference. Do not reproduce the browser interface or video-player controls visible in the recording.
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+# VIDEO PRODUCTION PROMPT 02 — CONSTRAINED DECODING DEVELOPER-TOOL FILM
+
+You are a senior creative director specializing in developer tools, AI infrastructure, technical product launches, kinetic typography, interface animation, and high-end startup films.
+
+Recreate the visual language, pacing, technical storytelling, and editorial style of the supplied reference video.
+
+## OBJECTIVE
+
+Create an approximately 47-second product film for **Scaledown CDM, a constrained-decoding technology demonstrated through structured information extraction, classification, and multimodal AI workflows**.
+
+The central story is simple:
+
+Why should a model spend time generating every character of an answer when the task already has a defined structure?
+
+Demonstrate a traditional text-generation workflow, contrast it with a constrained-decoding workflow, show practical tasks, and finish with the brand.
+
+The film must appeal to engineers and technical founders. It should feel intelligent, precise, design-led, and grounded in actual software behavior.
+
+## 1. ART DIRECTION
+
+Aspect ratio: 16:9, 1920 × 1080.
+
+Use an almost entirely white background.
+
+Primary visual elements:
+- Large black typography.
+- Monospaced labels and interface text.
+- Small light-grey captions.
+- Clean rectangular UI panels.
+- A restrained blue accent for the constrained-decoding side.
+- A restrained muted red accent for the conventional baseline.
+- Thin dividers and subtle progress bars.
+- Minimal borders and almost no decorative shadows.
+
+The design language is closer to a technical design-system presentation than a conventional software commercial.
+
+Typography should feel bold, functional, editorial, and slightly utilitarian. Use extremely large headings, deliberate line breaks, generous whitespace, and subtle changes in font size.
+
+Maintain high contrast. Most scenes should have no gradients and no realistic environments.
+
+## 2. OPENING — THE PROBLEM
+
+### 00–07 seconds
+
+Begin immediately with an invoice document on the left side of the frame.
+
+The invoice should contain realistic but fictional business information, including:
+- Supplier name.
+- Invoice date.
+- Currency.
+- Line items.
+- Subtotal and total.
+
+On the right, show an oversized typographic statement:
+
+“SO WHY IS IT
+STILL TYPING?”
+
+Highlight “TYPING?” using the muted red accent.
+
+Below the heading, add a small question:
+
+“What is the Supplier Name, Date, and Currency?”
+
+Underneath, show a structured extraction area made of empty rectangular output fields.
+
+Animate a typing cursor into the first field. Let an ordinary model begin generating the answer one token at a time. Make the process look slower and more laborious than the task itself warrants.
+
+The invoice should remain sharp and readable. The dramatic element is the difference between the simplicity of the question and the laborious token-generation process.
+
+Use a static camera and let the typography deliver the impact.
+
+## 3. THE TITLE REVEAL
+
+### 07–13 seconds
+
+Transition sharply to a clean white title card.
+
+On the left, display an enormous stacked heading:
+
+“Constrained
+Decoding
+Models”
+
+Use black typography and deliberate line breaks. The letters should dominate the composition without touching the frame edges.
+
+On the right, show a compact vertical task menu:
+
+“[01] Classify”
+
+“[02] Extract”
+
+“[03] Summarize”
+
+Highlight “Extract” using a horizontal blue rectangle with white or dark high-contrast text.
+
+Use a small amount of movement: the title can move into place by a few pixels, and the blue highlight can extend horizontally beneath the selected task.
+
+Do not add complex camera movement or unnecessary illustration.
+
+## 4. THE TECHNICAL COMPARISON
+
+### 13–21 seconds
+
+Display a symmetrical, side-by-side benchmark comparison.
+
+Divide the screen vertically.
+
+LEFT — CONVENTIONAL GENERATION
+
+Use muted red accents.
+
+Display:
+- The invoice.
+- An output grid.
+- A token-by-token answer.
+- A decode-step counter.
+- An elapsed-time counter.
+- A progress indicator.
+
+Show the answer being generated gradually, with individual words or tokens occupying separate output boxes.
+
+Use example benchmark values consistent with the reference's visual language, such as “15 decode steps” and “2.74s,” while making clear that they are illustrative unless verified benchmark data is provided.
+
+RIGHT — CONSTRAINED DECODING
+
+Use blue accents.
+
+Display:
+- The same invoice.
+- Clearly defined output fields.
+- Labels such as “Supplier,” “Date,” and “Currency.”
+- An efficient structured extraction result.
+
+Animate the output directly into the required fields, emphasizing that the expected answer shape is known in advance.
+
+Make the contrast visually obvious: the conventional side visibly builds a response token by token, while the constrained workflow is organized around the permitted output structure.
+
+Keep the two sides aligned to the same grid.
+
+Use animated numbers, simple progress indicators, and precise horizontal dividers rather than 3D objects.
+
+Do not invent performance guarantees or present illustrative timings as independently verified results.
+
+## 5. CLASSIFICATION — NOTHING MADE UP
+
+### 21–30 seconds
+
+Cut to a clean white composition.
+
+On the left, display the vertical task menu again:
+
+“Classify”
+
+“Extract”
+
+“Summarize”
+
+Highlight “Classify” using the blue accent.
+
+In the center, reveal a dark, rounded rectangular interface containing several short example support messages.
+
+Examples may include:
+- “Export crashes on Safari”
+- “Can you add SSO?”
+- “Refund still hasn't arrived”
+
+Give each message an appropriate category label, such as “Bug,” “Feature Request,” or “Billing.”
+
+The classification must be coherent and deterministic. Do not create nonsense outputs.
+
+On the right, display a large, simple statement:
+
+“Nothing
+Made up”
+
+Use generous whitespace and strong typographic hierarchy.
+
+The dark interface should feel like a precisely designed developer tool, not a glowing futuristic AI console.
+
+## 6. MULTIMODAL CAPABILITY
+
+### 30–35 seconds
+
+Clear the screen to a clean white or very faint grey grid.
+
+Display three centered lines of uppercase typography:
+
+“TEXT
+AND
+IMAGE”
+
+Use monospaced lettering with deliberately wide character spacing.
+
+Allow the words to appear one line at a time with clean opacity or position transitions.
+
+This scene should function as a clear visual pause between the technical demonstration and the final brand reveal.
+
+Avoid unrelated imagery, visual effects, and unnecessary explanation.
+
+## 7. BRAND AND ECOSYSTEM
+
+### 35–47 seconds
+
+Transition to the final brand card.
+
+Reveal the Scaledown wordmark and its simple blue symbol in the center of a clean white canvas.
+
+Below it, present an orderly ecosystem of relevant integrations and related tools using a restrained grid of names and logos:
+
+OpenRouter, Vercel, LiteLLM, LangChain, TrustedRouter, Arthur, and RouterPlus.
+
+Keep the spacing balanced and typography consistent. The brand name should remain the primary focal point.
+
+Use a subtle logo fade and a gentle final settling motion.
+
+The end card should communicate technical credibility and compatibility rather than consumer excitement.
+
+Hold the final composition long enough to read it clearly.
+
+## 8. EDITING AND ANIMATION RULES
+
+The entire film should feel like a sequence of precisely composed graphic design frames.
+
+Prioritize:
+- Hard cuts between ideas.
+- Restrained kinetic typography.
+- Clean horizontal and vertical divisions.
+- Precisely aligned interface elements.
+- Simple number counters.
+- Text appearing in controlled sequences.
+- Consistent monospaced UI typography.
+- Minimal red and blue accent colors.
+
+Do not use:
+- Cinematic landscape shots.
+- Lifestyle actors.
+- Stock-footage montages.
+- Sci-fi AI imagery.
+- Neon gradients.
+- Particles or light trails.
+- Excessive camera movement.
+- Generic robot illustrations.
+- Unnecessary 3D product mockups.
+
+Keep the content itself sharp, direct, and technically meaningful.
+
+## 9. SOUND DESIGN
+
+Use a restrained, modern electronic or minimal percussive sound bed.
+
+Small clicks and subtle typing sounds may accompany the extraction and classification scenes. Use transitions that feel precise and intentional.
+
+Avoid dramatic trailer music and exaggerated sound effects.
+
+The film should remain understandable without narration. Let the typography, comparisons, and product interface explain the concept.
+
+## 10. TEXT ACCURACY
+
+Every title, label, benchmark number, category, and brand name must be laid out as clean graphics or composited interface elements.
+
+Do not allow the video model to hallucinate text or produce unreadable interface content.
+
+Use fictional invoice data consistently across both comparison panels.
+
+## FINAL CREATIVE DIRECTION
+
+The finished film should look like a highly art-directed launch video for AI infrastructure: bold monochrome typography, technically grounded interface demonstrations, controlled blue-versus-red comparisons, a clear workflow narrative, and a clean developer-focused brand reveal.
+
+Reproduce the supplied reference's structure and visual language without including any browser tabs, playback controls, or screen-recording artifacts.
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+# VIDEO PRODUCTION PROMPT 03 — TASTE SKILL V2 CREATIVE-TECH PRODUCT FILM
+
+Act as an award-winning digital art director, editorial designer, motion-graphics artist, creative technologist, and product film director.
+
+Create an approximately 64-second product film that recreates the distinctive visual style, pacing, typography, demonstrations, and product storytelling of the supplied Taste Skill v2 reference.
+
+## OBJECTIVE
+
+Present **Taste Skill v2, an art-direction skill for a coding agent that helps it make more intentional visual design decisions**.
+
+The core message is:
+
+A coding agent should do more than create a functional page. It should choose a visual direction, use appropriate imagery, maintain coherent design details, and produce interfaces with a recognizable point of view.
+
+The film should demonstrate these ideas through oversized typography, terminal-style installation text, short editorial statements, and finished website examples.
+
+It must look like a creative software product launch made by a highly design-conscious studio.
+
+The result should be minimal yet expressive, technical yet artistic, and visually confident.
+
+## 1. VISUAL LANGUAGE
+
+Aspect ratio: 16:9, 1920 × 1080.
+
+Build most of the film around a clean, off-white canvas.
+
+Core palette:
+- Warm white and ivory backgrounds.
+- Near-black typography.
+- Subtle, thin grey grid lines.
+- Orange highlights used sparingly.
+- Black rounded rectangles behind selected words.
+- Occasional saturated indigo or deep blue in showcased website examples.
+- Soft mint green and dusty pink inside the coffee-shop website demonstration.
+
+Typography is the primary visual instrument.
+
+Use:
+- Extremely large, clean sans-serif headlines.
+- Monospaced terminal typography.
+- Deliberately cropped oversized words.
+- Broad areas of empty whitespace.
+- Thin horizontal and vertical lines.
+- Black pill-shaped highlights.
+- Small orange cursor or accent details.
+
+Do not impose the same layout on every scene. The film should demonstrate changing art direction while remaining coherent through its typography, spacing, and restrained motion.
+
+## 2. OPENING — TYPOGRAPHY AS THE HOOK
+
+### 00–07 seconds
+
+Start with a warm, off-white canvas.
+
+Display an enormous black word:
+
+“Your”
+
+The word should be so large that part of it extends beyond the visible frame. The cropped typography creates a deliberate editorial composition.
+
+The first moment should feel almost abstract. Let the audience take in the scale of the lettering before introducing additional context.
+
+Use an extremely subtle transition from greyish white to warmer ivory.
+
+Avoid dramatic logo animations, glows, particles, and conventional opening titles.
+
+The typography itself is the visual event.
+
+## 3. DESIGN DETAILS, NOT GENERIC TEMPLATES
+
+### 07–13 seconds
+
+Reveal a series of fine grey horizontal and vertical lines across the canvas.
+
+The lines should resemble a carefully constructed editorial grid or page layout.
+
+Center a short statement:
+
+“the same thin lines,”
+
+Along the bottom edge, introduce a collection of small, overlapping typographic tags resembling editorial labels, page fragments, or cropped navigation elements.
+
+Keep the details understated and intentional.
+
+The design should suggest that small visual decisions, such as line weight, spacing, and alignment, can define the character of an entire interface.
+
+Use subtle positional movement rather than elaborate animation.
+
+## 4. SHOW THE PRODUCT INSTALLATION
+
+### 13–20 seconds
+
+Clear most of the grid and return to a clean off-white background.
+
+Place a command in the horizontal center of the screen:
+
+`npx skills add LeonxInx/taste-skill`
+
+Use black monospaced typography.
+
+Include a small Taste Skill symbol before the command and a slim orange cursor after it.
+
+Reveal the command as though it has just been typed into a terminal.
+
+Keep the remaining canvas almost completely empty.
+
+Do not turn this into a full terminal tutorial. The command itself is the visual message: the design capability can be added to a coding workflow.
+
+The command must remain perfectly legible.
+
+## 5. ART DIRECTION, EXPLAINED THROUGH TYPOGRAPHY
+
+### 20–27 seconds
+
+Return to the large editorial typography.
+
+Display the statement:
+
+“picks a direction:”
+
+Immediately beside it, place a compact black rounded rectangle containing white text:
+
+“Photographs at uneven sizes”
+
+Compose the sentence as a single, deliberate line, with natural spacing between the headline and the highlighted direction.
+
+The black highlight should feel like an editorial annotation rather than a conventional button.
+
+Let the highlighted phrase appear with a small horizontal expansion.
+
+The message is that a design agent should establish a visual point of view instead of defaulting to a generic template.
+
+## 6. THE VISUAL-SELECTION PRINCIPLE
+
+### 27–34 seconds
+
+Move to a nearly empty off-white canvas.
+
+Place a single centered statement:
+
+“finds real visuals:”
+
+Use black sans-serif typography, with comfortable whitespace surrounding the line.
+
+Allow it to emerge through a quiet fade or a few pixels of vertical movement.
+
+Keep this moment intentionally simple. Do not introduce stock-photo montages or random decorative illustrations yet.
+
+It creates anticipation for the concrete website examples that follow.
+
+## 7. THE FIRST REAL WEBSITE — COFFEE BRAND
+
+### 34–43 seconds
+
+Introduce a finished website as the hero visual.
+
+For a brief moment, place the website inside a dark or black presentation surround, then allow the website itself to dominate the composition.
+
+Show a polished coffee-shop website with the headline:
+
+“One bean,
+two sons”
+
+The site should have:
+- A large, black, left-aligned headline.
+- An off-white background.
+- A simple navigation row.
+- Pale mint-green organic shapes.
+- Dusty pink bean-like visual elements.
+- Restrained supporting copy.
+- A small location or opening-hours detail.
+- A dark green reservation button.
+- A secondary directions link.
+
+Make the design look like a real, art-directed independent coffee brand, not a generic website template.
+
+Below the displayed website, briefly show:
+
+“1440 px wide”
+
+Treat the label as a subtle technical annotation.
+
+Hold the website long enough for its composition and visual personality to register.
+
+The demonstration must show the finished interface, not a person browsing a webpage.
+
+## 8. SHOW MEASURABLE QUALITY
+
+### 43–50 seconds
+
+Transition abruptly back to a clean white screen.
+
+In the center, display a compact evaluation result:
+
+“7.8”
+
+Place the score in orange.
+
+Beside it, display a short orange highlight containing:
+
+“0 fails, 0 warnings”
+
+Use black text against the orange background.
+
+The arrangement must be precise, horizontally balanced, and intentionally sparse.
+
+Keep the numbers extremely sharp.
+
+This moment communicates that the design process includes some form of quality checking, rather than relying only on subjective appearance.
+
+Do not fabricate a claim that the displayed score represents a verified benchmark. Treat it as a visual example of the reference's evaluation presentation unless genuine scoring data is provided.
+
+## 9. THE SECOND WEBSITE — EDITORIAL DOCUMENT EXPERIENCE
+
+### 50–59 seconds
+
+Reveal a contrasting example of a finished website.
+
+Use a saturated indigo or deep cobalt-blue surface and an editorial layout centered on document intelligence or contract review.
+
+At the upper portion of the composition, show document pages arranged horizontally, with selected clauses highlighted in yellow and magenta.
+
+Use these colorful document highlights to contrast with the restrained black-and-white typography of the rest of the film.
+
+Introduce a large serif headline:
+
+“Marks the risk,
+cites the page.”
+
+Add small supporting text describing an AI assistant that reads a contract, identifies risky clauses, and points to the relevant page.
+
+Include a small orange pill-shaped label:
+
+“The printed annual”
+
+The site should feel like a distinctive editorial product experience: serious, information-rich, confident, and visually memorable.
+
+Animate the document strip and highlight panels into view with simple horizontal movement.
+
+Then hold the finished design as a clear product showcase.
+
+The audience should understand that the same coding agent can create different visual identities depending on the product's purpose.
+
+## 10. BRAND REVEAL
+
+### 59–64 seconds
+
+Clear the previous website and return to a pristine off-white background.
+
+Center the Taste Skill v2 logo.
+
+Use a bold black wordmark with a carefully integrated orange “v2” accent.
+
+Below it, display the tagline:
+
+“Your agent, with taste.”
+
+Keep the word “taste” orange to reinforce the visual identity.
+
+The logo and tagline should appear in a single, restrained reveal. Allow enough time for the branding to be read.
+
+End cleanly, without a long outro, a social-media call to action, or a dramatic fade to black.
+
+## 11. MOTION DESIGN PRINCIPLES
+
+Prioritize:
+- Editorial cuts.
+- Oversized type entering and leaving the canvas.
+- Minimal position changes.
+- Thin grid lines appearing progressively.
+- Words highlighted with black or orange rectangles.
+- Terminal-style cursor animation.
+- Simple interface showcases.
+- Precise composition shifts.
+- Abrupt but intentional changes in color when switching between website examples.
+
+The transitions should feel like an experienced designer making deliberate layout decisions.
+
+Do not add:
+- Neon sci-fi graphics.
+- Excessive 3D animation.
+- Futuristic HUDs.
+- Random abstract particles.
+- Generic AI brain illustrations.
+- Conventional SaaS dashboards.
+- Stock footage of developers working.
+- Rapid cuts for the sake of energy.
+- Decorative animation that competes with the typography.
+
+## 12. SOUND DESIGN
+
+Use a restrained modern electronic soundtrack with a slightly experimental, design-studio character.
+
+Allow brief tactile sounds, soft clicks, or quiet typing accents to accompany the command-line and interface scenes.
+
+Keep the audio secondary to the visual rhythm.
+
+Avoid exaggerated typing sounds, cinematic impacts, dramatic voiceovers, and conventional corporate-commercial music.
+
+The typography should carry the story.
+
+## 13. TEXT AND BRAND CONSISTENCY
+
+Render the displayed statements, command, score, UI labels, and final brand mark using real text layers or composited graphics.
+
+Maintain correct spelling, character spacing, alignment, and consistent positioning.
+
+Do not allow the video model to generate fake text or malformed command-line characters.
+
+Make each website visually coherent within itself. The coffee-shop website should have a distinct visual identity from the contract-review website.
+
+The whole video should still feel connected through its editorial typography, white canvas, and disciplined motion design.
+
+## FINAL CREATIVE DIRECTION
+
+Create a design-forward developer-tool film that feels like a visual essay about good taste in software.
+
+The result should alternate between bold typographic statements, a minimal installation command, concise design principles, finished website examples, and a restrained product reveal.
+
+The film should prove the product's value by showing the quality of the interfaces it helps create.
+
+Recreate the supplied reference's pacing, typography, and content structure, but do not reproduce the browser tabs or video-player interface visible in the recording.
+</pasted_content id="b453">
+
+---
+
+the intro of the product is not connecting, very vague adn confusing. change the intro like either ask the direct question or mention directly what we do and for the one tap 29s we have 3 frames loopng of the same page, so please look into that frame as well. overall ok, also make sure that you move the video step by step not randomly any process at any time, once all processes are done then show the results and then outro. Please do these changes and then also give me captions for each frame intended.
+
+---
+
+good now everything realrted to the video, recordings remove it and just keep the main video. and then push the code without the main video
