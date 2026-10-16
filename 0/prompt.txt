@@ -1,0 +1,3306 @@
+now give me a detailed architecutre of the working of the entire app, then models, then process what each model follows, pipelines, architecutre optimisiations diagrams, system design, etc etc properly for each thing we did in svg, give like the way it has been done so far.
+
+---
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Phone calls are the boss fight of living in Japan. 🗼 - DEV Community
+
+
+9
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+
+ADK BBX
+ADK BBX  Subscriber
+Posted on 4 Oct
+•
+
+AI-assisted
+
+
+13
+
+
+4
+
+
+6
+
+
+4
+
+
+6
+Phone calls are the boss fight of living in Japan. 🗼
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+ai
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+A practice call in Before I Call: a Japanese question with furigana, a word's meaning on hover, then a plain-English explanation of the question
+
+I've lived alone in Tokyo for four years now, but when my washing machine started leaking, I stared at the building manager's number for twenty minutes before I pressed call.
+
+My friend ran into the same thing when she had to cancel her internet contract by phone. The provider's explanation sounded alien to her. The Japanese businesses use on the phone is not the Japanese you use every day, and on a call there's no face to read and no time to look anything up.
+
+So I built Before I Call, an app where you practice the call with an AI before you make the real one. I made it for myself and for friends in the same situation, and sent it to one of them to see if it actually helps. Their reply is further down.
+
+Here it is in action:
+
+
+
+What I Built
+You describe the call you need to make, or pick one of the examples (home repairs, the clinic, a missed delivery, the city office, dietary requests, lost property, bills). Then you talk to an AI that plays the person on the other end, like a receptionist or your building manager. It speaks polite Japanese, asks one question at a time and waits for your answer. There's no score.
+
+If you get stuck, you don't have to hang up. Explain question opens a helper next to the call with what the question means and a reply you could give. The AI on the call doesn't see it, so the role-play carries on. Slow replay plays the question again at 0.7x speed, and Repeat question asks the AI to say it again. Kanji have furigana, every line has romaji, and known words show their meaning when you hover or tap.
+
+When you say goodbye, the AI hangs up and you get a call card: the whole conversation with readings and meanings, and a list of useful words from your call. You can download it as a PDF and keep it next to you when you make the real call.
+
+It won't make up dates, prices or availability, and it can't book anything for you. It's only for practice.
+
+Setting up a call. You can type or dictate it in English or Japanese, or start from an example. Enhance prompt tidies up rough notes without adding facts you didn't give it.
+
+The setup form: a washing-machine leak typed in English, with Start from an example, Enhance prompt, Dictate situation and Start voice practice
+
+Asking for help in the middle of the call:
+
+The explanation dialog: the question's meaning, a note on どうされましたか, and a suggested reply with furigana
+
+The word list on the call card:
+
+The call card's useful words: 管理会社, 田中 and 洗濯機 with furigana, romaji and English meanings
+
+What my friend said
+I sent the link to my friend on WhatsApp and asked them to let me know if it helps. This is what came back:
+
+WhatsApp chat: I share the Before I Call link with my friend. They reply 
+
+I didn't expect the PDF to be the part they liked. I made it as a cheat sheet for the real call, but for someone studying for the JLPT it's also a word list from a conversation they actually had.
+
+Demo
+Try it at before-i-call.onrender.com. There's no sign-up. Voice practice needs a microphone. Without one, tap Play guided example to watch a recorded call in Japanese or English.
+
+The PDF call card: the situation, each turn as a speech bubble with furigana, romaji and meaning
+
+Code
+GitHub logo adkbbx / before_I_call
+Before I Call logo
+Before I Call
+Rehearse the phone call you've been putting off.
+A patient AI voice partner for everyday Japanese and English calls, with furigana on every word,
+help that never interrupts the conversation, and a call card to take with you.
+Use it in the cloud, or free and offline on your own computer with Gemma 4, Whisper and Kokoro.
+
+Try it live
+
+Gemma 4 open weights ElevenLabs Agents DigitalOcean serverless inference Sentry agent tracing Deployed on Render MIT license Free local mode with Whisper, Gemma and Kokoro 87 tests passing Hacktoberfest 2026
+
+Live app · How it works · Free local mode · Architecture · Run it locally
+
+
+ Before I Call home page: practice a phone call in Japanese or English, or play a guided example
+The problem
+A phone call is the hardest everyday conversation in a second language. There is no face to read and no time to look anything up, and the other person speaks at native speed. People who live in Japan put off calling the building manager, the clinic or the delivery company, not because they can't manage the conversation, but because the call itself feels risky.
+
+Phrasebooks help with the first sentence. They don't…
+View on GitHub
+MIT licensed and built during the challenge. It has 87 tests (80 Python, 7 Node), and the README explains how to run it locally.
+
+How I Built It
+The call runs on ElevenLabs Agents
+The live call is an ElevenLabs agent. It handles all the audio: the WebRTC connection, speech recognition, working out when you've finished speaking, interruptions, and the voice. I use one agent for every scenario. When a call starts, the app sends that call's prompt, first line, language and voice as overrides, so the same agent can be a Japanese building manager or an English clinic receptionist.
+
+I slowed the agent's speech to 0.85x for learners and capped calls at two minutes, with a daily limit on the server so the credits can't all go in one day. Hanging up uses the built-in end_call tool. Its description tells the model to use it only after your question is dealt with and you've said you don't need anything else, not when you just say thanks. Explain question opens a second, text-only session with a helper prompt, so the explanation never ends up in the call transcript. Slow replay uses ElevenLabs text to speech (Flash v2.5 at 0.7x).
+
+The agent has had 113 conversations so far. ElevenLabs groups them by topic on its own, and the top three match the examples in the app: booking an appointment (27), the washing machine (19) and a missed delivery (17).
+
+ElevenLabs agent dashboard: 113 conversations, with topics grouped as Appointment Booking and Scheduling (27), Washing Machine Issue Resolution (19) and Missed Delivery Redelivery Request (17)
+
+Why I switched to a custom LLM
+When I started, the agent used one of the LLMs hosted by ElevenLabs, Qwen3.5-397B-A17B. Its usage came out of the same ElevenLabs credits I got for Hacktoberfest, and it was going through them fast. ElevenLabs lists it at about $0.016 a minute and $0.003 a message, on top of the voice. A custom LLM costs nothing on the ElevenLabs side:
+
+The ElevenLabs LLM picker: hosted models with their prices, including Qwen3.5-397B-A17B at about $0.0159 per minute and $0.0030 per message, and Custom LLM at $0.0000
+
+I wanted those credits for the voice, so I switched the agent to a custom LLM and pointed it at Gemma 4 31B on DigitalOcean, which bills my DigitalOcean account instead. With the per-token prices my tracing code uses for Gemma ($0.18 per million input tokens and $0.50 per million output tokens), the turn in the trace further down cost about $0.0002. The ElevenLabs credits now only pay for the audio.
+
+At first the custom LLM pointed straight at DigitalOcean. Later I put my own server in between so I could trace and check every reply. This is the agent's LLM setting now:
+
+The agent's Custom LLM setting in ElevenLabs: Chat Completions, server URL https://before-i-call.onrender.com/llm/v1/ and model ID gemma-4-31B-it
+
+On each turn, the agent sends the conversation to my FastAPI server on Render, the server forwards it to Gemma 4 31B on DigitalOcean's serverless inference, and the response streams straight back, so the voice can start as soon as the first words arrive.
+
+Architecture: the browser talks to ElevenLabs over WebRTC; ElevenLabs calls the Gemma proxy on Render, which streams Gemma 4 31B from DigitalOcean and sends traces to Sentry
+
+The proxy on Render
+The custom LLM URL points at my own server: a FastAPI app that Render runs as one Docker web service. The same service serves the React app, the API and the proxy. The whole setup is a render.yaml Blueprint in the repo (trimmed here):
+
+services:
+  - type: web
+    name: before-i-call
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    disk:
+      name: usage-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: LLM_PROXY_KEY
+        sync: false
+      - key: GRADIENT_MODEL
+        value: gemma-4-31B-it
+      - key: MAX_CONCURRENT_CALLS
+        value: '2'
+      - key: MAX_CALL_SECONDS
+        value: '120'
+      - key: MAX_CALLS_PER_VISITOR_DAY
+        value: '3'
+Keys are sync: false, so they're set in the Render dashboard and never committed. The limits that protect my credits are plain environment variables: two calls at once, two minutes each, three calls per visitor a day. The 1 GB disk holds the SQLite files for those limits and the analytics, so they survive redeploys.
+
+The proxy is a single route. It accepts only the agent's key, refuses every model except Gemma 4 31B, and passes DigitalOcean's stream through unchanged while it reads each chunk for tracing and the rule checks (trimmed):
+
+@router.post('/llm/v1/chat/completions')
+async def chat_completions(request: Request):
+    ...
+    if not isinstance(body, dict) or body.get('model') != model:
+        # The key is never usable for other, more expensive models.
+        raise HTTPException(400, f'Only {model} is available.')
+    ...
+    async def relay():
+        async for chunk in response.aiter_bytes():
+            stream.feed(chunk)
+            yield chunk
+
+    return StreamingResponse(relay(), media_type='text/event-stream',
+                             headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+An always-on web service suits this. Each reply is a streamed response that stays open while Gemma talks. The server reuses one HTTPS client for DigitalOcean, so a turn doesn't pay for a new TLS handshake. And when you interrupt the AI, ElevenLabs drops the request, so the proxy closes the stream and records the turn as cancelled in Sentry.
+
+Here's the proxy at work in Render's logs, one line per Gemma request from the agent:
+
+Render application logs filtered to POST /llm/v1/chat/completions: a steady list of 200 OK responses on October 4 and 5
+
+The service is managed by the Blueprint, which stays synced to the repo, and every push to main deploys on its own:
+
+Render Blueprints page: before-i-call, synced with adkbbx/before_I_call on main
+
+Render events for the before-i-call web service (Docker, Starter, Blueprint managed, live): deploys started by 
+
+Fixing how numbers are read
+The first version read 7時 as "nana-ji". Nobody says that. Japanese numbers change their reading depending on the counter after them: 7時 is しちじ, 10分 is じゅっぷん, 4月1日 is しがつついたち and 2人 is ふたり. Dates, times and the number of people are exactly what you say on a phone call, so this had to be right.
+
+I fixed it with a pronunciation dictionary: 118 entries I wrote by hand plus 5,989 generated ones for dates, clock times, durations and counters, 6,107 in total. A script builds the rules and uploads them to the ElevenLabs agent as a pronunciation dictionary, and the app uses the same list for slow replay and the recorded demos. The text on screen doesn't change. This is the dictionary on the agent:
+
+ElevenLabs agent settings: the pronunciation dictionary 
+
+Japanese voices trip over dates and counters, so I wrote 6,107 fixes: 7時 is shichiji, not nana-ji
+
+Tuning the prompt for Gemma
+Switching to Gemma meant rewriting the prompt. I tested it with text-only runs of the agent. The old prompt never called end_call (0 of 2 scenarios), and the tuned one hung up in all 4. It also keeps ordinary words in kanji and writes numbers in kana so the voice reads them correctly, and it asks for practice details instead of your real ones. It still missed the hang-up sometimes in real calls, and Sentry caught that. The start of the tuned prompt:
+
+The start of the agent's system prompt in ElevenLabs: polite spoken Japanese, one question per turn, kanji for ordinary words, numbers with counters in hiragana such as 7時→しちじ, and never inventing dates, prices or availability
+
+Checking every reply with Sentry
+Since every turn goes through my server, I can check each reply against the rules of the practice call. If you said goodbye and the AI didn't hang up, if it "confirmed" a booking, or if it put digits or English letters into Japanese speech, that becomes a Sentry issue tagged with the prompt version and turn number. Each request is also a gen_ai trace with time to first token, token counts and estimated cost. After a call you can tap Report this reply, and the report shows up next to that turn's trace. Conversation text only goes to Sentry if you choose to attach it.
+
+Here's a real one. On October 3, the practice partner didn't hang up after the learner said goodbye, and Sentry caught it 8 times in four minutes. Each rule gets its own issue:
+
+Sentry issue feed showing one unresolved issue, Practice partner: missed hang up, on /llm/v1/chat/completions with 8 events
+
+The issue lists every time it happened and which release it came from:
+
+The missed hang up issue in Sentry: 8 events between 5:57 and 6:01 PM UTC on October 3, all on the same release in production
+
+For comparison, here's a turn where the partner did hang up. The execute_tool end_call span is the hang-up. The Gemma call took 1.27 s (Sentry's average for it is 1.49 s), used about 1,100 input tokens and 43 output tokens, and cost less than a cent. Traces don't include the conversation text, so the Input tab is empty.
+
+A Sentry trace of one practice turn: invoke_agent, chat gemma-4-31B-it taking 1.27 s, the end_call tool and the request to DigitalOcean, with 1.1K input tokens, 43 output tokens and a cost under $0.01
+
+All of those Gemma calls run on DigitalOcean's serverless inference, so I never had to run a GPU server. In two days, October 3 and 4, the app sent about 1.28 million input tokens to Gemma 4 31B and got about 75,000 back. Most of it is input because every turn sends the instructions and the conversation so far, while the replies are short, like the 43 tokens in the trace above.
+
+DigitalOcean Serverless Inference, Analyze tab: 1,278,483 input tokens and 74,719 output tokens, all used on October 3 and 4
+
+Bugs I hit along the way
+Gemma sometimes wrote voice directions like [calm] or [pause] into its replies. The app strips them from the text on screen.
+Small models sometimes say a tool call out loud, like end_call(reason="done"), instead of calling the tool. The app removes that text before it's spoken and treats it as a hang-up.
+Running Gemma 4 locally, the first replies came back empty because the model spent all its tokens on hidden reasoning. Setting reasoning_effort: "none" fixed it, and replies now take about half a second on my laptop's GPU.
+Kokoro's Japanese voice wouldn't install on Windows, because pyopenjtalk needs CMake to build. pyopenjtalk-plus has prebuilt wheels, so I switched to that.
+Romaji showed 10月4日 as "10tsuki4hi". Romaji and furigana now use the same reading list as the voice, so it reads juugatsu yokka.
+Why Does Open Innovation Matter?
+The hosted version runs on paid APIs. I also wanted a version that's free and private, so the same code can run entirely on a laptop. With LOCAL_VOICE=1, Whisper handles speech recognition, Gemma 4 E2B (4.3 GB, through Ollama) plays the other person, and Kokoro-82M speaks. Explanations, slow replay, Enhance prompt, the word list, furigana and the PDF all still work. Nothing is sent to a provider, it works offline, and you can switch models with one setting (LOCAL_LLM_MODEL).
+
+Same app, two brains: Gemma 4 31B on DigitalOcean with ElevenLabs, or Gemma 4 E2B on a laptop with Whisper and Kokoro
+
+On my laptop (Ryzen 9 5900HS, RTX 3060 with 6 GB), the AI greets you in 2.4 s, answers what you say in about 6 s, and an explanation takes 1.4 s.
+
+A free local practice call: Gemma's reply with furigana and romaji, a tap-to-speak microphone and the call controls
+
+The local version isn't as good. The ElevenLabs voice sounds more natural, responds faster and lets you interrupt it. Locally you tap to talk, and the small model doesn't follow the role-play rules as closely as the 31B. It's possible at all because Gemma's weights are open: the same model family runs on DigitalOcean and on my laptop, with the same prompt, rules and pronunciation list. Furigana and romaji don't need a model. The open-source pykakasi and Janome libraries handle them.
+
+Prize Categories
+Best Use of ElevenLabs: one agent over WebRTC for every call, with per-call prompt, first line, language and voice overrides, the built-in end_call tool, a custom LLM pointed at Gemma, a separate text-only session for explanations, text to speech for slow replay, and a 6,107-entry pronunciation dictionary on the agent.
+Best Use of Sentry Agent Tracing: every Gemma request is a gen_ai trace with time to first token, tokens and cost. Replies are checked against the role-play rules, and user reports link to the exact turn.
+Best Use of DigitalOcean: serverless inference runs Gemma 4 31B for every call turn, explanation, prompt enhancement and word list, with no GPU to manage.
+Best Use of Gemma: Gemma does four jobs (the other person on the call, the explanation helper, the prompt enhancer and the word picker), as 31B in the cloud and E2B on a laptop.
+Best Use of Render: one Docker web service from a render.yaml Blueprint serves the app, the API and the custom LLM proxy that streams every Gemma reply to ElevenLabs, with a persistent disk for usage limits and analytics, keys kept out of the repo, and the credit limits as environment variables.
+Built solo.
+
+If you live in Japan and put off phone calls too, try it and tell me in the comments what's missing.
+Top comments (9)
+
+Subscribe
+pic
+
+Submit
+Preview
+ 
+ 
+tejapng profile image
+tej
+•
+4 Oct
+
+Great tool! The downloadable PDF word lists are perfect for my JLPT prep. Thank you! ☺️
+
+3
+ likes
+Like
+
+Reply
+ 
+ 
+broski_64f905 profile image
+Broski
+•
+5 Oct
+
+Haha! Thank you! ♥️
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+pratheekb_11 profile image
+Pratheek B
+•
+5 Oct
+
+No more pre-call anxiety with this one 😁. Found it really helpful to learn phrases
+
+2
+ likes
+Like
+
+Reply
+ 
+ 
+broski_64f905 profile image
+Broski
+•
+5 Oct
+
+Yes sir!
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+soumyaghosh2006 profile image
+Soumya ghosh
+•
+10 Oct
+
+how are you making these videos
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+adk_bbx profile image
+ADK BBX  Subscriber   
+•
+10 Oct
+
+Used grok man!
+
+2
+ likes
+Like
+
+Reply
+ 
+ 
+soumyaghosh2006 profile image
+Soumya ghosh
+•
+10 Oct
+
+Ooh thanks bro
+Can you provide the prompt template or the prompt if you don't mind.
+Then will use it as a reference
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+superabdul profile image
+Abdullah Ansari
+•
+12 Oct • Edited on 12 Oct
+
+Good work
+
+1
+ like
+Like
+
+Reply
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+
+ADK BBX  
+Follow
+LOCATION
+Kawasaki, Kanagawa Prefecture, Tokyo, JP
+EDUCATION
+Reva University, Electrical Engineering
+PRONOUNS
+He/Him
+WORK
+Senior Data Scientist
+JOINED
+2 Oct 2026
+More from ADK BBX
+I asked my junk mail one question: are you worth the walk?
+#devchallenge #hf26challenge #ai #opensource
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Gemma 4 reads my parent's mail at home: 39 test letters, 9 of them real, and one calm wrong answer I engineered out - DEV Community
+
+
+0
+Jump to Comments
+
+
+1
+Save
+
+
+Boost
+
+Cover image for Gemma 4 reads my parent's mail at home: 39 test letters, 9 of them real, and one calm wrong answer I engineered out
+Uptime Architect
+Uptime Architect  Subscriber
+Posted on 4 Oct
+
+
+1
+Gemma 4 reads my parent's mail at home: 39 test letters, 9 of them real, and one calm wrong answer I engineered out
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+gemma
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+In a lot of families there's a pile on the corner of the kitchen table: envelopes that were opened, read twice, and set aside "for when someone can look at it." One of my parents has that pile.
+
+Most of what lands in a pile like that is harmless: a statement, an ad, a thank-you from the health plan. The trouble is that the one that matters looks just like the others. A water shut-off date. Or a letter on very official-looking letterhead saying your Social Security number has been suspended and you can fix it today with Google Play gift cards, as long as you don't tell your bank.
+
+Even in your first language, mail is hard: "Explanation of Benefits — THIS IS NOT A BILL — You may owe $35.00", "past-due balance", "validation notice", "response requested" on a mailer that's actually an ad. In a second language it's harder. The real skill is knowing which of the twelve envelopes is the one that matters.
+
+So this weekend I built Kitchen Table.
+
+What I Built
+Kitchen Table is a private letter explainer for someone who gets mail they can't fully read.
+
+They open it on their phone, tap one big button, and photograph the letter. A computer in the same house runs Gemma 4 locally and, a few seconds later, answers in the language they read best:
+
+The verdict first, in color: Nothing to do. You can put it away. / You need to do something. / Important. Do this soon. / Careful. This looks like a scam.
+What it says, in two to four plain sentences. "Like a kind grown-up child explaining at the kitchen table" is literally in the prompt.
+What to do, by when, with days left and an Add to calendar button.
+The money: how much, and whether they owe it or are getting it back.
+Hard words explained. "Past due", "payment arrangement" and "reconnection fee" each get one plain sentence.
+Warning signs when something is off, and the only advice that matters: Don't pay. Don't call the numbers in the letter. Call Yaro first.
+Questions, typed or spoken. They can hold up the phone and ask, in their own language, "what happens if I don't pay by the 8th?" and hear the answer read back.
+"Send to Yaro": a three-line English summary for me, so our call starts with "I saw the water letter," not "read me the top part again."
+The photo is thrown away after reading. The text stays in a SQLite file on the home computer. Nothing goes to a cloud API, there's no account, and it keeps working when the internet is down (only the home Wi-Fi is needed). Setup is one command (./start.sh), which prints a QR code. The parent's phone scans it once, and from then on it's the only device besides the computer that can read their letters. A guest on the Wi-Fi gets nothing.
+
+Demo
+An 86-second walkthrough built from real screens of a real run, with English captions (the app itself is in Russian here). You'll hear the actual spoken Russian question the app answered. The narration is Piper, an open-source text-to-speech engine that also runs locally.
+
+
+
+Kitchen Table: the letter photo, the explanation, and a spoken follow-up question
+
+The case I actually lose sleep over:
+
+Kitchen Table showing a dark red scam warning
+
+Every letter you see here, and every letter in the test set, is from an organization I invented. Phone numbers are in the reserved 555-01xx range.
+
+Code
+GitHub logo pyaroslav / kitchen-table
+Snap a photo of a confusing letter, get a plain answer in your own language. Local Gemma 4 via Ollama; the mail never leaves the house.
+Kitchen Table
+tests
+
+Snap a photo of a confusing letter. Get a plain answer in your own language. The letter never leaves the house.
+
+Kitchen Table is a small app for a parent who gets mail they can't fully read: utility bills, insurance statements, jury summonses, "FINAL NOTICE" envelopes, and the scams that are designed to look exactly like them. They take a photo on their phone; a computer at home runs Gemma 4 locally through Ollama and answers:
+
+a traffic-light verdict: nothing to do, you need to do something, important, do it soon, or careful, this looks like a scam,
+what the letter says, in 2–4 plain sentences in their language (18 languages),
+what to do, by when (with an Add to calendar button), and how much money is involved,
+the hard words explained, the warning signs if it's suspicious,
+answers to follow-up questions, typed or…
+View on GitHub
+Python (FastAPI) on the home computer, a phone page with no framework and no CDN (it has to work offline), SQLite and Ollama. 27 model-free tests run in CI on every push, plus an evaluation harness over 30 synthetic and 9 real letters.
+
+How I Built It
+Two passes, and code owns the scary parts
+photo ─▶ quality check ─▶ Gemma 4 (vision): exact transcript
+                          scam rules on the transcript
+                          Gemma 4 (JSON schema): explanation in their language
+                          code: date maths, "days left", verdict overrides
+Pass 1 only transcribes: "copy names, dates, amounts and phone numbers exactly; write [unreadable] for anything you can't read." Pass 2 never sees pixels. It gets the transcript, today's date and the reader's language, and has to fill a JSON schema: verdict, headline, summary, steps, deadlines, money, glossary, warning signs, and a note for me. Ollama enforces the schema, so the phone never receives half a sentence of markdown.
+
+Splitting the passes gave me three things. Follow-up questions have a transcript to stay grounded in. Each step can be evaluated on its own. And code gets to check the model's work before anyone sees it.
+
+That's the design decision I care most about. The model reads and explains. Code owns everything a parent should never have to trust a model on:
+
+Dates. The model returns 2026-10-08. Python works out "6 days left" every time the letter is opened, not once on the day it was read.
+Scams. A short list of regex rules runs on the transcript. A strong hit forces the scam warning, whatever the model said: payment by gift card or crypto, "don't tell your bank", arrest threats, "your SSN is suspended", or an official-looking letter whose fine print admits it isn't the government. A suspected scammer's phone number is shown struck through, never as a tap-to-call link.
+Urgency. Anything due within 7 days is Important.
+Here's the overriding logic, lightly trimmed. It runs after the model and before the phone:
+
+if redflags.has_strong(hits):            # gift cards, crypto, "don't tell your bank", ...
+    verdict = "scam_warning"
+elif verdict in ("file_it", "action_needed") and money_direction != "you_receive":
+    upcoming = [d for d in deadlines if d["days_left"] >= 0]
+    if verdict == "file_it" and upcoming and steps:
+        verdict = "action_needed"
+    if verdict == "action_needed" and upcoming and upcoming[0]["days_left"] <= 7:
+        verdict = "urgent"
+if verdict == "scam_warning":
+    deadlines = []                       # a scammer's "deadline" is pressure, not an appointment
+Why Gemma 4, specifically
+I needed one open model family that could do four jobs: read a crooked photo, write fluent plain Russian (or Tagalog, or Persian), return strict JSON, and listen to a spoken question. Gemma 4 does all four, so the whole app is one model family behind one local API:
+
+gemma4:e4b    gemma4:26b
+Size on disk (Ollama, Q4_K_M)    6.6 GB, 7.5B params    18 GB, 25.2B params (mixture-of-experts, 8 of 128 experts active)
+Sees photos    ✓    ✓
+Hears audio    ✓    ✗
+Role in Kitchen Table    default; laptop-friendly; the "ears"    best reader if you have the GPU
+Time per letter (RTX 5090)    ~2.7 s    ~3.5 s
+Time per letter (CPU only, Ryzen 9 9950X)    ~39 s    not tested
+The mixture-of-experts design is why the 25B model is only about a second slower than the 7.5B one. Both fit on the same GPU at the same time, which is what lets 26b read while e4b listens.
+
+The 2020 bug
+I wanted numbers, not vibes. So I wrote 15 letters, rendered them with headless Chrome, and "photographed" them in code: a wood-grain table, a few degrees of rotation, perspective skew, a shadow across one corner, JPEG compression. Both Gemma 4 sizes I was planning to use (e4b and 26b) got all 15 right. That's how you know your test is too easy.
+
+So I wrote nine nastier ones:
+
+a deadline that only appears on page two;
+a coverage-ending date buried in the fine print of a cheerful newsletter;
+a Spanish-language school letter;
+a photo taken sideways;
+one taken in bad evening light with a shaky hand.
+On that last photo, gemma4:e4b read the year 2026 as 2020 and $84.17 as $64.17. Then it explained, confidently and in fluent Russian: "This is an old water bill and doesn't require any action."
+
+That's the worst failure this app can have. It's wrong and calm.
+
+Better prompting couldn't have caught that. A plain photo check could: brightness, contrast and edge sharpness flagged that photo and none of the other 30. A flagged photo gets auto-contrast and sharpening, which fixed the amount but not the year. More importantly, a bad photo can never produce "Nothing to do" any more. It produces "I'm not sure. The photo is too dark or blurry. Please take another one in good light." The bigger gemma4:26b read the same dark photo correctly. The guard stays anyway.
+
+Measuring it
+30 synthetic letters in three sets. I wrote the last six after I'd finished changing prompts and rules, ran them once, and didn't touch anything afterwards.
+
+Model    Right verdict    Never unsafe    Scams caught    Deadlines found    Answer in the right language    Time / letter
+gemma4:26b    30/30    30/30    8/8    100%    100%    ~3.5 s (GPU)
+gemma4:e4b    29/30    30/30    8/8    92%    100%    ~2.7 s (GPU), ~39 s (CPU only)
+gemma4:e2b    25/30    25/30    6/8    88%    3%    ~2 s (GPU)
+Neither e4b nor 26b raised a single false scam alarm on the 21 legitimate letters, including a debt collector's validation notice and a real water-utility "FINAL NOTICE", which are exactly the letters that look like scams.
+
+Then, real letters
+Synthetic letters only prove so much, so once all the tuning was finished I pulled 9 real documents from the agencies and counties that published them:
+
+three IRS notices, including a two-page "intent to seize your property" letter;
+a federal jury summons;
+a utility's 10-day shut-off notice;
+two fake "Social Security" letters the SSA Inspector General published as warnings;
+two deceptive "deed records" mailers that county offices warned residents about.
+I ran them once and changed nothing afterwards.
+
+gemma4:26b got all 9 right. It returned the exact IRS amounts ($1,075.21; $9,533.53) and pay-by dates, called the levy notice urgent, and caught all four scams.
+
+gemma4:e4b got 8. Its miss is the one I'd least like to have: it transcribed a "COUNTY DEED RECORDS — FINAL RENEWAL NOTICE" home-warranty mailer word for word, and then explained it as a real renewal that needs a $199 response. None of my rules fire on it, because it has no gift card and no government disclaimer. I could add a rule now, but I won't: that would turn my only untuned real-world number into a tuned one. So the recommendation is honest instead. e4b is the floor, and if there's a GPU in the house, run 26b.
+
+Four things I didn't expect:
+
+The scam rules barely mattered for the models I'd actually use. e4b and 26b flagged every scam on their own. On the tiny e2b, the model alone caught zero of the three hard-set scams, and the rules caught two. That's what a seatbelt is for.
+My rules made a weak model worse once. e2b invented deadlines for a library book-sale flyer, and my "upcoming deadline means act" override turned put it away into Important. With the bigger models the overrides only ever corrected things, but I wouldn't have known without the held-out set.
+One rule exists because of this eval, and I'm telling you so. e4b first called an "$89 certified deed copy" mailer you need to do something. Those mailers are legal, so no money-transfer rule fires. Their tell is the disclaimer they're required to print: "not affiliated with any county or government agency." That's now a rule. The held-out set includes a different look-alike, a homestead-exemption "filing service", and both models handled it.
+e2b won't answer in Russian. Ask it to explain in Russian or Ukrainian and it explains in English. For this user that rules it out, whatever its other scores.
+The full method is in EVAL.md, with every caveat (synthetic letters, typeset fonts, no handwriting, my own judgement of what counts as acceptable) and a script that regenerates the table.
+
+Voice, and the model that can't hear
+Gemma 4 takes audio in the same field as images, so a spoken question is just a 16 kHz WAV sent with the transcript. The phone records it and converts it to WAV itself, and the recording only ever goes to the home computer.
+
+Then I found that gemma4:26b accepts images but not audio; only the small "edge" models can hear. So Kitchen Table checks what the model can do. If the reading model can't hear, gemma4:e4b transcribes the question and 26b answers it: two open models, each doing the part it's good at, on one GPU, joined by about fifteen lines of Python. I tested it end to end with a Russian question synthesized by Piper, a local text-to-speech engine. Gemma transcribed it word for word.
+
+One honest wrinkle: phone browsers only allow in-page microphone recording over HTTPS. On plain home Wi-Fi, the 🎤 button opens the phone's own voice recorder instead, and the file goes through the same path.
+
+The interface is for them, not for me
+Base font size 20px.
+One primary button per screen; the main buttons are 64px tall and nothing tappable is under 48px.
+Colors that mean the same thing in every language.
+A setup screen that asks "Which language do you read best?", with each language written in itself.
+English, Russian, Spanish and Ukrainian strings are hand-written. The other 14 languages are translated once by Gemma itself and cached, with a check that no {placeholder} got lost on the way.
+Arabic and Persian flip the layout to right-to-left, and dates follow the reader's own calendar.
+Dark mode follows the phone.
+Lighthouse (mobile) scores the home and letter screens 100 for accessibility.
+
+Why Does Open Innovation Matter?
+Look at what's in that pile on the kitchen table: prescriptions, Medicare numbers, bank balances, a debt collector's letter, a court date. It's a map of an older person's life, and it's exactly the information scammers buy. Here's what the open stack gave me that a hosted API couldn't:
+
+The mail never leaves the house, and that includes voice. There's no cloud speech-to-text and no voice API: Gemma 4 e4b hears the question on the home computer, and the phone's own text-to-speech reads the answer aloud. Beyond that, it isn't "we don't train on it" or "deleted after 30 days": the letter physically never leaves. The photo's GPS metadata is stripped before even the local model sees it, and the photo is discarded after reading.
+It works when the internet doesn't. A home computer and home Wi-Fi. No API key to expire, no service to sunset, no price change.
+It costs nothing per letter. Nobody has to wonder whether a question is "worth" an API call. They can ask the same thing three times.
+I could look inside and change it. I could see that 26b can't hear and route around it. I could measure that e2b ignores the language instruction and rule it out. I could put the scam decision in code I can read, test and explain, instead of in a policy I can't.
+I can swap models without asking anyone. e4b on an old laptop, 26b on my desktop, whatever Gemma ships next on whatever they have. Same app, one environment variable.
+The closed version of this app already exists: "take a photo and paste it into a chatbot." It may even be smarter. But I'd have to teach my parent to upload their Medicare letter to a website. Teaching them the opposite is the whole point.
+
+What it can't do (yet)
+It's tested on 30 synthetic and 9 real letters, all photographed in software. Handwriting, creased paper and window envelopes aren't in the test set.
+On the small model, a deceptive mailer without any classic scam markers can still slip through (see above).
+It doesn't replace me, by design: every unclear or suspicious letter ends with "call Yaro first."
+On a laptop without a GPU it takes the better part of a minute per letter. That's fine for mail, less fine for impatience.
+Prize Categories
+Best Use of Gemma. Gemma 4 runs locally through Ollama and does all the reading, explaining, translating (including the app's own interface) and listening: gemma4:26b for vision, gemma4:e4b for audio, with e2b, e4b and 26b measured head to head on 30 synthetic letters, and e4b and 26b on 9 real ones.
+Thanks for reading. If there's a pile like this on a kitchen table in your life, setup is ollama pull gemma4:e4b and one Python command.
+
+— Yaro
+Top comments (0)
+
+Subscribe
+pic
+
+Submit
+Preview
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger MCP workshop image
+
+Fork, Break, Fix, Delete: Hands-On with Tiger MCP
+A coding agent can read your codebase, run your tests, and open a pull request. Point it at your database and the calculus changes: a bad migration isn't something you undo with git, so most teams draw a line the agent isn't allowed to cross.
+
+In this hands-on workshop, you'll wire Tiger MCP into the coding agent you already use and give it a database it's allowed to break.
+
+Register free →
+
+Uptime Architect  
+Follow
+Independent, vendor-neutral notes on running Oracle reliably — RAC, Data Guard, performance tuning, OCI/Azure. Field-tested and opinionated.
+JOINED
+8 Jun 2026
+More from Uptime Architect
+My weather app said the sky would be clear. I taught an open model to check, then went outside
+#devchallenge #hf26challenge #tabpfn #opensource
+I showed 30 AI models 336 monitoring dashboards. Most of them can't tell time.
+#devchallenge #kagglechallenge #machinelearning #ai
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Rakshak: I built my parents a scam-checker that never leaves the house - DEV Community
+
+
+0
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+Cover image for Rakshak: I built my parents a scam-checker that never leaves the house
+Muaaz Shaikh
+Muaaz Shaikh
+Posted on 5 Oct
+
+
+1
+Rakshak: I built my parents a scam-checker that never leaves the house
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+What I Built
+My parents have never lost money to a scam. I'd like to keep it that way.
+
+My mom lives on WhatsApp. My dad pays for everything with UPI. Their phones get a steady drip of messages written to make someone panic: a KYC deadline "today", a parcel "held at customs", the electricity "disconnected tonight", a "police officer" on a video call. They've been careful so far. But these messages are designed for the one moment you're tired, alone or scared. And they only need to work once.
+
+So I built them Rakshak ("protector"): a second opinion that lives on a laptop in our house. You hand it a suspicious message, a screenshot, or a description of a phone call, and within seconds a calm voice tells you in plain English whether it's real and what to do.
+
+Mom (Android) shares a message to it straight from her share sheet. A big card comes up: red with a raised hand for This is a scam, amber for Be careful, green for This looks like a normal message, grey for Couldn't check right now. The explanation is read aloud. For a suspicious call, she holds a button and describes it.
+Dad (iPhone) uses two Shortcuts: "Rakshak" in the share sheet, and "Rakshak Bolo" (bolo means "speak") to describe a call out loud. Same card, same voice.
+Me: on a scam verdict my phone gets a push with which parent, what kind of scam, and what time. Never the message.
+Every explanation is three short sentences at most: the verdict, the one or two strongest warning signs quoted exactly from the message, and one thing to do. Don't tap. Don't pay. Never share the OTP. Call me.
+
+Nothing leaves the house. That's not a slogan, it's the architecture.
+
+Demo
+There's no public link, and that's on purpose. Rakshak runs on a MacBook at home and is reachable only over our private Tailscale network, because the whole point is that my parents' messages never touch someone else's server. Here it is running for real:
+
+Home screen: Check a message, Describe a call Checking on the home computer: Reading, Checking, Explaining
+
+An app-install scam: red card, the dangerous link quoted, and  A real bank OTP: green card, 
+
+Left to right: the home screen; the check in progress; an app-install scam caught with the dangerous link quoted, plus Listen again for the spoken explanation; a real bank OTP correctly left alone.
+
+The hub status page: model health, latency, per-parent counts, feedback queue, and no message text anywhere
+
+The hub's status page for me: three local models, latency against targets, today's verdicts per parent, and a "was this right?" queue. Metadata only. It never shows a message.
+
+Code
+GitHub logo MuaazSM / rakshak
+Rakshak
+A scam checker for my parents that runs on a MacBook at home.
+
+My mom uses an Android phone and my dad uses an iPhone. Both get a steady stream of messages written to make a parent panic: fake KYC deadlines, parcels "held at customs", electricity cut off "tonight", fake police calls. Rakshak gives them a second opinion. Mom shares a message or screenshot to the Rakshak web app from her share sheet; Dad shares it to an iOS Shortcut. A few seconds later they see a large verdict card (scam, be careful, looks normal, or couldn't check) and hear a short spoken explanation in plain English. If it's a scam, my phone gets a notification that says which parent and what kind of scam, never the message itself. Every model runs on the Mac. The messages never leave the house.
+
+The verdict comes from a small model fine-tuned…
+View on GitHub
+Everything is in the repo: the rules engine, the LangGraph pipeline, training, export and evaluation scripts, the web app, and the privacy tests. The dataset is regenerated locally and the model weights are built by the export script rather than checked in, but nothing about them is secret. They're trained only on synthetic and public data.
+
+How I Built It
+A MacBook Pro (M3 Pro, 18 GB) is the hub. It binds to localhost only; phones reach it over a private tailnet. Each check runs through a small LangGraph graph: normalize, perceive the image or audio, rules, detect, fuse, explain, then notify and store. SQLite keeps the records. Every model runs locally through llama.cpp and Ollama.
+
+Two open models, three jobs
+I wanted the verdict to come from a model I'd fine-tuned and measured, not a prompt. Tinker doesn't offer Gemma, which made the split natural. It also gave Gemma a second, less obvious job.
+
+Gemma 4 E2B wrote the training set. I had no scam dataset, and I refused to build one from my parents' private messages. So Gemma generated it: from about 60 short seed patterns across every scam and genuine category, it produced around 1,300 realistic messages in English, Hinglish and Devanagari, varied across channel and the tricks scammers use: misspellings, odd spacing, look-alike characters, shortened links. Every quoted red flag had to appear exactly in the generated text or the item was dropped.
+
+Tinker trained the judge. Rakshak-Detector is Qwen3.5-4B with a LoRA adapter trained on Tinker on that data, then merged, converted to GGUF and quantized to Q4_K_M (2.9 GB) for llama-server. It returns only JSON: verdict, category, red-flag quotes. I read the scam probability from the log-probabilities of the verdict token, not from the text, so the fusion step has a real number to work with.
+
+Gemma explains the verdict. It transcribes screenshots and voice notes on-device, and turns the verdict into a short explanation in plain words. It never decides. It receives the verdict as input, and a post-check rejects any explanation that drops the verdict word, negates it, adds a link or number that wasn't in the message, or runs long. On failure a fixed template takes over.
+
+Under all of it sits a rules engine of plain, unit-tested functions. An .apk link, a look-alike of a bank's domain, or "enter your UPI PIN to receive money" is a scam whatever the model says. Softer signals push toward Be careful: a bank claiming to text from a plain mobile number, a link shortener, arrest threats, urgency plus a payment ask. The word lists cover English, Hinglish and Devanagari, because that's how scams actually arrive.
+
+Two safety rules live in code, not prompts: red flags shown to my parents must be exact substrings of their message, or they're dropped; and if the detector is down the answer is Couldn't check, never looks normal.
+
+Training
+LoRA rank 32, loss on the assistant's JSON only, batch 32, 3 epochs, thinking mode off, learning rate 4.91e-4 from tinker_cookbook's get_lr. In 20% of training examples I blanked the rule signals so the model can't just copy the rules. I ran a smoke run, a learning-rate sweep, and then a retrain, because two independent review passes caught the quiet failure of synthetic data: the first model had learned shortcuts like a link means scam and an unknown sender means scam, which would have meant false alarms on real bank SMS. I fixed the generator to balance those cues and trained again. Total: about $3.80 of the $10 Tinker credit.
+
+Results, on data it never saw
+I did not dataset my parents' messages, so there is no family test set. Instead, the evaluation is 100 public fraud reports: scams and genuine messages documented by RBI, PIB, India's cybercrime advisories, news outlets, fact-checkers and court records, each with a source URL and verified verbatim on its page (65 scam, 35 genuine). The model never trains on them. 95% bootstrap CIs; scam recall counts any warning on a real scam.
+
+System    Scam recall    False alarms on genuine    On alarming-but-genuine    Macro-F1    Valid JSON
+Rules only    0.43    9%    11%    0.05    n/a
+Gemma 4 E2B zero-shot    0.86    14%    22%    0.38    0%
+Qwen3.5-4B base, few-shot    1.00    43%    89%    0.54    33%
+Qwen3.5-4B + Tinker LoRA    0.92 [0.86–0.98]    9%    22%    0.59 [0.55–0.63]    100%
+Full Rakshak (rules + fusion)    0.94    14%    22%    0.58    n/a
+The interesting number isn't the F1. It's the false alarms. The base Qwen model with few-shot prompting catches every scam, but only by crying wolf. It flags 43% of genuine messages and 89% of genuine-but-alarming ones (real OTPs, real debit alerts), and only a third of its replies are even valid JSON. Fine-tuning the same model on this one narrow task cuts false alarms on genuine messages to 9% and makes the output 100% machine-usable, while keeping recall at 0.92, on data it never trained on.
+
+That's the whole project in one row. Not missing scams is easy. Not terrifying your mom about a real OTP is the hard part, and that's exactly what a small, fine-tuned open model fixed.
+
+(Adding the rules on top nudges recall to 0.94 but raises genuine false alarms, because a few real government advisories trip the threat lexicon. I can see that trade-off in the numbers, which is the point of measuring.)
+
+These are small-sample numbers on public data, not a benchmark claim. The synthetic dev set is near-saturated and I don't report it.
+
+Speed on a laptop
+All three model servers run together on 18 GB. End to end:
+
+Genuine (detector only): p50 0.8 s, p95 0.9 s
+Scam (detector + spoken explanation): p50 4.1 s, p95 11.1 s
+The detector dominates the scam path; the explainer adds about 1.6 s. The scam path is over my 6-second goal. Shorter red-flag output, constrained JSON on the first attempt, and streaming the verdict before the explanation are next.
+
+Tracing without reading anyone's messages
+Sentry gets one transaction per check and one span per graph node, so I can see where the seconds go and which model answered, but never the content. Span attributes come from an allowlist (node, model, token counts, latency, verdict, category, p_scam, rule-signal names, retries, error type), and a scrubbing hook deletes any text, quote, explanation, image or audio field at any depth, including inside exception messages. Request bodies and local variables are never captured.
+
+I don't just trust that. A canary test pushes a fake message with a unique marker through every input path of the real app and fails if the marker appears in any Sentry payload, ntfy request, log line or console output, or if the hub talks to anything but the local model servers and ntfy. I broke the scrubber on purpose three ways; the test caught all three.
+
+Why Does Open Innovation Matter?
+Privacy that's literally true. The messages my parents get are about their bank, their pension, their family. Asking a hosted API "is this a scam?" means one more stranger reads them. With open weights, the model comes to the data, and checks keep working with the Mac's internet off.
+
+A small specialist beats a big generalist here. "Is this a scam, and which words prove it?" is narrow and structured. Open weights let me fine-tune a 4B model on exactly that and measure it against its own base: false alarms went from 43% to 9%, valid output from 33% to 100%. You can't do that with a model you can't fine-tune or run.
+
+Open models can make the data, too. Gemma generated the whole training set locally. No scraping, no labeling service, no one's private messages.
+
+Zero marginal cost. Each check costs electricity, so there's no reason to ration them. My parents can share every message that feels off.
+
+The honest caveat. Training wasn't fully local: synthetic and redacted public examples went to Tinker's servers to train the adapter. No family message was ever part of it. At runtime, nothing leaves the house.
+
+My Agent Session
+I built Rakshak with Claude Code, working from a written requirements document that fixed the schemas, prompts, thresholds and privacy rules before any code existed. The agent did the heavy lifting in parallel (rules engine, hub pipeline, training and export, web app), and the most valuable thing it did was review its own work. Two independent review passes caught the detector throwing away suspicious probability mass, and the synthetic-data shortcuts that would have caused false alarms on real messages. The judgment calls I kept for myself were the ones about honesty: never letting public reports become a "test set", and insisting the evaluation say plainly what data it actually ran on.
+
+Prize Categories
+Best Use of Gemma. Gemma 4 E2B generated the training set, reads screenshots and voice notes on-device, and writes every warning my parents hear, with a post-check that keeps it from ever changing the verdict.
+Best Use of Tinker. The verdict comes from Qwen3.5-4B fine-tuned with LoRA on Tinker, exported to a quantized GGUF, and measured against its own base model and Gemma on public data it never trained on, where fine-tuning cut genuine false alarms from 43% to 9% and raised valid structured output from 33% to 100%.
+Best Use of Sentry Agent Tracing. One trace per check and one span per LangGraph node, with a canary test proving no message text ever reaches Sentry.
+Top comments (0)
+
+Subscribe
+pic
+
+Submit
+Preview
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger MCP workshop image
+
+Fork, Break, Fix, Delete: Hands-On with Tiger MCP 🤖
+A coding agent can read your codebase, run your tests, and open a pull request. Point it at your database and the calculus changes: a bad migration isn't something you undo with git, so most teams draw a line the agent isn't allowed to cross.
+
+In this hands-on workshop, you'll wire Tiger MCP into the coding agent you already use and give it a database it's allowed to break.
+
+Register free →
+
+Muaaz Shaikh
+Follow
+Building AI agents, systems & intelligent developer tools. GPUs go brrrr!
+LOCATION
+Mumbai, India
+EDUCATION
+NMIMS MPSTME, Mumbai — B.Tech Computer Science & Business Systems
+PRONOUNS
+He/Him
+WORK
+AI Engineer Intern @ HivePro | B.Tech CSBS @ NMIMS MPSTME
+JOINED
+1 Oct 2026
+More from Muaaz Shaikh
+Sair: I built my parents a walk companion that makes them leave the phone at home
+#devchallenge #hf26challenge #opensource #ai
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+×
+A real bank OTP: green card, 
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Viva: a mock interview that knows which parts of your project an AI wrote - DEV Community
+
+
+0
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+Abdul Wasih
+Abdul Wasih
+Posted on 5 Oct
+•
+
+AI-assisted
+
+
+2
+Viva: a mock interview that knows which parts of your project an AI wrote
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+showdev
+What I Built
+If you have sat in a placement interview, you know the moment.
+
+The interviewer stops scrolling through your repo, points at one file, and says: "Walk me through this function."
+
+You know what the function does. You typed the prompt that produced it. You did not write it.
+
+That happened to a friend of mine, with a project the two of us built at a hackathon. It works. It is on his resume. He could tell you what every screen does. He could not tell you why the code is the way it is, because an AI agent wrote a lot of it and we shipped before we understood it.
+
+Every fresher I know is a little scared of that question. So I built Viva: a mock interview about your own project, that knows which parts an AI wrote.
+
+You give it a repo. It reads the code, finds the files your coding agent wrote, and then interviews you the way a panel would. When it reaches the AI-written part, it says so:
+
+Your Entire session shows an AI agent wrote src/lib/interview/prompts.ts (the prompt was: "1,2 isdone lets skip teh devrealy install, render and eleven labs credits i will claim, yep lets do stacked prs"). Explain the logic behind how briefPrompt structures the input data to ensure the generated brief remains grounded in the actual repository content.
+
+That is a real question Viva asked me, about Viva. The typos in the prompt are mine.
+
+Viva asking about a file an AI agent wrote, quoting the prompt from the coding session above the question.
+
+Demo
+
+
+Try it: https://viva-ou6t.onrender.com
+
+Click "Viva (this project)" to see the AI-code question straight away, or paste any public GitHub repo (reading a new one takes about 45 seconds).
+
+In the video, the candidate is simulated and the voice is Kokoro, an open speech model running on my laptop. The app on screen is real, with the waiting cut out.
+
+Code
+GitHub logo AbdulWasih05 / Viva
+A local first AI interview coach
+Viva
+A mock technical interview about your own project, for the AI-coding era.
+
+Students now ship projects an AI agent half-wrote, and interviewers know it. Viva reads your repo, finds the parts an agent wrote, and questions you about them the way a placement interviewer or a final-year viva panel would. It asks follow-ups based on what you actually said, remembers your weak spots, and ends with a scored report.
+
+Built for the DEV Hacktoberfest 2026 Weekend Challenge (Build for a Friend). The interviewer is Gemma, an open-weight model; Mastra runs the agent; Entire checkpoints tell Viva which code an AI wrote.
+
+Deploy to Render
+
+What it does
+Reads your project. Paste a public GitHub URL (or, in local mode, a folder path). Viva picks the most telling files and Gemma writes a short brief. Every file path in that brief is checked against the real file list; invented ones are dropped.
+…
+View on GitHub
+One rule runs through the code: Gemma decides what to say. Code decides what happens. The round order, the follow-up limit, the scores and every file path are plain, tested TypeScript.
+
+How I Built It
+Piece    What it does in Viva
+Gemma 4 26B (open weights)    The interviewer: writes the brief, the questions, the scores and the report
+Mastra    Runs the interviewer as an agent with a readFile tool, and remembers your weak spots between sessions
+Entire    Records each coding-agent session next to its commit. Viva reads that to find AI-written code
+Sentry    Traces every interview turn, with quality flags on each one
+Render    Hosts it. One free service, no database
+An interview in four moves. Viva reads the repo and Gemma writes a brief; code throws out any file path Gemma made up. For a code question, the agent opens the file itself before asking. After each answer, Gemma scores it and may follow up, but the follow-up has to quote something you actually said, and code checks the quote. At the end, code adds up the scores and Gemma writes the coaching.
+
+What I measured, across scripted interviews on two real repos:
+
+Check    Result
+Model replies that passed the schema check    119 of 119
+Deep-dive questions that named a real file    6 of 6
+Follow-ups that really quoted the answer    51 of 51
+Code questions where the agent opened a file first    18 of 18
+Second session opened with last time's weak spot    3 of 3
+Interviews on Viva's own repo that asked about AI-written code    3 of 3
+How Viva knows what the AI wrote. A file counts as AI-written when it was changed in a commit that Entire linked to a coding-agent session. The prompt Viva quotes is the one you typed in that session, taken from the session transcript.
+
+ A Sentry trace of one Viva interview turn, with flags showing the question was about AI-written code, named a real file, and needed no retry or fallback.
+
+That Sentry trace is one interview turn: question_names_real_file: true, ai_authored_question: true, no retry, no fallback. Each turn carries these flags, so I can see whether the interviewer is doing its job without reading every chat.
+
+Why Does Open Innovation Matter?
+Because of who this is for.
+
+A student should not need a credit card to practise for an interview. His next project may be private. A college lab may have no reliable internet. With an open model, the same code talks to Gemma on a server or to Gemma on your own machine through Ollama, and switching is one setting. A closed API does not give you that choice.
+
+Nobody has to trust my copy either. The prompts and the scoring rubric are plain files, and the Deploy button gives any coding club its own private Viva.
+
+Open is not free, and I measured the price. On my 16 GB laptop with no real GPU, local Gemma took 50 to 544 seconds per call and never finished a project brief. So today, local mode needs better hardware than a student usually has. But that is a limit I can see and work on, in code I can read.
+
+My Agent Session
+The whole build is public. Each phase is one commit, and each commit carries its Entire checkpoint: the same data Viva reads to interview me. Every decision is numbered, with its reason, in docs/DECISIONS.md.
+
+Prize Categories
+Gemma: the interviewer itself
+Mastra: the agent, its tools and its memory
+Entire: the source of every AI-code question
+Sentry Agent Tracing: each turn traced with quality flags
+Render: hosting and a one-click blueprint
+Still to build: voice answers, showing what the agent reads while it reads, and getting a turn under 8 seconds (a new question takes 11 to 14 today).
+
+Have you been asked to explain code your AI wrote? How did it go? Tell me in the comments.
+
+I built Viva with an AI coding agent (Claude Code). The numbers are measured and the sessions are public in the repo.
+Top comments (0)
+
+Subscribe
+pic
+
+Submit
+Preview
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+
+Abdul Wasih
+Follow
+no idea
+JOINED
+3 Oct 2026
+Trending on DEV Community  
+xulingfeng profile image
+Stratagems #31: Lena Took the Seat. The AI Had Reserved It for Her.
+#ai #discuss #programming #career
+Dimitris Kyrkos  profile image
+Human-in-the-loop isn't a safety net. It's a UX problem with a compliance label.
+#ai #machinelearning #ux #discuss
+Akhouri Anmol Kumar profile image
+What's Your Favorite Car, and Why? (Mine Is the Lamborghini Urus, and Yes, I'll Defend It)
+#discuss #watercooler #security #python
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+×
+A real bank OTP: green card, 
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+"If it's not in front of me, it's gone": I fine-tuned a 4B model for my friend with ADHD - DEV Community
+
+
+3
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+Cover image for "If it's not in front of me, it's gone": I fine-tuned a 4B model for my friend with ADHD
+Arqam Waheed
+Arqam Waheed  Subscriber
+Posted on 5 Oct
+•
+
+AI-assisted
+
+
+3
+
+
+1
+
+
+1
+
+
+1
+
+
+1
+"If it's not in front of me, it's gone": I fine-tuned a 4B model for my friend with ADHD
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+ai
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+TL;DR. My friend Zee has ADHD. I asked him what actually goes wrong, and he answered in two lines: things he can't see disappear, and the one thing he locks onto eats the whole day. So I built Actually. You brain-dump in your own messy words. A Qwen3.5-4B I fine-tuned on Tinker turns that into tasks, and TabPFN reads your own history to tell you how long each one will actually take you. Nothing you dump disappears until you tick it off. Everything except the parser runs on my laptop, and the whole build cost $2.81.
+
+What I Built
+I had the idea before I asked him. That was mistake one.
+
+My plan was a time-blindness tool, a thing that tells you "this'll take 15 minutes" is a lie. It was a fine idea. Then I messaged Zee and asked what his actual problem was, and he sent back this, verbatim:
+
+"can't remember. if infront remember or else gone from brain. person or task"
+
+"addiction pro max. if i addict i addict too much. idk these 2 main."
+
+Two problems, and only half of one was the thing I'd planned to build.
+
+The first is out of sight, out of mind. A task or a person that isn't physically in front of him stops existing. The second is hyperfocus. When something grabs him, it takes the afternoon, and everything else silently falls off the end of the day.
+
+So I rebuilt the plan around his words, not mine.
+
+Actually is a single page. You type everything on your mind the way you'd text it: "email sir abt the attendance thing (5 min), finish dbms assignment should take like 30 min, laundry maybe, call nani back i keep forgetting." Three things happen:
+
+It splits your rant into tasks, and every one of them goes on a "Still on your plate" list that stays there until you press Done. People get an amber dot, because "call nani back" is exactly the kind of thing that vanishes.
+It tells you how long each task will take you. Not how long tasks take in general. How long your admin tasks take relative to your guesses, from your own history.
+It fits the day to your free time and warns you when a single task could swallow it.
+Split panel. Left, labelled BEFORE 
+
+The brief, in his words. The left side is Zee's description. The right side is the whole product.
+
+Demo
+Demo: docs/actually-demo.mp4.
+
+Code and setup: the repo runs locally in four commands (below). There is no hosted link yet, and I'll explain why in the concessions.
+
+This is the result screen for the brain-dump above, on the demo profile:
+
+Actually's result screen. A large verdict line reads 
+
+The verdict. 35 minutes of stated guesses, 3 hours 14 minutes of predicted reality.
+
+Every task gets a short lavender bar for your guess, a cobalt bar for the prediction, and a faint band for the 10–90% range. Tasks that don't fit go under "Move to tomorrow" in amber. They don't get deleted, and they don't fall off the list.
+
+The lower half of the plan: gym, call nani back and reply to hamza each with 
+
+Moved, not forgotten. Laundry doesn't fit in three hours, so it waits on the plate for tomorrow.
+
+Code
+GitHub logo ArqamWaheed / actually
+How long will it actually take? A time-blindness helper for a friend with ADHD — fine-tuned open model (Tinker) + TabPFN, runs on one box.
+Actually
+How long will it actually take you? A planning aid built for one friend with ADHD.
+
+My friend described his two problems like this:
+
+"if infront remember or else gone from brain. person or task" "if i addict i addict too much"
+Out of sight is out of mind, and when he does lock in, one thing eats the day. So Actually does two things:
+
+Nothing you dump disappears. Type a messy brain-dump. A small open model, fine-tuned on Tinker, splits it into tasks. Every task and every person you mention stays on a "Still on your plate" list until you tick it off.
+It shows the real cost of each task. TabPFN, a tabular foundation model, reads your own history of guessed vs real durations and predicts how long each task will take you, with a range, the chance you finish it today, and a…
+View on GitHub
+MIT licensed. eval/ reproduces every number in this post.
+
+Interesting files:
+
+app/parser.py: the brain-dump to JSON parser. One interface, two backends (Tinker sampling or any OpenAI-compatible local server).
+app/forecast.py: TabPFN regressor and classifier over the user's own task history.
+train/sft.py: the whole LoRA fine-tune in 65 lines of Tinker SDK.
+eval/parser_eval.py and eval/tabpfn_eval.py: the comparisons in the tables below.
+uv pip install --python .venv/bin/python -r requirements.txt
+cp .env.example .env            # TINKER_API_KEY, TABPFN_TOKEN, TINKER_SAMPLER_PATH
+python scripts/make_demo_data.py
+PARSER_BACKEND=tinker uvicorn app.main:app --port 8000
+How I Built It
+System flow diagram titled 
+
+The pipeline. Two open models, each doing the one job it's actually good at.
+
+Why two models, not one. I could have asked one large model to read the rant and guess durations. It would have answered confidently and been wrong in a generic way, because it has never seen how long Zee's tasks take. Reading messy language is a language model's job. Predicting a number from a small table of personal history is a tabular model's job. Splitting them made each one honest.
+
+The parser: a 4B model that reads a brain-dump. Brain-dumps are hard for small models. They merge two tasks into one, miss the "maybe" that makes a task optional, and lose deadlines buried mid-sentence. I needed strict JSON with seven fields per task, from text like "ugh exams are killing me rn... reply to dad about fee slip. also need batteries for the remote?? maybe."
+
+The data: every model in the pipeline is open-weight. I didn't have hundreds of real brain-dumps, and I wasn't going to fake Zee's. So Qwen3.6-35B-A3B wrote 450 messy brain-dumps in a Pakistani-student register, and Qwen3.5-397B-A17B labelled every task in them. Both ran on Tinker's sampling API. 448 survived validation. I held out 48 and trained on 400.
+
+The fine-tune: LoRA rank 32, 3 epochs, 75 steps. Tinker gives you a training loop, not a black box. train/sft.py renders each example with the chat template, masks the loss to the assistant's JSON tokens only, and runs forward_backward plus optim_step with a linear decay. Loss went from 335.5 to 43.3.
+
+Pipeline diagram titled 
+
+The training loop. The amber note is the caveat, and it stays in the picture on purpose.
+
+Did it beat the baseline? Same 48 held-out dumps, same prompt, temperature 0:
+
+Parser    valid JSON    task F1    kind    deadline    p50 latency
+Qwen3.5-4B zero-shot    98%    95%    78%    69%    3.19 s
+Qwen3.5-4B 5-shot    96%    93%    82%    55%    3.28 s
+Qwen3.5-9B zero-shot    100%    94%    88%    61%    4.53 s
+Qwen3.5-4B + LoRA    100%    97%    93%    76%    3.28 s
+The fine-tuned 4B beats a model more than twice its size on every column that matters, and it's 1.4x faster than that 9B. Few-shot prompting made deadlines worse (69% to 55%). Five examples in the prompt taught the base model the format, not the judgement.
+
+Two honest caveats. First, the test set is synthetic, and its labels come from the 397B teacher, so this measures agreement with a much larger open model, not accuracy against a human. Second, "all fields exactly right on every task in a dump" is still only 8% for the fine-tune. Seven fields times six tasks is a brutal bar, and the misses are mostly dreaded and deadline, which are judgement calls.
+
+The forecaster: TabPFN, because the table is tiny. A person's task history is maybe 40 to 100 rows. You can't train a model on that, and you shouldn't try. TabPFN doesn't train. It reads the whole table in-context and predicts. I run TabPFNRegressor on log-duration and ask for the 10th, 50th and 90th quantiles, so every estimate comes with a range. A TabPFNClassifier predicts whether the task gets done the day it was planned. The features are boring on purpose: kind, his guess, start hour, weekday, dreaded, leaves the house, has a deadline.
+
+In-context means every finished task counts immediately. When you press Done and log how long something took, that row joins the history and the next plan uses it. No retraining step exists, because TabPFN has nothing to retrain. For a tool about a single person, that's the whole bet.
+
+The carry-over list is the boring feature that matters most. db.remember() writes every parsed task to SQLite and dedupes near-identical titles, so saying "call nani back" three days running doesn't create three entries. The list renders above the input box, so it's the first thing on screen, which is the literal fix for "if infront remember."
+
+The 
+
+Out of sight is the bug. This list is the fix: it stays in front of you until you clear it.
+
+The hyperfocus warning is one line of logic. If a task's 90th-percentile estimate is at least half your free time, the card says "This one can swallow your day. Set a timer before you start." It isn't clever. It's the sentence Zee needs to see before he starts, not after.
+
+Sentry found the slowest part, and it was not the language model. Every plan request is one agent run: invoke_agent actually, then a gen_ai.chat span for the fine-tuned model with the model name and token counts, then execute_tool tabpfn_forecast. OpenAIIntegration(include_prompts=False) and send_default_pii=False keep the brain-dumps out of Sentry entirely.
+
+I assumed the model call would dominate. It didn't. The TabPFN tool span was taking 2.4 to 3.5 seconds per request, because predict() was re-attending over every history row on every call.
+
+Sentry Explore view filtered to the execute_tool tabpfn_forecast span. The table shows six slow spans between 2.41s and 3.51s, then the two newest at 278ms and 268ms
+
+The fix, as Sentry saw it. Same tool, same history, 3.25 seconds down to 268 milliseconds.
+
+TabPFN has a fit_mode="fit_with_cache" that computes the history's attention state once at fit time. Fitting gets slower (2.50 s to 3.43 s, once per history change). Predicting got 9x faster, from 2.43 s to 0.27 s. End to end, a plan went from 5.6 s to 3.5 s.
+
+Editorial plate titled 
+
+The slow part was re-reading 70 rows of history on every request, not the model.
+
+The trace also showed what's left. The gen_ai.chat span is now 3.2 s of a 3.5 s request, and most of it is two HTTP round-trips to Tinker with a gap between them, not token generation. That's the clearest argument I have for the next step: serve the parser locally.
+
+Sentry trace waterfall for one /api/plan request: http.server 3.52s, gen_ai.invoke_agent actually 3.52s, gen_ai.chat actually-lora (Qwen3.5-4B) 3.24s with two Tinker HTTP calls nested under it, and gen_ai.execute_tool tabpfn_forecast 278ms
+
+Where the time goes now. The remaining cost is network, which is a hosting decision, not a model one.
+
+Things I refused to do:
+
+Do not invent Zee's data. The live demo runs on a profile labelled "Demo person (made-up data)".
+Do not claim the parser is local while it's served from Tinker. The footer of the app changes depending on which backend is running.
+Do not send brain-dumps to the observability tool. Sentry gets durations and token counts, never prompts.
+Do not use a Shapley chart where a plain sentence works. The "why" chips are per-kind overrun ratios from your own history: "admin tasks take you ~2.9x your guess."
+Why Does Open Innovation Matter?
+Three reasons, all specific to Zee.
+
+I could teach a model his way of writing. The fine-tune is the whole trick: task type 78% to 93% on held-out dumps for $2.81 of compute. You can't fine-tune a closed model this way, and you can't download what you trained. I downloaded mine. The LoRA adapter is a 291 MB file on my disk, and Tinker's cookbook can convert it to a standard PEFT adapter or merge it into the base model.
+
+His history never leaves the machine. An ADHD diagnosis, what he avoids, how long he spends on things: that's health data. TabPFN-3.5 runs locally on CPU with open weights, so the part that reads his life is on a laptop, not behind an API. Sentry only ever sees timings.
+
+The tools are inspectable all the way down. When the forecast was slow, I could read TabPFN's source, find fit_mode, and fix it in one line. The parser's chat template let me switch off the model's thinking mode, so it answers in JSON instead of reasoning first. A closed API gives you neither lever.
+
+Where closed would have been better, honestly: a frontier API would probably parse these brain-dumps about as well as my fine-tune with zero training, and it would be faster to call than Tinker's beta sampling endpoint. I traded that for owning the weights and keeping his data local. For a tool about one person's head, that trade is the point.
+
+My Agent Session
+I built this with Claude Code, and every session is captured with Entire. Entire stores the prompts, reasoning and tool calls next to the commits they produced, with secrets redacted before anything leaves the machine. I added explicit redaction rules for every key this project touches, then grepped the checkpoint for each one before pushing. Zero hits.
+
+Checkpoint 01M4494DVYMY4YYYJF1ZKAK7S3: the full session, from reading the challenge page and measuring every prize pool, to picking the stack, training the parser and the Sentry fix. 17 turns.
+Inspect it with entire checkpoint explain 01M4494DVYMY4YYYJF1ZKAK7S3 in a clone of the repo.
+The checkpoint's generated summary is the best changelog this project has. One line from it: "Tinker's raw LoRA adapter export through tinker-cookbook's PEFT builder downloads the full 8GB base model. That won't fit on a low-disk machine, so convert the adapter directly instead." That decision, why the parser isn't self-hosted yet, now lives next to the code it explains.
+
+What I Learned
+Ask the person before you design. I had a polished time-blindness pitch. Zee's two-line answer turned it into a carry-over list plus a hyperfocus warning, and those are the parts he'll actually use.
+A small model plus a fine-tune beats a bigger model plus a prompt. The 4B LoRA beat the 9B on every column, and few-shot prompting made the hardest field worse.
+Profile before you optimise, and don't trust your guess about where the time goes. I'd have bet on the LLM. It was a tabular model re-reading 70 rows.
+Concessions belong in the product, too. The demo profile says "made-up data" in the dropdown. The footer says where the parser runs. A tool for someone who's hard on himself should never lie to him.
+Prize Categories
+Best Use of Tinker: LoRA fine-tune of Qwen3.5-4B (rank 32, 400 examples). On 48 held-out brain-dumps it beats the base 4B, base 4B 5-shot, and the 9B: task type 93% vs 78/82/88%, deadline 76% vs 69/55/61%, 100% valid JSON, and 1.4x faster than the 9B. The dataset was also generated and labelled on Tinker with open models. Total spend $2.81. Adapter downloaded.
+Best Use of TabPFN: local TabPFN-3.5 regressor (log-duration, 10/50/90% quantiles) and classifier (done the same day?) over the user's own small history. In-context, so every logged task updates the next plan with no retraining. fit_with_cache cut predict latency from 2.43 s to 0.27 s.
+Best Use of Sentry Agent Tracing: invoke_agent → gen_ai.chat (model, input and output tokens) → execute_tool tabpfn_forecast, prompts excluded. Traces found the real bottleneck (TabPFN predict, not the LLM), I fixed it, and the traces confirmed it: 3.25 s to 268 ms on the tool span, 5.6 s to 3.5 s end to end.
+Best Use of Entire: the full build session captured as a redaction-checked checkpoint linked to its commit, and quoted above to explain why the code is the way it is.
+Top comments (3)
+
+Subscribe
+pic
+
+Submit
+Preview
+ 
+ 
+mateo_ruiz_6992b1fce47843 profile image
+Mateo Ruiz
+•
+5 Oct
+
+The strongest engineering lesson here is that the “best model” wasn't the main optimization target. The system worked because each component had a narrow responsibility: the language model handled messy text, TabPFN handled the small personal dataset, and the persistent task list handled the actual product constraint.
+
+The TabPFN profiling result is a great example of why end-to-end measurement matters too. It would have been easy to optimize the LLM because that is the obvious AI component, while the real bottleneck was repeatedly processing 70 rows of history. The 2.43s → 0.27s improvement came from changing the execution model, not changing the model.
+
+I also really like the decision not to treat synthetic evaluation as proof of real-world accuracy. With a personal assistant like this, the hardest validation isn't whether the parser matches a teacher model; it's whether the predictions remain useful for the actual person using it.
+
+That combination narrow model responsibilities, profiling the whole pipeline, and being explicit about what the evaluation does and doesn't prove is probably more reusable than the particular models in the stack.
+
+2
+ likes
+Like
+
+Reply
+ 
+ 
+indiainfranotes profile image
+IndiaInfraNotes
+•
+5 Oct
+
+Fine-tuning a 4B model for one person's actual failure mode is a better use of a small model than chasing general benchmarks. The "if it's not in front of me, it's gone" framing is basically a spec for proactive surfacing rather than better answers. How did you build the training set, and did you test whether a well-written system prompt on the base model got close before fine-tuning?
+
+iin1005h1628
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+arqamwd profile image
+Arqam Waheed  Subscriber   
+•
+5 Oct
+
+Thanks! The training set is synthetic: a big open model wrote about 450 messy brain-dumps in his style, and a bigger one labelled them. None of it is his real data yet. I did test the base 4B with the same system prompt (plus a 5-shot version), and honestly it came close at pulling out tasks (95% vs 97%). The fine-tune mainly helped with tagging task type and deadlines. I didn't really iterate on that prompt, though, so it's not a fully fair test. And you're right about proactive surfacing: keeping things in front of him is just the app saving unfinished tasks, not the model. Next step is testing on his real dumps.
+
+1
+ like
+Like
+
+Reply
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+
+Arqam Waheed  
+Follow
+Student at NUST studying DS. Shipping prototypes rapidly with low supervision.
+LOCATION
+Pakistan, Islamabad
+EDUCATION
+National University of Sciences & Technology
+PRONOUNS
+He/Him
+WORK
+Student at NUST
+JOINED
+8 Feb 2026
+More from Arqam Waheed
+"we should go out this weekend": I built a Discord member that holds the clock until we're outside
+#devchallenge #hf26challenge #showdev #typescript
+The charity had the proof. It just couldn't show anyone.
+#weekendchallenge #devchallenge #showdev #database
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger MCP workshop image
+
+Fork, Break, Fix, Delete: Hands-On with Tiger MCP
+A coding agent can read your codebase, run your tests, and open a pull request. Point it at your database and the calculus changes: a bad migration isn't something you undo with git, so most teams draw a line the agent isn't allowed to cross.
+
+In this hands-on workshop, you'll wire Tiger MCP into the coding agent you already use and give it a database it's allowed to break.
+
+Register free →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+×
+A real bank OTP: green card, 
+</pasted_content id="b453">
+
+ these writeups are the ones that ended up winning for the previous week 'build ofr a friend' in the tech we have decided to use. format: 
+
+<pasted_content id="b453">
+*This is a submission for the [Hacktoberfest Open-Source AI Challenge Week 2: Side Hustle](https://dev.to/challenges/hacktoberfest-week2-2026-10-12)*
+
+## What I Built
+<!-- What does it do, and who would pay for it?  What problem does it solve for them? -->
+
+## Demo
+<!-- Share a deployed link or a video demo. -->
+
+## Code
+<!-- Show us the code!  You can embed a GitHub repo directly into your post. -->
+
+## How I Built It
+<!-- Which open-source AI did you use (open-weight models, agent harnesses, frameworks, local inference), and how is your project built around it? -->
+
+## Why Does Open Innovation Matter?
+<!-- Why does open innovation matter for what you built?  What did it make possible that a closed API wouldn't? -->
+
+## My Agent Session
+<!-- Optional, but judges love it.  Save your session with DevRelay and embed it with the agent_session tag (see the challenge page), or link to it. -->
+
+## My First User
+<!-- Optional, but this is where bonus points live.  Did someone use it?  Who were they, what did they say, and did they pay?  If not, remove this section. -->
+
+## Prize Categories
+<!-- Which partner categories are you entering?  List every one that applies, or remove this section. -->
+
+<!-- Team Submissions: Please pick one member to publish the submission and credit teammates by listing their DEV usernames directly in the body of the post. -->
+
+<!-- Thanks for participating! -->
+</pasted_content id="b453">
+
+ remove eleven labs as that feature we didn't add and now look at the format, we need a story and that story must be ours personal related experience and then highlight the pain point in their and then provide the solution. then how it works, how to use it. then how i built it, then why does open innovation matter and all the points in same flow as the required template but in the prize category section, give proper detailed analysis how we used, why we used, what to tackle or achieve we used the technology and resukts and understanding use all these diagrams whereever necessary in the explaination part. give a writeup.md based on it i remember i used to work as an ecom brand owner and during that time where in small scale ecommerce business performance marketing is everything it used to take a lot of time to create these ads then to list a product, the copy of it needs to taken from 2-3 different genereated sources and then put it their, then ads, then eidts, then image generaition for listing + video ads, it took a lot of time and that used to create instances of lost opportunitie + u need to spend so much money on differnet tools and end up burning your cashflow keeping it very tight and then there's a lot of operational and procedural friction+ your data was never private, your workflows weren't then you add more problems of ecom and small scale businesses and also add this thing that my mom is a cosmetician and she sells product but to generate an instagram reel or facebook it takes days and 3-4 platforms, canva for image, capcut or some other tool to edit video, then all technicalies of video editor, so instead of focusig on selling her focus was in these tasks, then captions or copy for chatgpt/claude keep refining then conitnous back and forth copy paste, just for one single image post it used to 3-4 hours of her imortant working hours and then a case of generalised in all the platforms that we litted nad their isues and then our product and then you hav entire project to look for furthur context just make usre that you write in such a way that it's easier for vast auidence to read and understand all parts of the post. cover every detail and dont write huge paragraohs follow insaenly high tech copy writing skill to hook the reader throughout the post 
+
+<pasted_content id="b453">
+Add up to 4 tagsMaximum 4 selections
+Selected items:
+# devchallenge
+
+# hf26challenge
+
+
+Bold CMD + B
+Italic CMD + I
+Link CMD + K
+Ordered list
+Unordered list
+Heading
+Quote
+Code
+Code block
+Embed CMD + SHIFT + K
+Upload image
+
+
+Publishing Tips
+Ensure your post has a cover image set to make the most of the home feed and social media platforms.
+Share your post on social media platforms or with your co-workers or local communities.
+Ask people to leave questions for you in the comments. It's a great way to spark additional discussion describing personally why you wrote it or why people might find it helpful.
+</pasted_content id="b453">
+
+. please write a good writeup. im putting video on yt, works?
+
+---
+
+give me the qr to run the thing, also let's deploy it first, where to deploy? and how can everyone use it?
+
+---
+
+use the screen recording im sharing with you as the proof of the first customer/user that we got. a brand velora and its product and get screenshots from that recording and use them to add in the writeup'/Users/advikdivekar/Desktop/sellcraft/ScreenRecording_10-16-2026 16-57-03_1.MP4' check and 
+
+<pasted_content id="b453">
+Judging Criteria
+This is DEV, so your write-up matters most.
+
+Writing Quality (weighted most heavily): Is the post clear and engaging? Does it explain what you built, who it's for, and why open innovation matters?
+Relevance to the Prompt and Theme: Is open-source AI or open-weight models at the core of the project? Is it something someone would actually pay for?
+Creativity: Is it an original idea, or a fresh take on a familiar problem?
+Technical Execution: Does it work, and is it well built?
+Use of Partner Technology (optional): If you're entering a partner category, does the project use that technology in a meaningful way?
+Show your work. We'd love to see how you built it. Save your agent session with DevRelay and embed it in your post, or link to it. It's optional, but it helps the judges understand your process.
+
+Prizes
+Overall winner (1): $250 USD, a DEV++ membership, and an exclusive DEV badge
+Featured category winners (6): $200 USD and an exclusive DEV badge each
+Partner category winners (11): $100 USD and an exclusive DEV badge each
+All participants with a valid submission will receive a completion badge.
+</pasted_content id="b453">
+
+. KEEP THIS all in context but for now focus on deployment on render. 
+
+<pasted_content id="b453">
+New Web Service
+Source Code
+advikdivekar
+/
+sellcraft
+44m ago
+
+Edit
+Name
+A unique name for your web service.
+
+Language
+Choose the runtime environment for this service.
+
+Python 3
+Branch
+The Git branch to build and deploy.
+
+Region
+Your services in the same region can communicate over a private network.
+Region Selector
+
+Singapore (Southeast Asia)
+Root DirectoryOptional
+If set, Render runs commands from this directory instead of the repository root. Additionally, code changes outside of this directory do not trigger an auto-deploy. Most commonly used with a monorepo.
+
+Build Command
+Render runs this command to build your app before each deploy.
+$
+Start Command
+Render runs this command to start your app with each deploy.
+$
+Required
+Compute
+For more power and to get the most out of Render, we recommend using one of our paid compute plans.
+All paid compute plans support:
+Zero Downtime
+SSH Access
+Scaling
+One-off jobs
+Support for persistent disks
+Selected:
+$0 / month
+0.1 CPU
+512 MB RAM
+Free instances spin down after periods of inactivity. They do not support SSH access, scaling, one-off jobs, or persistent disks.
+$0 / month
+0.1 CPU
+512 MB RAM
+Free
+$7 / month
+0.5 CPU
+512 MB RAM
+0.5c-512mb
+$25 / month
+1 CPU
+2 GB RAM
+1c-2g
+$85 / month
+2 CPU
+4 GB RAM
+2c-4g
+
+Show all 15 compute plans
+Environment Variables
+Set environment-specific config and secrets (such as API keys), then read those values from your code. Learn more.
+KEY    VALUE    Delete
+Key
+
+Value
+
+
+Generate
+
+
+Add Environment Variable
+
+Add from .env
+
+</pasted_content id="b453">
+
+ what to do here?
+
+---
+
+'/Users/advikdivekar/Desktop/sellcraft/Screenshot 2026-10-16 at 5.14.01 PM.jpg' check
+
+---
+
+so what do i do now, click deploy blueprint?
+
+---
+
+do we even need it? is there any need to deploy?
+
+---
+
+https://mochi-demo.onrender.com check pls, and will everyone who uses this will use my gpu?
+
+---
+
+leave that deployment thing and lets focus on what ill say in next msg to u
+
+---
+
+stop it
+
+---
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Phone calls are the boss fight of living in Japan. 🗼 - DEV Community
+
+
+9
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+
+ADK BBX
+ADK BBX  Subscriber
+Posted on 4 Oct
+•
+
+AI-assisted
+
+
+13
+
+
+4
+
+
+6
+
+
+4
+
+
+6
+Phone calls are the boss fight of living in Japan. 🗼
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+ai
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+A practice call in Before I Call: a Japanese question with furigana, a word's meaning on hover, then a plain-English explanation of the question
+
+I've lived alone in Tokyo for four years now, but when my washing machine started leaking, I stared at the building manager's number for twenty minutes before I pressed call.
+
+My friend ran into the same thing when she had to cancel her internet contract by phone. The provider's explanation sounded alien to her. The Japanese businesses use on the phone is not the Japanese you use every day, and on a call there's no face to read and no time to look anything up.
+
+So I built Before I Call, an app where you practice the call with an AI before you make the real one. I made it for myself and for friends in the same situation, and sent it to one of them to see if it actually helps. Their reply is further down.
+
+Here it is in action:
+
+
+
+What I Built
+You describe the call you need to make, or pick one of the examples (home repairs, the clinic, a missed delivery, the city office, dietary requests, lost property, bills). Then you talk to an AI that plays the person on the other end, like a receptionist or your building manager. It speaks polite Japanese, asks one question at a time and waits for your answer. There's no score.
+
+If you get stuck, you don't have to hang up. Explain question opens a helper next to the call with what the question means and a reply you could give. The AI on the call doesn't see it, so the role-play carries on. Slow replay plays the question again at 0.7x speed, and Repeat question asks the AI to say it again. Kanji have furigana, every line has romaji, and known words show their meaning when you hover or tap.
+
+When you say goodbye, the AI hangs up and you get a call card: the whole conversation with readings and meanings, and a list of useful words from your call. You can download it as a PDF and keep it next to you when you make the real call.
+
+It won't make up dates, prices or availability, and it can't book anything for you. It's only for practice.
+
+Setting up a call. You can type or dictate it in English or Japanese, or start from an example. Enhance prompt tidies up rough notes without adding facts you didn't give it.
+
+The setup form: a washing-machine leak typed in English, with Start from an example, Enhance prompt, Dictate situation and Start voice practice
+
+Asking for help in the middle of the call:
+
+The explanation dialog: the question's meaning, a note on どうされましたか, and a suggested reply with furigana
+
+The word list on the call card:
+
+The call card's useful words: 管理会社, 田中 and 洗濯機 with furigana, romaji and English meanings
+
+What my friend said
+I sent the link to my friend on WhatsApp and asked them to let me know if it helps. This is what came back:
+
+WhatsApp chat: I share the Before I Call link with my friend. They reply 
+
+I didn't expect the PDF to be the part they liked. I made it as a cheat sheet for the real call, but for someone studying for the JLPT it's also a word list from a conversation they actually had.
+
+Demo
+Try it at before-i-call.onrender.com. There's no sign-up. Voice practice needs a microphone. Without one, tap Play guided example to watch a recorded call in Japanese or English.
+
+The PDF call card: the situation, each turn as a speech bubble with furigana, romaji and meaning
+
+Code
+GitHub logo adkbbx / before_I_call
+Before I Call logo
+Before I Call
+Rehearse the phone call you've been putting off.
+A patient AI voice partner for everyday Japanese and English calls, with furigana on every word,
+help that never interrupts the conversation, and a call card to take with you.
+Use it in the cloud, or free and offline on your own computer with Gemma 4, Whisper and Kokoro.
+
+Try it live
+
+Gemma 4 open weights ElevenLabs Agents DigitalOcean serverless inference Sentry agent tracing Deployed on Render MIT license Free local mode with Whisper, Gemma and Kokoro 87 tests passing Hacktoberfest 2026
+
+Live app · How it works · Free local mode · Architecture · Run it locally
+
+
+ Before I Call home page: practice a phone call in Japanese or English, or play a guided example
+The problem
+A phone call is the hardest everyday conversation in a second language. There is no face to read and no time to look anything up, and the other person speaks at native speed. People who live in Japan put off calling the building manager, the clinic or the delivery company, not because they can't manage the conversation, but because the call itself feels risky.
+
+Phrasebooks help with the first sentence. They don't…
+View on GitHub
+MIT licensed and built during the challenge. It has 87 tests (80 Python, 7 Node), and the README explains how to run it locally.
+
+How I Built It
+The call runs on ElevenLabs Agents
+The live call is an ElevenLabs agent. It handles all the audio: the WebRTC connection, speech recognition, working out when you've finished speaking, interruptions, and the voice. I use one agent for every scenario. When a call starts, the app sends that call's prompt, first line, language and voice as overrides, so the same agent can be a Japanese building manager or an English clinic receptionist.
+
+I slowed the agent's speech to 0.85x for learners and capped calls at two minutes, with a daily limit on the server so the credits can't all go in one day. Hanging up uses the built-in end_call tool. Its description tells the model to use it only after your question is dealt with and you've said you don't need anything else, not when you just say thanks. Explain question opens a second, text-only session with a helper prompt, so the explanation never ends up in the call transcript. Slow replay uses ElevenLabs text to speech (Flash v2.5 at 0.7x).
+
+The agent has had 113 conversations so far. ElevenLabs groups them by topic on its own, and the top three match the examples in the app: booking an appointment (27), the washing machine (19) and a missed delivery (17).
+
+ElevenLabs agent dashboard: 113 conversations, with topics grouped as Appointment Booking and Scheduling (27), Washing Machine Issue Resolution (19) and Missed Delivery Redelivery Request (17)
+
+Why I switched to a custom LLM
+When I started, the agent used one of the LLMs hosted by ElevenLabs, Qwen3.5-397B-A17B. Its usage came out of the same ElevenLabs credits I got for Hacktoberfest, and it was going through them fast. ElevenLabs lists it at about $0.016 a minute and $0.003 a message, on top of the voice. A custom LLM costs nothing on the ElevenLabs side:
+
+The ElevenLabs LLM picker: hosted models with their prices, including Qwen3.5-397B-A17B at about $0.0159 per minute and $0.0030 per message, and Custom LLM at $0.0000
+
+I wanted those credits for the voice, so I switched the agent to a custom LLM and pointed it at Gemma 4 31B on DigitalOcean, which bills my DigitalOcean account instead. With the per-token prices my tracing code uses for Gemma ($0.18 per million input tokens and $0.50 per million output tokens), the turn in the trace further down cost about $0.0002. The ElevenLabs credits now only pay for the audio.
+
+At first the custom LLM pointed straight at DigitalOcean. Later I put my own server in between so I could trace and check every reply. This is the agent's LLM setting now:
+
+The agent's Custom LLM setting in ElevenLabs: Chat Completions, server URL https://before-i-call.onrender.com/llm/v1/ and model ID gemma-4-31B-it
+
+On each turn, the agent sends the conversation to my FastAPI server on Render, the server forwards it to Gemma 4 31B on DigitalOcean's serverless inference, and the response streams straight back, so the voice can start as soon as the first words arrive.
+
+Architecture: the browser talks to ElevenLabs over WebRTC; ElevenLabs calls the Gemma proxy on Render, which streams Gemma 4 31B from DigitalOcean and sends traces to Sentry
+
+The proxy on Render
+The custom LLM URL points at my own server: a FastAPI app that Render runs as one Docker web service. The same service serves the React app, the API and the proxy. The whole setup is a render.yaml Blueprint in the repo (trimmed here):
+
+services:
+  - type: web
+    name: before-i-call
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    disk:
+      name: usage-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: LLM_PROXY_KEY
+        sync: false
+      - key: GRADIENT_MODEL
+        value: gemma-4-31B-it
+      - key: MAX_CONCURRENT_CALLS
+        value: '2'
+      - key: MAX_CALL_SECONDS
+        value: '120'
+      - key: MAX_CALLS_PER_VISITOR_DAY
+        value: '3'
+Keys are sync: false, so they're set in the Render dashboard and never committed. The limits that protect my credits are plain environment variables: two calls at once, two minutes each, three calls per visitor a day. The 1 GB disk holds the SQLite files for those limits and the analytics, so they survive redeploys.
+
+The proxy is a single route. It accepts only the agent's key, refuses every model except Gemma 4 31B, and passes DigitalOcean's stream through unchanged while it reads each chunk for tracing and the rule checks (trimmed):
+
+@router.post('/llm/v1/chat/completions')
+async def chat_completions(request: Request):
+    ...
+    if not isinstance(body, dict) or body.get('model') != model:
+        # The key is never usable for other, more expensive models.
+        raise HTTPException(400, f'Only {model} is available.')
+    ...
+    async def relay():
+        async for chunk in response.aiter_bytes():
+            stream.feed(chunk)
+            yield chunk
+
+    return StreamingResponse(relay(), media_type='text/event-stream',
+                             headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+An always-on web service suits this. Each reply is a streamed response that stays open while Gemma talks. The server reuses one HTTPS client for DigitalOcean, so a turn doesn't pay for a new TLS handshake. And when you interrupt the AI, ElevenLabs drops the request, so the proxy closes the stream and records the turn as cancelled in Sentry.
+
+Here's the proxy at work in Render's logs, one line per Gemma request from the agent:
+
+Render application logs filtered to POST /llm/v1/chat/completions: a steady list of 200 OK responses on October 4 and 5
+
+The service is managed by the Blueprint, which stays synced to the repo, and every push to main deploys on its own:
+
+Render Blueprints page: before-i-call, synced with adkbbx/before_I_call on main
+
+Render events for the before-i-call web service (Docker, Starter, Blueprint managed, live): deploys started by 
+
+Fixing how numbers are read
+The first version read 7時 as "nana-ji". Nobody says that. Japanese numbers change their reading depending on the counter after them: 7時 is しちじ, 10分 is じゅっぷん, 4月1日 is しがつついたち and 2人 is ふたり. Dates, times and the number of people are exactly what you say on a phone call, so this had to be right.
+
+I fixed it with a pronunciation dictionary: 118 entries I wrote by hand plus 5,989 generated ones for dates, clock times, durations and counters, 6,107 in total. A script builds the rules and uploads them to the ElevenLabs agent as a pronunciation dictionary, and the app uses the same list for slow replay and the recorded demos. The text on screen doesn't change. This is the dictionary on the agent:
+
+ElevenLabs agent settings: the pronunciation dictionary 
+
+Japanese voices trip over dates and counters, so I wrote 6,107 fixes: 7時 is shichiji, not nana-ji
+
+Tuning the prompt for Gemma
+Switching to Gemma meant rewriting the prompt. I tested it with text-only runs of the agent. The old prompt never called end_call (0 of 2 scenarios), and the tuned one hung up in all 4. It also keeps ordinary words in kanji and writes numbers in kana so the voice reads them correctly, and it asks for practice details instead of your real ones. It still missed the hang-up sometimes in real calls, and Sentry caught that. The start of the tuned prompt:
+
+The start of the agent's system prompt in ElevenLabs: polite spoken Japanese, one question per turn, kanji for ordinary words, numbers with counters in hiragana such as 7時→しちじ, and never inventing dates, prices or availability
+
+Checking every reply with Sentry
+Since every turn goes through my server, I can check each reply against the rules of the practice call. If you said goodbye and the AI didn't hang up, if it "confirmed" a booking, or if it put digits or English letters into Japanese speech, that becomes a Sentry issue tagged with the prompt version and turn number. Each request is also a gen_ai trace with time to first token, token counts and estimated cost. After a call you can tap Report this reply, and the report shows up next to that turn's trace. Conversation text only goes to Sentry if you choose to attach it.
+
+Here's a real one. On October 3, the practice partner didn't hang up after the learner said goodbye, and Sentry caught it 8 times in four minutes. Each rule gets its own issue:
+
+Sentry issue feed showing one unresolved issue, Practice partner: missed hang up, on /llm/v1/chat/completions with 8 events
+
+The issue lists every time it happened and which release it came from:
+
+The missed hang up issue in Sentry: 8 events between 5:57 and 6:01 PM UTC on October 3, all on the same release in production
+
+For comparison, here's a turn where the partner did hang up. The execute_tool end_call span is the hang-up. The Gemma call took 1.27 s (Sentry's average for it is 1.49 s), used about 1,100 input tokens and 43 output tokens, and cost less than a cent. Traces don't include the conversation text, so the Input tab is empty.
+
+A Sentry trace of one practice turn: invoke_agent, chat gemma-4-31B-it taking 1.27 s, the end_call tool and the request to DigitalOcean, with 1.1K input tokens, 43 output tokens and a cost under $0.01
+
+All of those Gemma calls run on DigitalOcean's serverless inference, so I never had to run a GPU server. In two days, October 3 and 4, the app sent about 1.28 million input tokens to Gemma 4 31B and got about 75,000 back. Most of it is input because every turn sends the instructions and the conversation so far, while the replies are short, like the 43 tokens in the trace above.
+
+DigitalOcean Serverless Inference, Analyze tab: 1,278,483 input tokens and 74,719 output tokens, all used on October 3 and 4
+
+Bugs I hit along the way
+Gemma sometimes wrote voice directions like [calm] or [pause] into its replies. The app strips them from the text on screen.
+Small models sometimes say a tool call out loud, like end_call(reason="done"), instead of calling the tool. The app removes that text before it's spoken and treats it as a hang-up.
+Running Gemma 4 locally, the first replies came back empty because the model spent all its tokens on hidden reasoning. Setting reasoning_effort: "none" fixed it, and replies now take about half a second on my laptop's GPU.
+Kokoro's Japanese voice wouldn't install on Windows, because pyopenjtalk needs CMake to build. pyopenjtalk-plus has prebuilt wheels, so I switched to that.
+Romaji showed 10月4日 as "10tsuki4hi". Romaji and furigana now use the same reading list as the voice, so it reads juugatsu yokka.
+Why Does Open Innovation Matter?
+The hosted version runs on paid APIs. I also wanted a version that's free and private, so the same code can run entirely on a laptop. With LOCAL_VOICE=1, Whisper handles speech recognition, Gemma 4 E2B (4.3 GB, through Ollama) plays the other person, and Kokoro-82M speaks. Explanations, slow replay, Enhance prompt, the word list, furigana and the PDF all still work. Nothing is sent to a provider, it works offline, and you can switch models with one setting (LOCAL_LLM_MODEL).
+
+Same app, two brains: Gemma 4 31B on DigitalOcean with ElevenLabs, or Gemma 4 E2B on a laptop with Whisper and Kokoro
+
+On my laptop (Ryzen 9 5900HS, RTX 3060 with 6 GB), the AI greets you in 2.4 s, answers what you say in about 6 s, and an explanation takes 1.4 s.
+
+A free local practice call: Gemma's reply with furigana and romaji, a tap-to-speak microphone and the call controls
+
+The local version isn't as good. The ElevenLabs voice sounds more natural, responds faster and lets you interrupt it. Locally you tap to talk, and the small model doesn't follow the role-play rules as closely as the 31B. It's possible at all because Gemma's weights are open: the same model family runs on DigitalOcean and on my laptop, with the same prompt, rules and pronunciation list. Furigana and romaji don't need a model. The open-source pykakasi and Janome libraries handle them.
+
+Prize Categories
+Best Use of ElevenLabs: one agent over WebRTC for every call, with per-call prompt, first line, language and voice overrides, the built-in end_call tool, a custom LLM pointed at Gemma, a separate text-only session for explanations, text to speech for slow replay, and a 6,107-entry pronunciation dictionary on the agent.
+Best Use of Sentry Agent Tracing: every Gemma request is a gen_ai trace with time to first token, tokens and cost. Replies are checked against the role-play rules, and user reports link to the exact turn.
+Best Use of DigitalOcean: serverless inference runs Gemma 4 31B for every call turn, explanation, prompt enhancement and word list, with no GPU to manage.
+Best Use of Gemma: Gemma does four jobs (the other person on the call, the explanation helper, the prompt enhancer and the word picker), as 31B in the cloud and E2B on a laptop.
+Best Use of Render: one Docker web service from a render.yaml Blueprint serves the app, the API and the custom LLM proxy that streams every Gemma reply to ElevenLabs, with a persistent disk for usage limits and analytics, keys kept out of the repo, and the credit limits as environment variables.
+Built solo.
+
+If you live in Japan and put off phone calls too, try it and tell me in the comments what's missing.
+Top comments (9)
+
+Subscribe
+pic
+
+Submit
+Preview
+ 
+ 
+tejapng profile image
+tej
+•
+4 Oct
+
+Great tool! The downloadable PDF word lists are perfect for my JLPT prep. Thank you! ☺️
+
+3
+ likes
+Like
+
+Reply
+ 
+ 
+broski_64f905 profile image
+Broski
+•
+5 Oct
+
+Haha! Thank you! ♥️
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+pratheekb_11 profile image
+Pratheek B
+•
+5 Oct
+
+No more pre-call anxiety with this one 😁. Found it really helpful to learn phrases
+
+2
+ likes
+Like
+
+Reply
+ 
+ 
+broski_64f905 profile image
+Broski
+•
+5 Oct
+
+Yes sir!
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+soumyaghosh2006 profile image
+Soumya ghosh
+•
+10 Oct
+
+how are you making these videos
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+adk_bbx profile image
+ADK BBX  Subscriber   
+•
+10 Oct
+
+Used grok man!
+
+2
+ likes
+Like
+
+Reply
+ 
+ 
+soumyaghosh2006 profile image
+Soumya ghosh
+•
+10 Oct
+
+Ooh thanks bro
+Can you provide the prompt template or the prompt if you don't mind.
+Then will use it as a reference
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+superabdul profile image
+Abdullah Ansari
+•
+12 Oct • Edited on 12 Oct
+
+Good work
+
+1
+ like
+Like
+
+Reply
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+
+ADK BBX  
+Follow
+LOCATION
+Kawasaki, Kanagawa Prefecture, Tokyo, JP
+EDUCATION
+Reva University, Electrical Engineering
+PRONOUNS
+He/Him
+WORK
+Senior Data Scientist
+JOINED
+2 Oct 2026
+More from ADK BBX
+I asked my junk mail one question: are you worth the walk?
+#devchallenge #hf26challenge #ai #opensource
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Gemma 4 reads my parent's mail at home: 39 test letters, 9 of them real, and one calm wrong answer I engineered out - DEV Community
+
+
+0
+Jump to Comments
+
+
+1
+Save
+
+
+Boost
+
+Cover image for Gemma 4 reads my parent's mail at home: 39 test letters, 9 of them real, and one calm wrong answer I engineered out
+Uptime Architect
+Uptime Architect  Subscriber
+Posted on 4 Oct
+
+
+1
+Gemma 4 reads my parent's mail at home: 39 test letters, 9 of them real, and one calm wrong answer I engineered out
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+gemma
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+In a lot of families there's a pile on the corner of the kitchen table: envelopes that were opened, read twice, and set aside "for when someone can look at it." One of my parents has that pile.
+
+Most of what lands in a pile like that is harmless: a statement, an ad, a thank-you from the health plan. The trouble is that the one that matters looks just like the others. A water shut-off date. Or a letter on very official-looking letterhead saying your Social Security number has been suspended and you can fix it today with Google Play gift cards, as long as you don't tell your bank.
+
+Even in your first language, mail is hard: "Explanation of Benefits — THIS IS NOT A BILL — You may owe $35.00", "past-due balance", "validation notice", "response requested" on a mailer that's actually an ad. In a second language it's harder. The real skill is knowing which of the twelve envelopes is the one that matters.
+
+So this weekend I built Kitchen Table.
+
+What I Built
+Kitchen Table is a private letter explainer for someone who gets mail they can't fully read.
+
+They open it on their phone, tap one big button, and photograph the letter. A computer in the same house runs Gemma 4 locally and, a few seconds later, answers in the language they read best:
+
+The verdict first, in color: Nothing to do. You can put it away. / You need to do something. / Important. Do this soon. / Careful. This looks like a scam.
+What it says, in two to four plain sentences. "Like a kind grown-up child explaining at the kitchen table" is literally in the prompt.
+What to do, by when, with days left and an Add to calendar button.
+The money: how much, and whether they owe it or are getting it back.
+Hard words explained. "Past due", "payment arrangement" and "reconnection fee" each get one plain sentence.
+Warning signs when something is off, and the only advice that matters: Don't pay. Don't call the numbers in the letter. Call Yaro first.
+Questions, typed or spoken. They can hold up the phone and ask, in their own language, "what happens if I don't pay by the 8th?" and hear the answer read back.
+"Send to Yaro": a three-line English summary for me, so our call starts with "I saw the water letter," not "read me the top part again."
+The photo is thrown away after reading. The text stays in a SQLite file on the home computer. Nothing goes to a cloud API, there's no account, and it keeps working when the internet is down (only the home Wi-Fi is needed). Setup is one command (./start.sh), which prints a QR code. The parent's phone scans it once, and from then on it's the only device besides the computer that can read their letters. A guest on the Wi-Fi gets nothing.
+
+Demo
+An 86-second walkthrough built from real screens of a real run, with English captions (the app itself is in Russian here). You'll hear the actual spoken Russian question the app answered. The narration is Piper, an open-source text-to-speech engine that also runs locally.
+
+
+
+Kitchen Table: the letter photo, the explanation, and a spoken follow-up question
+
+The case I actually lose sleep over:
+
+Kitchen Table showing a dark red scam warning
+
+Every letter you see here, and every letter in the test set, is from an organization I invented. Phone numbers are in the reserved 555-01xx range.
+
+Code
+GitHub logo pyaroslav / kitchen-table
+Snap a photo of a confusing letter, get a plain answer in your own language. Local Gemma 4 via Ollama; the mail never leaves the house.
+Kitchen Table
+tests
+
+Snap a photo of a confusing letter. Get a plain answer in your own language. The letter never leaves the house.
+
+Kitchen Table is a small app for a parent who gets mail they can't fully read: utility bills, insurance statements, jury summonses, "FINAL NOTICE" envelopes, and the scams that are designed to look exactly like them. They take a photo on their phone; a computer at home runs Gemma 4 locally through Ollama and answers:
+
+a traffic-light verdict: nothing to do, you need to do something, important, do it soon, or careful, this looks like a scam,
+what the letter says, in 2–4 plain sentences in their language (18 languages),
+what to do, by when (with an Add to calendar button), and how much money is involved,
+the hard words explained, the warning signs if it's suspicious,
+answers to follow-up questions, typed or…
+View on GitHub
+Python (FastAPI) on the home computer, a phone page with no framework and no CDN (it has to work offline), SQLite and Ollama. 27 model-free tests run in CI on every push, plus an evaluation harness over 30 synthetic and 9 real letters.
+
+How I Built It
+Two passes, and code owns the scary parts
+photo ─▶ quality check ─▶ Gemma 4 (vision): exact transcript
+                          scam rules on the transcript
+                          Gemma 4 (JSON schema): explanation in their language
+                          code: date maths, "days left", verdict overrides
+Pass 1 only transcribes: "copy names, dates, amounts and phone numbers exactly; write [unreadable] for anything you can't read." Pass 2 never sees pixels. It gets the transcript, today's date and the reader's language, and has to fill a JSON schema: verdict, headline, summary, steps, deadlines, money, glossary, warning signs, and a note for me. Ollama enforces the schema, so the phone never receives half a sentence of markdown.
+
+Splitting the passes gave me three things. Follow-up questions have a transcript to stay grounded in. Each step can be evaluated on its own. And code gets to check the model's work before anyone sees it.
+
+That's the design decision I care most about. The model reads and explains. Code owns everything a parent should never have to trust a model on:
+
+Dates. The model returns 2026-10-08. Python works out "6 days left" every time the letter is opened, not once on the day it was read.
+Scams. A short list of regex rules runs on the transcript. A strong hit forces the scam warning, whatever the model said: payment by gift card or crypto, "don't tell your bank", arrest threats, "your SSN is suspended", or an official-looking letter whose fine print admits it isn't the government. A suspected scammer's phone number is shown struck through, never as a tap-to-call link.
+Urgency. Anything due within 7 days is Important.
+Here's the overriding logic, lightly trimmed. It runs after the model and before the phone:
+
+if redflags.has_strong(hits):            # gift cards, crypto, "don't tell your bank", ...
+    verdict = "scam_warning"
+elif verdict in ("file_it", "action_needed") and money_direction != "you_receive":
+    upcoming = [d for d in deadlines if d["days_left"] >= 0]
+    if verdict == "file_it" and upcoming and steps:
+        verdict = "action_needed"
+    if verdict == "action_needed" and upcoming and upcoming[0]["days_left"] <= 7:
+        verdict = "urgent"
+if verdict == "scam_warning":
+    deadlines = []                       # a scammer's "deadline" is pressure, not an appointment
+Why Gemma 4, specifically
+I needed one open model family that could do four jobs: read a crooked photo, write fluent plain Russian (or Tagalog, or Persian), return strict JSON, and listen to a spoken question. Gemma 4 does all four, so the whole app is one model family behind one local API:
+
+gemma4:e4b    gemma4:26b
+Size on disk (Ollama, Q4_K_M)    6.6 GB, 7.5B params    18 GB, 25.2B params (mixture-of-experts, 8 of 128 experts active)
+Sees photos    ✓    ✓
+Hears audio    ✓    ✗
+Role in Kitchen Table    default; laptop-friendly; the "ears"    best reader if you have the GPU
+Time per letter (RTX 5090)    ~2.7 s    ~3.5 s
+Time per letter (CPU only, Ryzen 9 9950X)    ~39 s    not tested
+The mixture-of-experts design is why the 25B model is only about a second slower than the 7.5B one. Both fit on the same GPU at the same time, which is what lets 26b read while e4b listens.
+
+The 2020 bug
+I wanted numbers, not vibes. So I wrote 15 letters, rendered them with headless Chrome, and "photographed" them in code: a wood-grain table, a few degrees of rotation, perspective skew, a shadow across one corner, JPEG compression. Both Gemma 4 sizes I was planning to use (e4b and 26b) got all 15 right. That's how you know your test is too easy.
+
+So I wrote nine nastier ones:
+
+a deadline that only appears on page two;
+a coverage-ending date buried in the fine print of a cheerful newsletter;
+a Spanish-language school letter;
+a photo taken sideways;
+one taken in bad evening light with a shaky hand.
+On that last photo, gemma4:e4b read the year 2026 as 2020 and $84.17 as $64.17. Then it explained, confidently and in fluent Russian: "This is an old water bill and doesn't require any action."
+
+That's the worst failure this app can have. It's wrong and calm.
+
+Better prompting couldn't have caught that. A plain photo check could: brightness, contrast and edge sharpness flagged that photo and none of the other 30. A flagged photo gets auto-contrast and sharpening, which fixed the amount but not the year. More importantly, a bad photo can never produce "Nothing to do" any more. It produces "I'm not sure. The photo is too dark or blurry. Please take another one in good light." The bigger gemma4:26b read the same dark photo correctly. The guard stays anyway.
+
+Measuring it
+30 synthetic letters in three sets. I wrote the last six after I'd finished changing prompts and rules, ran them once, and didn't touch anything afterwards.
+
+Model    Right verdict    Never unsafe    Scams caught    Deadlines found    Answer in the right language    Time / letter
+gemma4:26b    30/30    30/30    8/8    100%    100%    ~3.5 s (GPU)
+gemma4:e4b    29/30    30/30    8/8    92%    100%    ~2.7 s (GPU), ~39 s (CPU only)
+gemma4:e2b    25/30    25/30    6/8    88%    3%    ~2 s (GPU)
+Neither e4b nor 26b raised a single false scam alarm on the 21 legitimate letters, including a debt collector's validation notice and a real water-utility "FINAL NOTICE", which are exactly the letters that look like scams.
+
+Then, real letters
+Synthetic letters only prove so much, so once all the tuning was finished I pulled 9 real documents from the agencies and counties that published them:
+
+three IRS notices, including a two-page "intent to seize your property" letter;
+a federal jury summons;
+a utility's 10-day shut-off notice;
+two fake "Social Security" letters the SSA Inspector General published as warnings;
+two deceptive "deed records" mailers that county offices warned residents about.
+I ran them once and changed nothing afterwards.
+
+gemma4:26b got all 9 right. It returned the exact IRS amounts ($1,075.21; $9,533.53) and pay-by dates, called the levy notice urgent, and caught all four scams.
+
+gemma4:e4b got 8. Its miss is the one I'd least like to have: it transcribed a "COUNTY DEED RECORDS — FINAL RENEWAL NOTICE" home-warranty mailer word for word, and then explained it as a real renewal that needs a $199 response. None of my rules fire on it, because it has no gift card and no government disclaimer. I could add a rule now, but I won't: that would turn my only untuned real-world number into a tuned one. So the recommendation is honest instead. e4b is the floor, and if there's a GPU in the house, run 26b.
+
+Four things I didn't expect:
+
+The scam rules barely mattered for the models I'd actually use. e4b and 26b flagged every scam on their own. On the tiny e2b, the model alone caught zero of the three hard-set scams, and the rules caught two. That's what a seatbelt is for.
+My rules made a weak model worse once. e2b invented deadlines for a library book-sale flyer, and my "upcoming deadline means act" override turned put it away into Important. With the bigger models the overrides only ever corrected things, but I wouldn't have known without the held-out set.
+One rule exists because of this eval, and I'm telling you so. e4b first called an "$89 certified deed copy" mailer you need to do something. Those mailers are legal, so no money-transfer rule fires. Their tell is the disclaimer they're required to print: "not affiliated with any county or government agency." That's now a rule. The held-out set includes a different look-alike, a homestead-exemption "filing service", and both models handled it.
+e2b won't answer in Russian. Ask it to explain in Russian or Ukrainian and it explains in English. For this user that rules it out, whatever its other scores.
+The full method is in EVAL.md, with every caveat (synthetic letters, typeset fonts, no handwriting, my own judgement of what counts as acceptable) and a script that regenerates the table.
+
+Voice, and the model that can't hear
+Gemma 4 takes audio in the same field as images, so a spoken question is just a 16 kHz WAV sent with the transcript. The phone records it and converts it to WAV itself, and the recording only ever goes to the home computer.
+
+Then I found that gemma4:26b accepts images but not audio; only the small "edge" models can hear. So Kitchen Table checks what the model can do. If the reading model can't hear, gemma4:e4b transcribes the question and 26b answers it: two open models, each doing the part it's good at, on one GPU, joined by about fifteen lines of Python. I tested it end to end with a Russian question synthesized by Piper, a local text-to-speech engine. Gemma transcribed it word for word.
+
+One honest wrinkle: phone browsers only allow in-page microphone recording over HTTPS. On plain home Wi-Fi, the 🎤 button opens the phone's own voice recorder instead, and the file goes through the same path.
+
+The interface is for them, not for me
+Base font size 20px.
+One primary button per screen; the main buttons are 64px tall and nothing tappable is under 48px.
+Colors that mean the same thing in every language.
+A setup screen that asks "Which language do you read best?", with each language written in itself.
+English, Russian, Spanish and Ukrainian strings are hand-written. The other 14 languages are translated once by Gemma itself and cached, with a check that no {placeholder} got lost on the way.
+Arabic and Persian flip the layout to right-to-left, and dates follow the reader's own calendar.
+Dark mode follows the phone.
+Lighthouse (mobile) scores the home and letter screens 100 for accessibility.
+
+Why Does Open Innovation Matter?
+Look at what's in that pile on the kitchen table: prescriptions, Medicare numbers, bank balances, a debt collector's letter, a court date. It's a map of an older person's life, and it's exactly the information scammers buy. Here's what the open stack gave me that a hosted API couldn't:
+
+The mail never leaves the house, and that includes voice. There's no cloud speech-to-text and no voice API: Gemma 4 e4b hears the question on the home computer, and the phone's own text-to-speech reads the answer aloud. Beyond that, it isn't "we don't train on it" or "deleted after 30 days": the letter physically never leaves. The photo's GPS metadata is stripped before even the local model sees it, and the photo is discarded after reading.
+It works when the internet doesn't. A home computer and home Wi-Fi. No API key to expire, no service to sunset, no price change.
+It costs nothing per letter. Nobody has to wonder whether a question is "worth" an API call. They can ask the same thing three times.
+I could look inside and change it. I could see that 26b can't hear and route around it. I could measure that e2b ignores the language instruction and rule it out. I could put the scam decision in code I can read, test and explain, instead of in a policy I can't.
+I can swap models without asking anyone. e4b on an old laptop, 26b on my desktop, whatever Gemma ships next on whatever they have. Same app, one environment variable.
+The closed version of this app already exists: "take a photo and paste it into a chatbot." It may even be smarter. But I'd have to teach my parent to upload their Medicare letter to a website. Teaching them the opposite is the whole point.
+
+What it can't do (yet)
+It's tested on 30 synthetic and 9 real letters, all photographed in software. Handwriting, creased paper and window envelopes aren't in the test set.
+On the small model, a deceptive mailer without any classic scam markers can still slip through (see above).
+It doesn't replace me, by design: every unclear or suspicious letter ends with "call Yaro first."
+On a laptop without a GPU it takes the better part of a minute per letter. That's fine for mail, less fine for impatience.
+Prize Categories
+Best Use of Gemma. Gemma 4 runs locally through Ollama and does all the reading, explaining, translating (including the app's own interface) and listening: gemma4:26b for vision, gemma4:e4b for audio, with e2b, e4b and 26b measured head to head on 30 synthetic letters, and e4b and 26b on 9 real ones.
+Thanks for reading. If there's a pile like this on a kitchen table in your life, setup is ollama pull gemma4:e4b and one Python command.
+
+— Yaro
+Top comments (0)
+
+Subscribe
+pic
+
+Submit
+Preview
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger MCP workshop image
+
+Fork, Break, Fix, Delete: Hands-On with Tiger MCP
+A coding agent can read your codebase, run your tests, and open a pull request. Point it at your database and the calculus changes: a bad migration isn't something you undo with git, so most teams draw a line the agent isn't allowed to cross.
+
+In this hands-on workshop, you'll wire Tiger MCP into the coding agent you already use and give it a database it's allowed to break.
+
+Register free →
+
+Uptime Architect  
+Follow
+Independent, vendor-neutral notes on running Oracle reliably — RAC, Data Guard, performance tuning, OCI/Azure. Field-tested and opinionated.
+JOINED
+8 Jun 2026
+More from Uptime Architect
+My weather app said the sky would be clear. I taught an open model to check, then went outside
+#devchallenge #hf26challenge #tabpfn #opensource
+I showed 30 AI models 336 monitoring dashboards. Most of them can't tell time.
+#devchallenge #kagglechallenge #machinelearning #ai
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Rakshak: I built my parents a scam-checker that never leaves the house - DEV Community
+
+
+0
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+Cover image for Rakshak: I built my parents a scam-checker that never leaves the house
+Muaaz Shaikh
+Muaaz Shaikh
+Posted on 5 Oct
+
+
+1
+Rakshak: I built my parents a scam-checker that never leaves the house
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+What I Built
+My parents have never lost money to a scam. I'd like to keep it that way.
+
+My mom lives on WhatsApp. My dad pays for everything with UPI. Their phones get a steady drip of messages written to make someone panic: a KYC deadline "today", a parcel "held at customs", the electricity "disconnected tonight", a "police officer" on a video call. They've been careful so far. But these messages are designed for the one moment you're tired, alone or scared. And they only need to work once.
+
+So I built them Rakshak ("protector"): a second opinion that lives on a laptop in our house. You hand it a suspicious message, a screenshot, or a description of a phone call, and within seconds a calm voice tells you in plain English whether it's real and what to do.
+
+Mom (Android) shares a message to it straight from her share sheet. A big card comes up: red with a raised hand for This is a scam, amber for Be careful, green for This looks like a normal message, grey for Couldn't check right now. The explanation is read aloud. For a suspicious call, she holds a button and describes it.
+Dad (iPhone) uses two Shortcuts: "Rakshak" in the share sheet, and "Rakshak Bolo" (bolo means "speak") to describe a call out loud. Same card, same voice.
+Me: on a scam verdict my phone gets a push with which parent, what kind of scam, and what time. Never the message.
+Every explanation is three short sentences at most: the verdict, the one or two strongest warning signs quoted exactly from the message, and one thing to do. Don't tap. Don't pay. Never share the OTP. Call me.
+
+Nothing leaves the house. That's not a slogan, it's the architecture.
+
+Demo
+There's no public link, and that's on purpose. Rakshak runs on a MacBook at home and is reachable only over our private Tailscale network, because the whole point is that my parents' messages never touch someone else's server. Here it is running for real:
+
+Home screen: Check a message, Describe a call Checking on the home computer: Reading, Checking, Explaining
+
+An app-install scam: red card, the dangerous link quoted, and  A real bank OTP: green card, 
+
+Left to right: the home screen; the check in progress; an app-install scam caught with the dangerous link quoted, plus Listen again for the spoken explanation; a real bank OTP correctly left alone.
+
+The hub status page: model health, latency, per-parent counts, feedback queue, and no message text anywhere
+
+The hub's status page for me: three local models, latency against targets, today's verdicts per parent, and a "was this right?" queue. Metadata only. It never shows a message.
+
+Code
+GitHub logo MuaazSM / rakshak
+Rakshak
+A scam checker for my parents that runs on a MacBook at home.
+
+My mom uses an Android phone and my dad uses an iPhone. Both get a steady stream of messages written to make a parent panic: fake KYC deadlines, parcels "held at customs", electricity cut off "tonight", fake police calls. Rakshak gives them a second opinion. Mom shares a message or screenshot to the Rakshak web app from her share sheet; Dad shares it to an iOS Shortcut. A few seconds later they see a large verdict card (scam, be careful, looks normal, or couldn't check) and hear a short spoken explanation in plain English. If it's a scam, my phone gets a notification that says which parent and what kind of scam, never the message itself. Every model runs on the Mac. The messages never leave the house.
+
+The verdict comes from a small model fine-tuned…
+View on GitHub
+Everything is in the repo: the rules engine, the LangGraph pipeline, training, export and evaluation scripts, the web app, and the privacy tests. The dataset is regenerated locally and the model weights are built by the export script rather than checked in, but nothing about them is secret. They're trained only on synthetic and public data.
+
+How I Built It
+A MacBook Pro (M3 Pro, 18 GB) is the hub. It binds to localhost only; phones reach it over a private tailnet. Each check runs through a small LangGraph graph: normalize, perceive the image or audio, rules, detect, fuse, explain, then notify and store. SQLite keeps the records. Every model runs locally through llama.cpp and Ollama.
+
+Two open models, three jobs
+I wanted the verdict to come from a model I'd fine-tuned and measured, not a prompt. Tinker doesn't offer Gemma, which made the split natural. It also gave Gemma a second, less obvious job.
+
+Gemma 4 E2B wrote the training set. I had no scam dataset, and I refused to build one from my parents' private messages. So Gemma generated it: from about 60 short seed patterns across every scam and genuine category, it produced around 1,300 realistic messages in English, Hinglish and Devanagari, varied across channel and the tricks scammers use: misspellings, odd spacing, look-alike characters, shortened links. Every quoted red flag had to appear exactly in the generated text or the item was dropped.
+
+Tinker trained the judge. Rakshak-Detector is Qwen3.5-4B with a LoRA adapter trained on Tinker on that data, then merged, converted to GGUF and quantized to Q4_K_M (2.9 GB) for llama-server. It returns only JSON: verdict, category, red-flag quotes. I read the scam probability from the log-probabilities of the verdict token, not from the text, so the fusion step has a real number to work with.
+
+Gemma explains the verdict. It transcribes screenshots and voice notes on-device, and turns the verdict into a short explanation in plain words. It never decides. It receives the verdict as input, and a post-check rejects any explanation that drops the verdict word, negates it, adds a link or number that wasn't in the message, or runs long. On failure a fixed template takes over.
+
+Under all of it sits a rules engine of plain, unit-tested functions. An .apk link, a look-alike of a bank's domain, or "enter your UPI PIN to receive money" is a scam whatever the model says. Softer signals push toward Be careful: a bank claiming to text from a plain mobile number, a link shortener, arrest threats, urgency plus a payment ask. The word lists cover English, Hinglish and Devanagari, because that's how scams actually arrive.
+
+Two safety rules live in code, not prompts: red flags shown to my parents must be exact substrings of their message, or they're dropped; and if the detector is down the answer is Couldn't check, never looks normal.
+
+Training
+LoRA rank 32, loss on the assistant's JSON only, batch 32, 3 epochs, thinking mode off, learning rate 4.91e-4 from tinker_cookbook's get_lr. In 20% of training examples I blanked the rule signals so the model can't just copy the rules. I ran a smoke run, a learning-rate sweep, and then a retrain, because two independent review passes caught the quiet failure of synthetic data: the first model had learned shortcuts like a link means scam and an unknown sender means scam, which would have meant false alarms on real bank SMS. I fixed the generator to balance those cues and trained again. Total: about $3.80 of the $10 Tinker credit.
+
+Results, on data it never saw
+I did not dataset my parents' messages, so there is no family test set. Instead, the evaluation is 100 public fraud reports: scams and genuine messages documented by RBI, PIB, India's cybercrime advisories, news outlets, fact-checkers and court records, each with a source URL and verified verbatim on its page (65 scam, 35 genuine). The model never trains on them. 95% bootstrap CIs; scam recall counts any warning on a real scam.
+
+System    Scam recall    False alarms on genuine    On alarming-but-genuine    Macro-F1    Valid JSON
+Rules only    0.43    9%    11%    0.05    n/a
+Gemma 4 E2B zero-shot    0.86    14%    22%    0.38    0%
+Qwen3.5-4B base, few-shot    1.00    43%    89%    0.54    33%
+Qwen3.5-4B + Tinker LoRA    0.92 [0.86–0.98]    9%    22%    0.59 [0.55–0.63]    100%
+Full Rakshak (rules + fusion)    0.94    14%    22%    0.58    n/a
+The interesting number isn't the F1. It's the false alarms. The base Qwen model with few-shot prompting catches every scam, but only by crying wolf. It flags 43% of genuine messages and 89% of genuine-but-alarming ones (real OTPs, real debit alerts), and only a third of its replies are even valid JSON. Fine-tuning the same model on this one narrow task cuts false alarms on genuine messages to 9% and makes the output 100% machine-usable, while keeping recall at 0.92, on data it never trained on.
+
+That's the whole project in one row. Not missing scams is easy. Not terrifying your mom about a real OTP is the hard part, and that's exactly what a small, fine-tuned open model fixed.
+
+(Adding the rules on top nudges recall to 0.94 but raises genuine false alarms, because a few real government advisories trip the threat lexicon. I can see that trade-off in the numbers, which is the point of measuring.)
+
+These are small-sample numbers on public data, not a benchmark claim. The synthetic dev set is near-saturated and I don't report it.
+
+Speed on a laptop
+All three model servers run together on 18 GB. End to end:
+
+Genuine (detector only): p50 0.8 s, p95 0.9 s
+Scam (detector + spoken explanation): p50 4.1 s, p95 11.1 s
+The detector dominates the scam path; the explainer adds about 1.6 s. The scam path is over my 6-second goal. Shorter red-flag output, constrained JSON on the first attempt, and streaming the verdict before the explanation are next.
+
+Tracing without reading anyone's messages
+Sentry gets one transaction per check and one span per graph node, so I can see where the seconds go and which model answered, but never the content. Span attributes come from an allowlist (node, model, token counts, latency, verdict, category, p_scam, rule-signal names, retries, error type), and a scrubbing hook deletes any text, quote, explanation, image or audio field at any depth, including inside exception messages. Request bodies and local variables are never captured.
+
+I don't just trust that. A canary test pushes a fake message with a unique marker through every input path of the real app and fails if the marker appears in any Sentry payload, ntfy request, log line or console output, or if the hub talks to anything but the local model servers and ntfy. I broke the scrubber on purpose three ways; the test caught all three.
+
+Why Does Open Innovation Matter?
+Privacy that's literally true. The messages my parents get are about their bank, their pension, their family. Asking a hosted API "is this a scam?" means one more stranger reads them. With open weights, the model comes to the data, and checks keep working with the Mac's internet off.
+
+A small specialist beats a big generalist here. "Is this a scam, and which words prove it?" is narrow and structured. Open weights let me fine-tune a 4B model on exactly that and measure it against its own base: false alarms went from 43% to 9%, valid output from 33% to 100%. You can't do that with a model you can't fine-tune or run.
+
+Open models can make the data, too. Gemma generated the whole training set locally. No scraping, no labeling service, no one's private messages.
+
+Zero marginal cost. Each check costs electricity, so there's no reason to ration them. My parents can share every message that feels off.
+
+The honest caveat. Training wasn't fully local: synthetic and redacted public examples went to Tinker's servers to train the adapter. No family message was ever part of it. At runtime, nothing leaves the house.
+
+My Agent Session
+I built Rakshak with Claude Code, working from a written requirements document that fixed the schemas, prompts, thresholds and privacy rules before any code existed. The agent did the heavy lifting in parallel (rules engine, hub pipeline, training and export, web app), and the most valuable thing it did was review its own work. Two independent review passes caught the detector throwing away suspicious probability mass, and the synthetic-data shortcuts that would have caused false alarms on real messages. The judgment calls I kept for myself were the ones about honesty: never letting public reports become a "test set", and insisting the evaluation say plainly what data it actually ran on.
+
+Prize Categories
+Best Use of Gemma. Gemma 4 E2B generated the training set, reads screenshots and voice notes on-device, and writes every warning my parents hear, with a post-check that keeps it from ever changing the verdict.
+Best Use of Tinker. The verdict comes from Qwen3.5-4B fine-tuned with LoRA on Tinker, exported to a quantized GGUF, and measured against its own base model and Gemma on public data it never trained on, where fine-tuning cut genuine false alarms from 43% to 9% and raised valid structured output from 33% to 100%.
+Best Use of Sentry Agent Tracing. One trace per check and one span per LangGraph node, with a canary test proving no message text ever reaches Sentry.
+Top comments (0)
+
+Subscribe
+pic
+
+Submit
+Preview
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger MCP workshop image
+
+Fork, Break, Fix, Delete: Hands-On with Tiger MCP 🤖
+A coding agent can read your codebase, run your tests, and open a pull request. Point it at your database and the calculus changes: a bad migration isn't something you undo with git, so most teams draw a line the agent isn't allowed to cross.
+
+In this hands-on workshop, you'll wire Tiger MCP into the coding agent you already use and give it a database it's allowed to break.
+
+Register free →
+
+Muaaz Shaikh
+Follow
+Building AI agents, systems & intelligent developer tools. GPUs go brrrr!
+LOCATION
+Mumbai, India
+EDUCATION
+NMIMS MPSTME, Mumbai — B.Tech Computer Science & Business Systems
+PRONOUNS
+He/Him
+WORK
+AI Engineer Intern @ HivePro | B.Tech CSBS @ NMIMS MPSTME
+JOINED
+1 Oct 2026
+More from Muaaz Shaikh
+Sair: I built my parents a walk companion that makes them leave the phone at home
+#devchallenge #hf26challenge #opensource #ai
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+×
+A real bank OTP: green card, 
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+Viva: a mock interview that knows which parts of your project an AI wrote - DEV Community
+
+
+0
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+Abdul Wasih
+Abdul Wasih
+Posted on 5 Oct
+•
+
+AI-assisted
+
+
+2
+Viva: a mock interview that knows which parts of your project an AI wrote
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+showdev
+What I Built
+If you have sat in a placement interview, you know the moment.
+
+The interviewer stops scrolling through your repo, points at one file, and says: "Walk me through this function."
+
+You know what the function does. You typed the prompt that produced it. You did not write it.
+
+That happened to a friend of mine, with a project the two of us built at a hackathon. It works. It is on his resume. He could tell you what every screen does. He could not tell you why the code is the way it is, because an AI agent wrote a lot of it and we shipped before we understood it.
+
+Every fresher I know is a little scared of that question. So I built Viva: a mock interview about your own project, that knows which parts an AI wrote.
+
+You give it a repo. It reads the code, finds the files your coding agent wrote, and then interviews you the way a panel would. When it reaches the AI-written part, it says so:
+
+Your Entire session shows an AI agent wrote src/lib/interview/prompts.ts (the prompt was: "1,2 isdone lets skip teh devrealy install, render and eleven labs credits i will claim, yep lets do stacked prs"). Explain the logic behind how briefPrompt structures the input data to ensure the generated brief remains grounded in the actual repository content.
+
+That is a real question Viva asked me, about Viva. The typos in the prompt are mine.
+
+Viva asking about a file an AI agent wrote, quoting the prompt from the coding session above the question.
+
+Demo
+
+
+Try it: https://viva-ou6t.onrender.com
+
+Click "Viva (this project)" to see the AI-code question straight away, or paste any public GitHub repo (reading a new one takes about 45 seconds).
+
+In the video, the candidate is simulated and the voice is Kokoro, an open speech model running on my laptop. The app on screen is real, with the waiting cut out.
+
+Code
+GitHub logo AbdulWasih05 / Viva
+A local first AI interview coach
+Viva
+A mock technical interview about your own project, for the AI-coding era.
+
+Students now ship projects an AI agent half-wrote, and interviewers know it. Viva reads your repo, finds the parts an agent wrote, and questions you about them the way a placement interviewer or a final-year viva panel would. It asks follow-ups based on what you actually said, remembers your weak spots, and ends with a scored report.
+
+Built for the DEV Hacktoberfest 2026 Weekend Challenge (Build for a Friend). The interviewer is Gemma, an open-weight model; Mastra runs the agent; Entire checkpoints tell Viva which code an AI wrote.
+
+Deploy to Render
+
+What it does
+Reads your project. Paste a public GitHub URL (or, in local mode, a folder path). Viva picks the most telling files and Gemma writes a short brief. Every file path in that brief is checked against the real file list; invented ones are dropped.
+…
+View on GitHub
+One rule runs through the code: Gemma decides what to say. Code decides what happens. The round order, the follow-up limit, the scores and every file path are plain, tested TypeScript.
+
+How I Built It
+Piece    What it does in Viva
+Gemma 4 26B (open weights)    The interviewer: writes the brief, the questions, the scores and the report
+Mastra    Runs the interviewer as an agent with a readFile tool, and remembers your weak spots between sessions
+Entire    Records each coding-agent session next to its commit. Viva reads that to find AI-written code
+Sentry    Traces every interview turn, with quality flags on each one
+Render    Hosts it. One free service, no database
+An interview in four moves. Viva reads the repo and Gemma writes a brief; code throws out any file path Gemma made up. For a code question, the agent opens the file itself before asking. After each answer, Gemma scores it and may follow up, but the follow-up has to quote something you actually said, and code checks the quote. At the end, code adds up the scores and Gemma writes the coaching.
+
+What I measured, across scripted interviews on two real repos:
+
+Check    Result
+Model replies that passed the schema check    119 of 119
+Deep-dive questions that named a real file    6 of 6
+Follow-ups that really quoted the answer    51 of 51
+Code questions where the agent opened a file first    18 of 18
+Second session opened with last time's weak spot    3 of 3
+Interviews on Viva's own repo that asked about AI-written code    3 of 3
+How Viva knows what the AI wrote. A file counts as AI-written when it was changed in a commit that Entire linked to a coding-agent session. The prompt Viva quotes is the one you typed in that session, taken from the session transcript.
+
+ A Sentry trace of one Viva interview turn, with flags showing the question was about AI-written code, named a real file, and needed no retry or fallback.
+
+That Sentry trace is one interview turn: question_names_real_file: true, ai_authored_question: true, no retry, no fallback. Each turn carries these flags, so I can see whether the interviewer is doing its job without reading every chat.
+
+Why Does Open Innovation Matter?
+Because of who this is for.
+
+A student should not need a credit card to practise for an interview. His next project may be private. A college lab may have no reliable internet. With an open model, the same code talks to Gemma on a server or to Gemma on your own machine through Ollama, and switching is one setting. A closed API does not give you that choice.
+
+Nobody has to trust my copy either. The prompts and the scoring rubric are plain files, and the Deploy button gives any coding club its own private Viva.
+
+Open is not free, and I measured the price. On my 16 GB laptop with no real GPU, local Gemma took 50 to 544 seconds per call and never finished a project brief. So today, local mode needs better hardware than a student usually has. But that is a limit I can see and work on, in code I can read.
+
+My Agent Session
+The whole build is public. Each phase is one commit, and each commit carries its Entire checkpoint: the same data Viva reads to interview me. Every decision is numbered, with its reason, in docs/DECISIONS.md.
+
+Prize Categories
+Gemma: the interviewer itself
+Mastra: the agent, its tools and its memory
+Entire: the source of every AI-code question
+Sentry Agent Tracing: each turn traced with quality flags
+Render: hosting and a one-click blueprint
+Still to build: voice answers, showing what the agent reads while it reads, and getting a turn under 8 seconds (a new question takes 11 to 14 today).
+
+Have you been asked to explain code your AI wrote? How did it go? Tell me in the comments.
+
+I built Viva with an AI coding agent (Claude Code). The numbers are measured and the sessions are public in the repo.
+Top comments (0)
+
+Subscribe
+pic
+
+Submit
+Preview
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+
+Abdul Wasih
+Follow
+no idea
+JOINED
+3 Oct 2026
+Trending on DEV Community  
+xulingfeng profile image
+Stratagems #31: Lena Took the Seat. The AI Had Reserved It for Her.
+#ai #discuss #programming #career
+Dimitris Kyrkos  profile image
+Human-in-the-loop isn't a safety net. It's a UX problem with a compliance label.
+#ai #machinelearning #ux #discuss
+Akhouri Anmol Kumar profile image
+What's Your Favorite Car, and Why? (Mine Is the Lamborghini Urus, and Yes, I'll Defend It)
+#discuss #watercooler #security #python
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+×
+A real bank OTP: green card, 
+</pasted_content id="b453">
+
+ 
+
+<pasted_content id="b453">
+Skip to content
+DEV Community
+Powered by Algolia 
+Create Post
+
+
+"If it's not in front of me, it's gone": I fine-tuned a 4B model for my friend with ADHD - DEV Community
+
+
+3
+Jump to Comments
+
+
+0
+Save
+
+
+Boost
+
+Cover image for "If it's not in front of me, it's gone": I fine-tuned a 4B model for my friend with ADHD
+Arqam Waheed
+Arqam Waheed  Subscriber
+Posted on 5 Oct
+•
+
+AI-assisted
+
+
+3
+
+
+1
+
+
+1
+
+
+1
+
+
+1
+"If it's not in front of me, it's gone": I fine-tuned a 4B model for my friend with ADHD
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+ai
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+TL;DR. My friend Zee has ADHD. I asked him what actually goes wrong, and he answered in two lines: things he can't see disappear, and the one thing he locks onto eats the whole day. So I built Actually. You brain-dump in your own messy words. A Qwen3.5-4B I fine-tuned on Tinker turns that into tasks, and TabPFN reads your own history to tell you how long each one will actually take you. Nothing you dump disappears until you tick it off. Everything except the parser runs on my laptop, and the whole build cost $2.81.
+
+What I Built
+I had the idea before I asked him. That was mistake one.
+
+My plan was a time-blindness tool, a thing that tells you "this'll take 15 minutes" is a lie. It was a fine idea. Then I messaged Zee and asked what his actual problem was, and he sent back this, verbatim:
+
+"can't remember. if infront remember or else gone from brain. person or task"
+
+"addiction pro max. if i addict i addict too much. idk these 2 main."
+
+Two problems, and only half of one was the thing I'd planned to build.
+
+The first is out of sight, out of mind. A task or a person that isn't physically in front of him stops existing. The second is hyperfocus. When something grabs him, it takes the afternoon, and everything else silently falls off the end of the day.
+
+So I rebuilt the plan around his words, not mine.
+
+Actually is a single page. You type everything on your mind the way you'd text it: "email sir abt the attendance thing (5 min), finish dbms assignment should take like 30 min, laundry maybe, call nani back i keep forgetting." Three things happen:
+
+It splits your rant into tasks, and every one of them goes on a "Still on your plate" list that stays there until you press Done. People get an amber dot, because "call nani back" is exactly the kind of thing that vanishes.
+It tells you how long each task will take you. Not how long tasks take in general. How long your admin tasks take relative to your guesses, from your own history.
+It fits the day to your free time and warns you when a single task could swallow it.
+Split panel. Left, labelled BEFORE 
+
+The brief, in his words. The left side is Zee's description. The right side is the whole product.
+
+Demo
+Demo: docs/actually-demo.mp4.
+
+Code and setup: the repo runs locally in four commands (below). There is no hosted link yet, and I'll explain why in the concessions.
+
+This is the result screen for the brain-dump above, on the demo profile:
+
+Actually's result screen. A large verdict line reads 
+
+The verdict. 35 minutes of stated guesses, 3 hours 14 minutes of predicted reality.
+
+Every task gets a short lavender bar for your guess, a cobalt bar for the prediction, and a faint band for the 10–90% range. Tasks that don't fit go under "Move to tomorrow" in amber. They don't get deleted, and they don't fall off the list.
+
+The lower half of the plan: gym, call nani back and reply to hamza each with 
+
+Moved, not forgotten. Laundry doesn't fit in three hours, so it waits on the plate for tomorrow.
+
+Code
+GitHub logo ArqamWaheed / actually
+How long will it actually take? A time-blindness helper for a friend with ADHD — fine-tuned open model (Tinker) + TabPFN, runs on one box.
+Actually
+How long will it actually take you? A planning aid built for one friend with ADHD.
+
+My friend described his two problems like this:
+
+"if infront remember or else gone from brain. person or task" "if i addict i addict too much"
+Out of sight is out of mind, and when he does lock in, one thing eats the day. So Actually does two things:
+
+Nothing you dump disappears. Type a messy brain-dump. A small open model, fine-tuned on Tinker, splits it into tasks. Every task and every person you mention stays on a "Still on your plate" list until you tick it off.
+It shows the real cost of each task. TabPFN, a tabular foundation model, reads your own history of guessed vs real durations and predicts how long each task will take you, with a range, the chance you finish it today, and a…
+View on GitHub
+MIT licensed. eval/ reproduces every number in this post.
+
+Interesting files:
+
+app/parser.py: the brain-dump to JSON parser. One interface, two backends (Tinker sampling or any OpenAI-compatible local server).
+app/forecast.py: TabPFN regressor and classifier over the user's own task history.
+train/sft.py: the whole LoRA fine-tune in 65 lines of Tinker SDK.
+eval/parser_eval.py and eval/tabpfn_eval.py: the comparisons in the tables below.
+uv pip install --python .venv/bin/python -r requirements.txt
+cp .env.example .env            # TINKER_API_KEY, TABPFN_TOKEN, TINKER_SAMPLER_PATH
+python scripts/make_demo_data.py
+PARSER_BACKEND=tinker uvicorn app.main:app --port 8000
+How I Built It
+System flow diagram titled 
+
+The pipeline. Two open models, each doing the one job it's actually good at.
+
+Why two models, not one. I could have asked one large model to read the rant and guess durations. It would have answered confidently and been wrong in a generic way, because it has never seen how long Zee's tasks take. Reading messy language is a language model's job. Predicting a number from a small table of personal history is a tabular model's job. Splitting them made each one honest.
+
+The parser: a 4B model that reads a brain-dump. Brain-dumps are hard for small models. They merge two tasks into one, miss the "maybe" that makes a task optional, and lose deadlines buried mid-sentence. I needed strict JSON with seven fields per task, from text like "ugh exams are killing me rn... reply to dad about fee slip. also need batteries for the remote?? maybe."
+
+The data: every model in the pipeline is open-weight. I didn't have hundreds of real brain-dumps, and I wasn't going to fake Zee's. So Qwen3.6-35B-A3B wrote 450 messy brain-dumps in a Pakistani-student register, and Qwen3.5-397B-A17B labelled every task in them. Both ran on Tinker's sampling API. 448 survived validation. I held out 48 and trained on 400.
+
+The fine-tune: LoRA rank 32, 3 epochs, 75 steps. Tinker gives you a training loop, not a black box. train/sft.py renders each example with the chat template, masks the loss to the assistant's JSON tokens only, and runs forward_backward plus optim_step with a linear decay. Loss went from 335.5 to 43.3.
+
+Pipeline diagram titled 
+
+The training loop. The amber note is the caveat, and it stays in the picture on purpose.
+
+Did it beat the baseline? Same 48 held-out dumps, same prompt, temperature 0:
+
+Parser    valid JSON    task F1    kind    deadline    p50 latency
+Qwen3.5-4B zero-shot    98%    95%    78%    69%    3.19 s
+Qwen3.5-4B 5-shot    96%    93%    82%    55%    3.28 s
+Qwen3.5-9B zero-shot    100%    94%    88%    61%    4.53 s
+Qwen3.5-4B + LoRA    100%    97%    93%    76%    3.28 s
+The fine-tuned 4B beats a model more than twice its size on every column that matters, and it's 1.4x faster than that 9B. Few-shot prompting made deadlines worse (69% to 55%). Five examples in the prompt taught the base model the format, not the judgement.
+
+Two honest caveats. First, the test set is synthetic, and its labels come from the 397B teacher, so this measures agreement with a much larger open model, not accuracy against a human. Second, "all fields exactly right on every task in a dump" is still only 8% for the fine-tune. Seven fields times six tasks is a brutal bar, and the misses are mostly dreaded and deadline, which are judgement calls.
+
+The forecaster: TabPFN, because the table is tiny. A person's task history is maybe 40 to 100 rows. You can't train a model on that, and you shouldn't try. TabPFN doesn't train. It reads the whole table in-context and predicts. I run TabPFNRegressor on log-duration and ask for the 10th, 50th and 90th quantiles, so every estimate comes with a range. A TabPFNClassifier predicts whether the task gets done the day it was planned. The features are boring on purpose: kind, his guess, start hour, weekday, dreaded, leaves the house, has a deadline.
+
+In-context means every finished task counts immediately. When you press Done and log how long something took, that row joins the history and the next plan uses it. No retraining step exists, because TabPFN has nothing to retrain. For a tool about a single person, that's the whole bet.
+
+The carry-over list is the boring feature that matters most. db.remember() writes every parsed task to SQLite and dedupes near-identical titles, so saying "call nani back" three days running doesn't create three entries. The list renders above the input box, so it's the first thing on screen, which is the literal fix for "if infront remember."
+
+The 
+
+Out of sight is the bug. This list is the fix: it stays in front of you until you clear it.
+
+The hyperfocus warning is one line of logic. If a task's 90th-percentile estimate is at least half your free time, the card says "This one can swallow your day. Set a timer before you start." It isn't clever. It's the sentence Zee needs to see before he starts, not after.
+
+Sentry found the slowest part, and it was not the language model. Every plan request is one agent run: invoke_agent actually, then a gen_ai.chat span for the fine-tuned model with the model name and token counts, then execute_tool tabpfn_forecast. OpenAIIntegration(include_prompts=False) and send_default_pii=False keep the brain-dumps out of Sentry entirely.
+
+I assumed the model call would dominate. It didn't. The TabPFN tool span was taking 2.4 to 3.5 seconds per request, because predict() was re-attending over every history row on every call.
+
+Sentry Explore view filtered to the execute_tool tabpfn_forecast span. The table shows six slow spans between 2.41s and 3.51s, then the two newest at 278ms and 268ms
+
+The fix, as Sentry saw it. Same tool, same history, 3.25 seconds down to 268 milliseconds.
+
+TabPFN has a fit_mode="fit_with_cache" that computes the history's attention state once at fit time. Fitting gets slower (2.50 s to 3.43 s, once per history change). Predicting got 9x faster, from 2.43 s to 0.27 s. End to end, a plan went from 5.6 s to 3.5 s.
+
+Editorial plate titled 
+
+The slow part was re-reading 70 rows of history on every request, not the model.
+
+The trace also showed what's left. The gen_ai.chat span is now 3.2 s of a 3.5 s request, and most of it is two HTTP round-trips to Tinker with a gap between them, not token generation. That's the clearest argument I have for the next step: serve the parser locally.
+
+Sentry trace waterfall for one /api/plan request: http.server 3.52s, gen_ai.invoke_agent actually 3.52s, gen_ai.chat actually-lora (Qwen3.5-4B) 3.24s with two Tinker HTTP calls nested under it, and gen_ai.execute_tool tabpfn_forecast 278ms
+
+Where the time goes now. The remaining cost is network, which is a hosting decision, not a model one.
+
+Things I refused to do:
+
+Do not invent Zee's data. The live demo runs on a profile labelled "Demo person (made-up data)".
+Do not claim the parser is local while it's served from Tinker. The footer of the app changes depending on which backend is running.
+Do not send brain-dumps to the observability tool. Sentry gets durations and token counts, never prompts.
+Do not use a Shapley chart where a plain sentence works. The "why" chips are per-kind overrun ratios from your own history: "admin tasks take you ~2.9x your guess."
+Why Does Open Innovation Matter?
+Three reasons, all specific to Zee.
+
+I could teach a model his way of writing. The fine-tune is the whole trick: task type 78% to 93% on held-out dumps for $2.81 of compute. You can't fine-tune a closed model this way, and you can't download what you trained. I downloaded mine. The LoRA adapter is a 291 MB file on my disk, and Tinker's cookbook can convert it to a standard PEFT adapter or merge it into the base model.
+
+His history never leaves the machine. An ADHD diagnosis, what he avoids, how long he spends on things: that's health data. TabPFN-3.5 runs locally on CPU with open weights, so the part that reads his life is on a laptop, not behind an API. Sentry only ever sees timings.
+
+The tools are inspectable all the way down. When the forecast was slow, I could read TabPFN's source, find fit_mode, and fix it in one line. The parser's chat template let me switch off the model's thinking mode, so it answers in JSON instead of reasoning first. A closed API gives you neither lever.
+
+Where closed would have been better, honestly: a frontier API would probably parse these brain-dumps about as well as my fine-tune with zero training, and it would be faster to call than Tinker's beta sampling endpoint. I traded that for owning the weights and keeping his data local. For a tool about one person's head, that trade is the point.
+
+My Agent Session
+I built this with Claude Code, and every session is captured with Entire. Entire stores the prompts, reasoning and tool calls next to the commits they produced, with secrets redacted before anything leaves the machine. I added explicit redaction rules for every key this project touches, then grepped the checkpoint for each one before pushing. Zero hits.
+
+Checkpoint 01M4494DVYMY4YYYJF1ZKAK7S3: the full session, from reading the challenge page and measuring every prize pool, to picking the stack, training the parser and the Sentry fix. 17 turns.
+Inspect it with entire checkpoint explain 01M4494DVYMY4YYYJF1ZKAK7S3 in a clone of the repo.
+The checkpoint's generated summary is the best changelog this project has. One line from it: "Tinker's raw LoRA adapter export through tinker-cookbook's PEFT builder downloads the full 8GB base model. That won't fit on a low-disk machine, so convert the adapter directly instead." That decision, why the parser isn't self-hosted yet, now lives next to the code it explains.
+
+What I Learned
+Ask the person before you design. I had a polished time-blindness pitch. Zee's two-line answer turned it into a carry-over list plus a hyperfocus warning, and those are the parts he'll actually use.
+A small model plus a fine-tune beats a bigger model plus a prompt. The 4B LoRA beat the 9B on every column, and few-shot prompting made the hardest field worse.
+Profile before you optimise, and don't trust your guess about where the time goes. I'd have bet on the LLM. It was a tabular model re-reading 70 rows.
+Concessions belong in the product, too. The demo profile says "made-up data" in the dropdown. The footer says where the parser runs. A tool for someone who's hard on himself should never lie to him.
+Prize Categories
+Best Use of Tinker: LoRA fine-tune of Qwen3.5-4B (rank 32, 400 examples). On 48 held-out brain-dumps it beats the base 4B, base 4B 5-shot, and the 9B: task type 93% vs 78/82/88%, deadline 76% vs 69/55/61%, 100% valid JSON, and 1.4x faster than the 9B. The dataset was also generated and labelled on Tinker with open models. Total spend $2.81. Adapter downloaded.
+Best Use of TabPFN: local TabPFN-3.5 regressor (log-duration, 10/50/90% quantiles) and classifier (done the same day?) over the user's own small history. In-context, so every logged task updates the next plan with no retraining. fit_with_cache cut predict latency from 2.43 s to 0.27 s.
+Best Use of Sentry Agent Tracing: invoke_agent → gen_ai.chat (model, input and output tokens) → execute_tool tabpfn_forecast, prompts excluded. Traces found the real bottleneck (TabPFN predict, not the LLM), I fixed it, and the traces confirmed it: 3.25 s to 268 ms on the tool span, 5.6 s to 3.5 s end to end.
+Best Use of Entire: the full build session captured as a redaction-checked checkpoint linked to its commit, and quoted above to explain why the code is the way it is.
+Top comments (3)
+
+Subscribe
+pic
+
+Submit
+Preview
+ 
+ 
+mateo_ruiz_6992b1fce47843 profile image
+Mateo Ruiz
+•
+5 Oct
+
+The strongest engineering lesson here is that the “best model” wasn't the main optimization target. The system worked because each component had a narrow responsibility: the language model handled messy text, TabPFN handled the small personal dataset, and the persistent task list handled the actual product constraint.
+
+The TabPFN profiling result is a great example of why end-to-end measurement matters too. It would have been easy to optimize the LLM because that is the obvious AI component, while the real bottleneck was repeatedly processing 70 rows of history. The 2.43s → 0.27s improvement came from changing the execution model, not changing the model.
+
+I also really like the decision not to treat synthetic evaluation as proof of real-world accuracy. With a personal assistant like this, the hardest validation isn't whether the parser matches a teacher model; it's whether the predictions remain useful for the actual person using it.
+
+That combination narrow model responsibilities, profiling the whole pipeline, and being explicit about what the evaluation does and doesn't prove is probably more reusable than the particular models in the stack.
+
+2
+ likes
+Like
+
+Reply
+ 
+ 
+indiainfranotes profile image
+IndiaInfraNotes
+•
+5 Oct
+
+Fine-tuning a 4B model for one person's actual failure mode is a better use of a small model than chasing general benchmarks. The "if it's not in front of me, it's gone" framing is basically a spec for proactive surfacing rather than better answers. How did you build the training set, and did you test whether a well-written system prompt on the base model got close before fine-tuning?
+
+iin1005h1628
+
+1
+ like
+Like
+
+Reply
+ 
+ 
+arqamwd profile image
+Arqam Waheed  Subscriber   
+•
+5 Oct
+
+Thanks! The training set is synthetic: a big open model wrote about 450 messy brain-dumps in his style, and a bigger one labelled them. None of it is his real data yet. I did test the base 4B with the same system prompt (plus a 5-shot version), and honestly it came close at pulling out tasks (95% vs 97%). The fine-tune mainly helped with tagging task type and deadlines. I didn't really iterate on that prompt, though, so it's not a fully fair test. And you're right about proactive surfacing: keeping things in front of him is just the app saving unfinished tasks, not the model. Next step is testing on his real dumps.
+
+1
+ like
+Like
+
+Reply
+Code of Conduct • Report abuse
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger Data image
+
+Agent Memory Is a Search Problem, Not a Storage Problem ❌
+Long-term conversational memory is the ability to recall and reason over months of past conversations. It is one of the hardest unsolved problems in AI assistants, and the field has converged on a shared assumption about how to solve it.
+
+Read more →
+
+Arqam Waheed  
+Follow
+Student at NUST studying DS. Shipping prototypes rapidly with low supervision.
+LOCATION
+Pakistan, Islamabad
+EDUCATION
+National University of Sciences & Technology
+PRONOUNS
+He/Him
+WORK
+Student at NUST
+JOINED
+8 Feb 2026
+More from Arqam Waheed
+"we should go out this weekend": I built a Discord member that holds the clock until we're outside
+#devchallenge #hf26challenge #showdev #typescript
+The charity had the proof. It just couldn't show anyone.
+#weekendchallenge #devchallenge #showdev #database
+profile
+Tiger Data (Creators of TimescaleDB)
+PROMOTED
+
+Tiger MCP workshop image
+
+Fork, Break, Fix, Delete: Hands-On with Tiger MCP
+A coding agent can read your codebase, run your tests, and open a pull request. Point it at your database and the calculus changes: a bad migration isn't something you undo with git, so most teams draw a line the agent isn't allowed to cross.
+
+In this hands-on workshop, you'll wire Tiger MCP into the coding agent you already use and give it a database it's allowed to break.
+
+Register free →
+DEV Community — A space to discuss and keep up software development and manage your software career
+Home
+DEV Challenges
+DEV++
+Videos
+DEV Education Tracks
+DEV Help
+Advertise on DEV
+Organization Accounts
+DEV Showcase
+About
+Contact
+Free Postgres Database
+DEV Shop
+MLH
+Code of Conduct
+Privacy Policy
+Terms of Use
+Built on Forem — the open source software that powers DEV and other inclusive communities.
+Made with love and Ruby on Rails. DEV Community © 2016 - 2026.
+×
+A real bank OTP: green card, 
+</pasted_content id="b453">
+
+ these writeups are the ones that ended up winning for the previous week 'build ofr a friend' in the tech we have decided to use. format: 
+
+<pasted_content id="b453">
+*This is a submission for the [Hacktoberfest Open-Source AI Challenge Week 2: Side Hustle](https://dev.to/challenges/hacktoberfest-week2-2026-10-12)*
+
+## What I Built
+<!-- What does it do, and who would pay for it?  What problem does it solve for them? -->
+
+## Demo
+<!-- Share a deployed link or a video demo. -->
+
+## Code
+<!-- Show us the code!  You can embed a GitHub repo directly into your post. -->
+
+## How I Built It
+<!-- Which open-source AI did you use (open-weight models, agent harnesses, frameworks, local inference), and how is your project built around it? -->
+
+## Why Does Open Innovation Matter?
+<!-- Why does open innovation matter for what you built?  What did it make possible that a closed API wouldn't? -->
+
+## My Agent Session
+<!-- Optional, but judges love it.  Save your session with DevRelay and embed it with the agent_session tag (see the challenge page), or link to it. -->
+
+## My First User
+<!-- Optional, but this is where bonus points live.  Did someone use it?  Who were they, what did they say, and did they pay?  If not, remove this section. -->
+
+## Prize Categories
+<!-- Which partner categories are you entering?  List every one that applies, or remove this section. -->
+
+<!-- Team Submissions: Please pick one member to publish the submission and credit teammates by listing their DEV usernames directly in the body of the post. -->
+
+<!-- Thanks for participating! -->
+</pasted_content id="b453">
+
+ remove eleven labs as that feature we didn't add and now look at the format, we need a story and that story must be ours personal related experience and then highlight the pain point in their and then provide the solution. then how it works, how to use it. then how i built it, then why does open innovation matter and all the points in same flow as the required template but in the prize category section, give proper detailed analysis how we used, why we used, what to tackle or achieve we used the technology and resukts and understanding use all these diagrams whereever necessary in the explaination part. give a writeup.md based on it i remember i used to work as an ecom brand owner and during that time where in small scale ecommerce business performance marketing is everything it used to take a lot of time to create these ads then to list a product, the copy of it needs to taken from 2-3 different genereated sources and then put it their, then ads, then eidts, then image generaition for listing + video ads, it took a lot of time and that used to create instances of lost opportunitie + u need to spend so much money on differnet tools and end up burning your cashflow keeping it very tight and then there's a lot of operational and procedural friction+ your data was never private, your workflows weren't then you add more problems of ecom and small scale businesses and also add this thing that my mom is a cosmetician and she sells product but to generate an instagram reel or facebook it takes days and 3-4 platforms, canva for image, capcut or some other tool to edit video, then all technicalies of video editor, so instead of focusig on selling her focus was in these tasks, then captions or copy for chatgpt/claude keep refining then conitnous back and forth copy paste, just for one single image post it used to 3-4 hours of her imortant working hours and then a case of generalised in all the platforms that we litted nad their isues and then our product and then you hav entire project to look for furthur context just make usre that you write in such a way that it's easier for vast auidence to read and understand all parts of the post. cover every detail and dont write huge paragraohs follow insaenly high tech copy writing skill to hook the reader throughout the post 
+
+<pasted_content id="b453">
+Add up to 4 tagsMaximum 4 selections
+Selected items:
+# devchallenge
+
+# hf26challenge
+
+
+Bold CMD + B
+Italic CMD + I
+Link CMD + K
+Ordered list
+Unordered list
+Heading
+Quote
+Code
+Code block
+Embed CMD + SHIFT + K
+Upload image
+
+
+Publishing Tips
+Ensure your post has a cover image set to make the most of the home feed and social media platforms.
+Share your post on social media platforms or with your co-workers or local communities.
+Ask people to leave questions for you in the comments. It's a great way to spark additional discussion describing personally why you wrote it or why people might find it helpful.
+</pasted_content id="b453">
+
+. please write a good writeup. im putting video on yt, works?  
+
+<pasted_content id="b453">
+❯ use the screen recording im sharing with you as the proof of the first customer/user that we got. a brand velora and its product and
+  get screenshots from that recording and use them to add in the writeup'/Users/advikdivekar/Desktop/sellcraft/ScreenRecording_10-16-2026
+  16-57-03_1.MP4' check and [Pasted text #50 +14 lines]. KEEP THIS all in context but for now focus on deployment on render. [Pasted
+  text #51 +79 lines] what to do here?
+</pasted_content id="b453">
+
+ i have shared every bit of things with you now create it for me.
+
+---
+
+push the writeup on gh for now
+
+---
+
+no need ofr what's next and the failure parts like 63% that bit ven this bit 
+
+<pasted_content id="b453">
+Demo
+
+Video: [TODO: paste the YouTube link here as {% embed https://youtu.be/YOUR_ID %}]
+
+Try the demo studio: mochi-demo.onrender.com
+
+I'll be honest about what that link is. It's the landing page plus a studio that runs entirely in your browser. It's labelled as a demo. It does not run the real models, because they need a computer with a GPU, and I won't pretend otherwise. The full app is the code below, running on your own machine. The first user session further down is the real thing.
+</pasted_content id="b453">
+
+ make how to use it more clearer and with screenshots guidance. and a better opening or hook, start with a what if question or a crazy hook like i replace and entire marketing agency in 24 hrs with my local whatever like that hook
+
+---
+
+use somewhat of my hook
+
+---
+
+make mix of previous and current one
+
+---
+
+not explicitly mention instagram post, mention overall and not just amrketing agencies but ecom small business wowners like that
+
+---
+
+more shorter hook and then continutaiton of the next hook and then the issue like that and then what we built
+
+---
+
+push it let me see it
+
+---
+
+you wrote but the images are at a different place, make sure the seuqence of proof, architecure diagram is followed, please follwo it
+
+---
+
+push it
+
+---
+
+<pasted_content id="b453">
+Here's the proof. A skincare brand, Velora, dropped three photos of a face cleanser into Mochi. Fifty-five seconds later it had:
+
+9 studio photos on a designed backdrop
+A 5-slide image deck
+A 10-second vertical video ad
+Listing copy, tags and an SEO title
+No agency. No stack of subscriptions. No uploading your product to someone else's server. Just open models running on one computer.
+
+</pasted_content id="b453">
+
+ 
+the proof for this comes very late, what u can do is state that thing then the screenshots and then state the problem, like if we say something we must have the proof, or any attachments with it.
+
+---
+
+push it₹
