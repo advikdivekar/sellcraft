@@ -1,0 +1,1 @@
+in web app, works good, but in mobile app it just shows rendering and doesn't work, home button also not working. rest i felt good, image and video generation still left.
