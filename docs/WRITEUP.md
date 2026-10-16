@@ -80,12 +80,12 @@ No agency. No stack of subscriptions. No uploading your product to someone else'
 
 You get:
 
-- **Studio photos.** Your phone photo, cut out and placed on a designed backdrop, with the product itself never repainted
+- **Studio photos.** Your phone photo, cut out and placed on a designed backdrop, and the product is never regenerated, so it stays your real product
 - **An image deck.** Slides ready for a feed or a catalog
 - **A 10-second vertical video.** Camera moves and text cards built from your own copy
 - **Platform copy.** Listing, social, Pinterest and a video brief, written for each place you sell
 
-One thing I care about more than anything: **Mochi does not make things up.** If you didn't tell it your product is waterproof, the copy won't say so. Missing facts are listed back to you ("Not provided, so left out of the copy"). Risky claims get flagged before you post.
+One thing I care about more than anything: **Mochi checks its own copy for things you never told it.** Models do invent claims, so every kit is checked by plain code. Missing facts are listed back to you ("Not provided, so left out of the copy"), and anything the copy says that isn't in your facts is flagged before you post.
 
 For a skincare seller, that matters. "Reduces wrinkles" is a legal claim, not a style choice.
 
@@ -159,7 +159,7 @@ Backend: FastAPI, SQLite, Pydantic. Frontend: Next.js 16 and React 19. 135 backe
 
 Two choices worth explaining:
 
-- **The video is not AI-generated.** It's image processing plus FFmpeg, so the product in the video is *your* product, pixel for pixel. Generative video tends to repaint the product.
+- **The video is not AI-generated.** It's image processing plus FFmpeg, so the product in the video is *your* product, not a regenerated lookalike. (I do denoise, upscale and retouch it.) Generative video tends to repaint the product.
 - **The checker is plain code, not a second model.** A model can talk itself into anything. A word list and a number check can't.
 
 **The copy** is split into parallel parts (four core parts plus one per platform), each forced into a JSON schema. A bad call is retried once, and plain code then checks for forbidden words, invented numbers and unsupported claims.
@@ -214,7 +214,7 @@ I built Mochi with Claude Code, and every session is recorded with **Entire**. [
 
 ## My First User
 
-**Velora**, a skincare brand, ran its **Sensicontrol Face Cleanser** through Mochi on a phone, on **16 October 2026**. I have the screen recording. Here is what happened, taken only from what is on screen.
+**Velora**, a skincare brand, ran its **Sensicontrol Face Cleanser** through Mochi on a phone, on **16 October 2026**. The phone reached my computer over a Cloudflare tunnel, so for this demo the photos passed through Cloudflare. In normal use everything stays on the machine. I have the screen recording. Here is what happened, taken only from what is on screen.
 
 I don't have a written quote from them, so I'm not putting words in their mouth. What I do have is the recording, and it shows what they actually did.
 
@@ -222,7 +222,7 @@ They followed the five steps above (the screenshots for steps 1 to 4 are from th
 
 **What came out** is shown at the top of this post: the finished kit in 55 seconds, the studio photos, the deck, the video and the copy. It was built on Best quality, with three photos, by a Gemma 3 12B model running on my own computer.
 
-**The part I care about most.** Mochi told them what it *wouldn't* make up:
+**The part I care about most.** Mochi told them what it had left out, and what it had written that they never said:
 
 - **"Not provided, so left out of the copy":** dimensions, verified benefits, target audience, care instructions
 - **"Double-check before posting":** *Not in your facts: "available now". Remove it unless it's true.*
