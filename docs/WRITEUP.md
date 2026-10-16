@@ -144,9 +144,49 @@ Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **
 
 ### Every page of the web app
 
-**Landing page**
+**Landing: hero**
 
-![Landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/01-landing.jpg)
+![Landing: hero](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/01-hero.jpg)
+
+**Landing: start with the photo you already have**
+
+![Landing: start with the photo you already have](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/02-photo.jpg)
+
+**Landing: facts become a listing, written for the platform**
+
+![Landing: facts become a listing, written for the platform](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/03-listing.jpg)
+
+**Landing: one input, every deliverable**
+
+![Landing: one input, every deliverable](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/04-deliverables.jpg)
+
+**Landing: the interactive studio**
+
+![Landing: the interactive studio](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/05-studio.jpg)
+
+**Landing: written the way each channel works**
+
+![Landing: written the way each channel works](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/06-channels.jpg)
+
+**Landing: your next ad starts with a photo**
+
+![Landing: your next ad starts with a photo](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/07-video.jpg)
+
+**Landing: upload once, get the lot**
+
+![Landing: upload once, get the lot](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/08-upload-once.jpg)
+
+**Landing: same facts, your voice**
+
+![Landing: same facts, your voice](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/09-voice.jpg)
+
+**Landing: three steps, about a minute**
+
+![Landing: three steps, about a minute](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/10-steps.jpg)
+
+**Landing: call to action**
+
+![Landing: call to action](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/11-cta.jpg)
 
 **Create: start**
 
