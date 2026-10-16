@@ -1,0 +1,1 @@
+'/Users/advikdivekar/Desktop/sellcraft/IMG_9708.PNG' change ui of this section also stop showing that msg in ui '/Users/advikdivekar/Desktop/sellcraft/IMG_9697.PNG' and it took almost 1 min 30 or close 2 mins to generate everything we need to bring that down to secs
