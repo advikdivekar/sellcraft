@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.11.5",
+  "checkpoint_id": "01M52TEW8AAHAWRTPV0RVZTA8V",
+  "session_id": "4d77affa-6fed-4ff9-9b12-57d118c2c6c7",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-16T16:59:26.517408Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/WRITEUP.md",
+    "docs/images/web/01-landing.jpg",
+    "docs/images/web/02-create-start.png",
+    "docs/images/web/03-photos.png",
+    "docs/images/web/04-product-facts.png",
+    "docs/images/web/05-style.png",
+    "docs/images/web/06-result-overview.jpg",
+    "docs/images/web/07-result-copy.png",
+    "docs/images/web/08-result-photos.jpg",
+    "docs/images/web/09-result-share.png",
+    "docs/images/web/10-stores.png"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5-5",
+  "turn_id": "2da7166e30b7",
+  "checkpoint_transcript_start": 86,
+  "transcript_lines_at_start": 86,
+  "compact_transcript_start": 7,
+  "token_usage": {
+    "input_tokens": 50,
+    "cache_creation_tokens": 27870,
+    "cache_read_tokens": 1366302,
+    "output_tokens": 8291,
+    "api_call_count": 25
+  },
+  "session_metrics": {
+    "turn_count": 1
+  }
+}
