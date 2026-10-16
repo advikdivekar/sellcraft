@@ -1,0 +1,7 @@
+<pasted_content id="9303">
+Gemma 4B is weak at rule-following. On the same product it added "for kids", which you never said. It also pasted my style-guide wording into the storyboard, and the storyboard invented actions like "hand breaking the biscuit". This is a good case for the Tinker fine-tune. For the demo, gemma3:12b should follow rules better. It's about 8 GB and slower, and you'd install it with ollama pull gemma3:12b. Want me to try it?
+- The storyboard text won't matter for the FFmpeg video, because that uses your photo with motion and text.
+- The Listing, Social, platform and Video tabs, the warning box, the tone rewrite and dark mode all rendered correctly.
+</pasted_content id="9303">
+
+ lets do these things.
