@@ -1,0 +1,2781 @@
+we are going to do all 8 things, but I still want some clarity on what's happening, feels as if im loosing my understanding grip atp, once we are done w this what will be left for us to do and explain me the diagrams now all .svgs and also the judging criteria : 
+
+<pasted_content id="9303">
+JUDGING CRITERIA
+
+Writing Quality (weighted most heavily)
+Relevance to the Prompt and Theme
+Creativity
+Technical Execution
+Use of Partner Technology (optional)
+</pasted_content id="9303">
+
+ sharing u the winning writeups btw 
+
+<pasted_content id="9303">
+Phone calls are the boss fight of living in Japan. 🗼
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+ai
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+A practice call in Before I Call: a Japanese question with furigana, a word's meaning on hover, then a plain-English explanation of the question
+
+I've lived alone in Tokyo for four years now, but when my washing machine started leaking, I stared at the building manager's number for twenty minutes before I pressed call.
+
+My friend ran into the same thing when she had to cancel her internet contract by phone. The provider's explanation sounded alien to her. The Japanese businesses use on the phone is not the Japanese you use every day, and on a call there's no face to read and no time to look anything up.
+
+So I built Before I Call, an app where you practice the call with an AI before you make the real one. I made it for myself and for friends in the same situation, and sent it to one of them to see if it actually helps. Their reply is further down.
+
+Here it is in action:
+
+
+
+What I Built
+You describe the call you need to make, or pick one of the examples (home repairs, the clinic, a missed delivery, the city office, dietary requests, lost property, bills). Then you talk to an AI that plays the person on the other end, like a receptionist or your building manager. It speaks polite Japanese, asks one question at a time and waits for your answer. There's no score.
+
+If you get stuck, you don't have to hang up. Explain question opens a helper next to the call with what the question means and a reply you could give. The AI on the call doesn't see it, so the role-play carries on. Slow replay plays the question again at 0.7x speed, and Repeat question asks the AI to say it again. Kanji have furigana, every line has romaji, and known words show their meaning when you hover or tap.
+
+When you say goodbye, the AI hangs up and you get a call card: the whole conversation with readings and meanings, and a list of useful words from your call. You can download it as a PDF and keep it next to you when you make the real call.
+
+It won't make up dates, prices or availability, and it can't book anything for you. It's only for practice.
+
+Setting up a call. You can type or dictate it in English or Japanese, or start from an example. Enhance prompt tidies up rough notes without adding facts you didn't give it.
+
+The setup form: a washing-machine leak typed in English, with Start from an example, Enhance prompt, Dictate situation and Start voice practice
+
+Asking for help in the middle of the call:
+
+The explanation dialog: the question's meaning, a note on どうされましたか, and a suggested reply with furigana
+
+The word list on the call card:
+
+The call card's useful words: 管理会社, 田中 and 洗濯機 with furigana, romaji and English meanings
+
+What my friend said
+I sent the link to my friend on WhatsApp and asked them to let me know if it helps. This is what came back:
+
+WhatsApp chat: I share the Before I Call link with my friend. They reply 
+
+I didn't expect the PDF to be the part they liked. I made it as a cheat sheet for the real call, but for someone studying for the JLPT it's also a word list from a conversation they actually had.
+
+Demo
+Try it at before-i-call.onrender.com. There's no sign-up. Voice practice needs a microphone. Without one, tap Play guided example to watch a recorded call in Japanese or English.
+
+The PDF call card: the situation, each turn as a speech bubble with furigana, romaji and meaning
+
+Code
+GitHub logo adkbbx / before_I_call
+Before I Call logo
+Before I Call
+Rehearse the phone call you've been putting off.
+A patient AI voice partner for everyday Japanese and English calls, with furigana on every word,
+help that never interrupts the conversation, and a call card to take with you.
+Use it in the cloud, or free and offline on your own computer with Gemma 4, Whisper and Kokoro.
+
+Try it live
+
+Gemma 4 open weights ElevenLabs Agents DigitalOcean serverless inference Sentry agent tracing Deployed on Render MIT license Free local mode with Whisper, Gemma and Kokoro 87 tests passing Hacktoberfest 2026
+
+Live app · How it works · Free local mode · Architecture · Run it locally
+
+
+ Before I Call home page: practice a phone call in Japanese or English, or play a guided example
+The problem
+A phone call is the hardest everyday conversation in a second language. There is no face to read and no time to look anything up, and the other person speaks at native speed. People who live in Japan put off calling the building manager, the clinic or the delivery company, not because they can't manage the conversation, but because the call itself feels risky.
+
+Phrasebooks help with the first sentence. They don't…
+View on GitHub
+MIT licensed and built during the challenge. It has 87 tests (80 Python, 7 Node), and the README explains how to run it locally.
+
+How I Built It
+The call runs on ElevenLabs Agents
+The live call is an ElevenLabs agent. It handles all the audio: the WebRTC connection, speech recognition, working out when you've finished speaking, interruptions, and the voice. I use one agent for every scenario. When a call starts, the app sends that call's prompt, first line, language and voice as overrides, so the same agent can be a Japanese building manager or an English clinic receptionist.
+
+I slowed the agent's speech to 0.85x for learners and capped calls at two minutes, with a daily limit on the server so the credits can't all go in one day. Hanging up uses the built-in end_call tool. Its description tells the model to use it only after your question is dealt with and you've said you don't need anything else, not when you just say thanks. Explain question opens a second, text-only session with a helper prompt, so the explanation never ends up in the call transcript. Slow replay uses ElevenLabs text to speech (Flash v2.5 at 0.7x).
+
+The agent has had 113 conversations so far. ElevenLabs groups them by topic on its own, and the top three match the examples in the app: booking an appointment (27), the washing machine (19) and a missed delivery (17).
+
+ElevenLabs agent dashboard: 113 conversations, with topics grouped as Appointment Booking and Scheduling (27), Washing Machine Issue Resolution (19) and Missed Delivery Redelivery Request (17)
+
+Why I switched to a custom LLM
+When I started, the agent used one of the LLMs hosted by ElevenLabs, Qwen3.5-397B-A17B. Its usage came out of the same ElevenLabs credits I got for Hacktoberfest, and it was going through them fast. ElevenLabs lists it at about $0.016 a minute and $0.003 a message, on top of the voice. A custom LLM costs nothing on the ElevenLabs side:
+
+The ElevenLabs LLM picker: hosted models with their prices, including Qwen3.5-397B-A17B at about $0.0159 per minute and $0.0030 per message, and Custom LLM at $0.0000
+
+I wanted those credits for the voice, so I switched the agent to a custom LLM and pointed it at Gemma 4 31B on DigitalOcean, which bills my DigitalOcean account instead. With the per-token prices my tracing code uses for Gemma ($0.18 per million input tokens and $0.50 per million output tokens), the turn in the trace further down cost about $0.0002. The ElevenLabs credits now only pay for the audio.
+
+At first the custom LLM pointed straight at DigitalOcean. Later I put my own server in between so I could trace and check every reply. This is the agent's LLM setting now:
+
+The agent's Custom LLM setting in ElevenLabs: Chat Completions, server URL https://before-i-call.onrender.com/llm/v1/ and model ID gemma-4-31B-it
+
+On each turn, the agent sends the conversation to my FastAPI server on Render, the server forwards it to Gemma 4 31B on DigitalOcean's serverless inference, and the response streams straight back, so the voice can start as soon as the first words arrive.
+
+Architecture: the browser talks to ElevenLabs over WebRTC; ElevenLabs calls the Gemma proxy on Render, which streams Gemma 4 31B from DigitalOcean and sends traces to Sentry
+
+The proxy on Render
+The custom LLM URL points at my own server: a FastAPI app that Render runs as one Docker web service. The same service serves the React app, the API and the proxy. The whole setup is a render.yaml Blueprint in the repo (trimmed here):
+
+services:
+  - type: web
+    name: before-i-call
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    disk:
+      name: usage-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: LLM_PROXY_KEY
+        sync: false
+      - key: GRADIENT_MODEL
+        value: gemma-4-31B-it
+      - key: MAX_CONCURRENT_CALLS
+        value: '2'
+      - key: MAX_CALL_SECONDS
+        value: '120'
+      - key: MAX_CALLS_PER_VISITOR_DAY
+        value: '3'
+Keys are sync: false, so they're set in the Render dashboard and never committed. The limits that protect my credits are plain environment variables: two calls at once, two minutes each, three calls per visitor a day. The 1 GB disk holds the SQLite files for those limits and the analytics, so they survive redeploys.
+
+The proxy is a single route. It accepts only the agent's key, refuses every model except Gemma 4 31B, and passes DigitalOcean's stream through unchanged while it reads each chunk for tracing and the rule checks (trimmed):
+
+@router.post('/llm/v1/chat/completions')
+async def chat_completions(request: Request):
+    ...
+    if not isinstance(body, dict) or body.get('model') != model:
+        # The key is never usable for other, more expensive models.
+        raise HTTPException(400, f'Only {model} is available.')
+    ...
+    async def relay():
+        async for chunk in response.aiter_bytes():
+            stream.feed(chunk)
+            yield chunk
+
+    return StreamingResponse(relay(), media_type='text/event-stream',
+                             headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+An always-on web service suits this. Each reply is a streamed response that stays open while Gemma talks. The server reuses one HTTPS client for DigitalOcean, so a turn doesn't pay for a new TLS handshake. And when you interrupt the AI, ElevenLabs drops the request, so the proxy closes the stream and records the turn as cancelled in Sentry.
+
+Here's the proxy at work in Render's logs, one line per Gemma request from the agent:
+
+Render application logs filtered to POST /llm/v1/chat/completions: a steady list of 200 OK responses on October 4 and 5
+
+The service is managed by the Blueprint, which stays synced to the repo, and every push to main deploys on its own:
+
+Render Blueprints page: before-i-call, synced with adkbbx/before_I_call on main
+
+Render events for the before-i-call web service (Docker, Starter, Blueprint managed, live): deploys started by 
+
+Fixing how numbers are read
+The first version read 7時 as "nana-ji". Nobody says that. Japanese numbers change their reading depending on the counter after them: 7時 is しちじ, 10分 is じゅっぷん, 4月1日 is しがつついたち and 2人 is ふたり. Dates, times and the number of people are exactly what you say on a phone call, so this had to be right.
+
+I fixed it with a pronunciation dictionary: 118 entries I wrote by hand plus 5,989 generated ones for dates, clock times, durations and counters, 6,107 in total. A script builds the rules and uploads them to the ElevenLabs agent as a pronunciation dictionary, and the app uses the same list for slow replay and the recorded demos. The text on screen doesn't change. This is the dictionary on the agent:
+
+ElevenLabs agent settings: the pronunciation dictionary 
+
+Japanese voices trip over dates and counters, so I wrote 6,107 fixes: 7時 is shichiji, not nana-ji
+
+Tuning the prompt for Gemma
+Switching to Gemma meant rewriting the prompt. I tested it with text-only runs of the agent. The old prompt never called end_call (0 of 2 scenarios), and the tuned one hung up in all 4. It also keeps ordinary words in kanji and writes numbers in kana so the voice reads them correctly, and it asks for practice details instead of your real ones. It still missed the hang-up sometimes in real calls, and Sentry caught that. The start of the tuned prompt:
+
+The start of the agent's system prompt in ElevenLabs: polite spoken Japanese, one question per turn, kanji for ordinary words, numbers with counters in hiragana such as 7時→しちじ, and never inventing dates, prices or availability
+
+Checking every reply with Sentry
+Since every turn goes through my server, I can check each reply against the rules of the practice call. If you said goodbye and the AI didn't hang up, if it "confirmed" a booking, or if it put digits or English letters into Japanese speech, that becomes a Sentry issue tagged with the prompt version and turn number. Each request is also a gen_ai trace with time to first token, token counts and estimated cost. After a call you can tap Report this reply, and the report shows up next to that turn's trace. Conversation text only goes to Sentry if you choose to attach it.
+
+Here's a real one. On October 3, the practice partner didn't hang up after the learner said goodbye, and Sentry caught it 8 times in four minutes. Each rule gets its own issue:
+
+Sentry issue feed showing one unresolved issue, Practice partner: missed hang up, on /llm/v1/chat/completions with 8 events
+
+The issue lists every time it happened and which release it came from:
+
+The missed hang up issue in Sentry: 8 events between 5:57 and 6:01 PM UTC on October 3, all on the same release in production
+
+For comparison, here's a turn where the partner did hang up. The execute_tool end_call span is the hang-up. The Gemma call took 1.27 s (Sentry's average for it is 1.49 s), used about 1,100 input tokens and 43 output tokens, and cost less than a cent. Traces don't include the conversation text, so the Input tab is empty.
+
+A Sentry trace of one practice turn: invoke_agent, chat gemma-4-31B-it taking 1.27 s, the end_call tool and the request to DigitalOcean, with 1.1K input tokens, 43 output tokens and a cost under $0.01
+
+All of those Gemma calls run on DigitalOcean's serverless inference, so I never had to run a GPU server. In two days, October 3 and 4, the app sent about 1.28 million input tokens to Gemma 4 31B and got about 75,000 back. Most of it is input because every turn sends the instructions and the conversation so far, while the replies are short, like the 43 tokens in the trace above.
+
+DigitalOcean Serverless Inference, Analyze tab: 1,278,483 input tokens and 74,719 output tokens, all used on October 3 and 4
+
+Bugs I hit along the way
+Gemma sometimes wrote voice directions like [calm] or [pause] into its replies. The app strips them from the text on screen.
+Small models sometimes say a tool call out loud, like end_call(reason="done"), instead of calling the tool. The app removes that text before it's spoken and treats it as a hang-up.
+Running Gemma 4 locally, the first replies came back empty because the model spent all its tokens on hidden reasoning. Setting reasoning_effort: "none" fixed it, and replies now take about half a second on my laptop's GPU.
+Kokoro's Japanese voice wouldn't install on Windows, because pyopenjtalk needs CMake to build. pyopenjtalk-plus has prebuilt wheels, so I switched to that.
+Romaji showed 10月4日 as "10tsuki4hi". Romaji and furigana now use the same reading list as the voice, so it reads juugatsu yokka.
+Why Does Open Innovation Matter?
+The hosted version runs on paid APIs. I also wanted a version that's free and private, so the same code can run entirely on a laptop. With LOCAL_VOICE=1, Whisper handles speech recognition, Gemma 4 E2B (4.3 GB, through Ollama) plays the other person, and Kokoro-82M speaks. Explanations, slow replay, Enhance prompt, the word list, furigana and the PDF all still work. Nothing is sent to a provider, it works offline, and you can switch models with one setting (LOCAL_LLM_MODEL).
+
+Same app, two brains: Gemma 4 31B on DigitalOcean with ElevenLabs, or Gemma 4 E2B on a laptop with Whisper and Kokoro
+
+On my laptop (Ryzen 9 5900HS, RTX 3060 with 6 GB), the AI greets you in 2.4 s, answers what you say in about 6 s, and an explanation takes 1.4 s.
+
+A free local practice call: Gemma's reply with furigana and romaji, a tap-to-speak microphone and the call controls
+
+The local version isn't as good. The ElevenLabs voice sounds more natural, responds faster and lets you interrupt it. Locally you tap to talk, and the small model doesn't follow the role-play rules as closely as the 31B. It's possible at all because Gemma's weights are open: the same model family runs on DigitalOcean and on my laptop, with the same prompt, rules and pronunciation list. Furigana and romaji don't need a model. The open-source pykakasi and Janome libraries handle them.
+
+Prize Categories
+Best Use of ElevenLabs: one agent over WebRTC for every call, with per-call prompt, first line, language and voice overrides, the built-in end_call tool, a custom LLM pointed at Gemma, a separate text-only session for explanations, text to speech for slow replay, and a 6,107-entry pronunciation dictionary on the agent.
+Best Use of Sentry Agent Tracing: every Gemma request is a gen_ai trace with time to first token, tokens and cost. Replies are checked against the role-play rules, and user reports link to the exact turn.
+Best Use of DigitalOcean: serverless inference runs Gemma 4 31B for every call turn, explanation, prompt enhancement and word list, with no GPU to manage.
+Best Use of Gemma: Gemma does four jobs (the other person on the call, the explanation helper, the prompt enhancer and the word picker), as 31B in the cloud and E2B on a laptop.
+Best Use of Render: one Docker web service from a render.yaml Blueprint serves the app, the API and the custom LLM proxy that streams every Gemma reply to ElevenLabs, with a persistent disk for usage limits and analytics, keys kept out of the repo, and the credit limits as environment variables.
+Built solo.
+
+If you live in Japan and put off phone calls too, try it and tell me in the comments what's missing.
+</pasted_content id="9303">
+
+ 
+
+<pasted_content id="9303">
+Gemma 4 reads my parent's mail at home: 39 test letters, 9 of them real, and one calm wrong answer I engineered out
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+gemma
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+In a lot of families there's a pile on the corner of the kitchen table: envelopes that were opened, read twice, and set aside "for when someone can look at it." One of my parents has that pile.
+
+Most of what lands in a pile like that is harmless: a statement, an ad, a thank-you from the health plan. The trouble is that the one that matters looks just like the others. A water shut-off date. Or a letter on very official-looking letterhead saying your Social Security number has been suspended and you can fix it today with Google Play gift cards, as long as you don't tell your bank.
+
+Even in your first language, mail is hard: "Explanation of Benefits — THIS IS NOT A BILL — You may owe $35.00", "past-due balance", "validation notice", "response requested" on a mailer that's actually an ad. In a second language it's harder. The real skill is knowing which of the twelve envelopes is the one that matters.
+
+So this weekend I built Kitchen Table.
+
+What I Built
+Kitchen Table is a private letter explainer for someone who gets mail they can't fully read.
+
+They open it on their phone, tap one big button, and photograph the letter. A computer in the same house runs Gemma 4 locally and, a few seconds later, answers in the language they read best:
+
+The verdict first, in color: Nothing to do. You can put it away. / You need to do something. / Important. Do this soon. / Careful. This looks like a scam.
+What it says, in two to four plain sentences. "Like a kind grown-up child explaining at the kitchen table" is literally in the prompt.
+What to do, by when, with days left and an Add to calendar button.
+The money: how much, and whether they owe it or are getting it back.
+Hard words explained. "Past due", "payment arrangement" and "reconnection fee" each get one plain sentence.
+Warning signs when something is off, and the only advice that matters: Don't pay. Don't call the numbers in the letter. Call Yaro first.
+Questions, typed or spoken. They can hold up the phone and ask, in their own language, "what happens if I don't pay by the 8th?" and hear the answer read back.
+"Send to Yaro": a three-line English summary for me, so our call starts with "I saw the water letter," not "read me the top part again."
+The photo is thrown away after reading. The text stays in a SQLite file on the home computer. Nothing goes to a cloud API, there's no account, and it keeps working when the internet is down (only the home Wi-Fi is needed). Setup is one command (./start.sh), which prints a QR code. The parent's phone scans it once, and from then on it's the only device besides the computer that can read their letters. A guest on the Wi-Fi gets nothing.
+
+Demo
+An 86-second walkthrough built from real screens of a real run, with English captions (the app itself is in Russian here). You'll hear the actual spoken Russian question the app answered. The narration is Piper, an open-source text-to-speech engine that also runs locally.
+
+
+
+Kitchen Table: the letter photo, the explanation, and a spoken follow-up question
+
+The case I actually lose sleep over:
+
+Kitchen Table showing a dark red scam warning
+
+Every letter you see here, and every letter in the test set, is from an organization I invented. Phone numbers are in the reserved 555-01xx range.
+
+Code
+GitHub logo pyaroslav / kitchen-table
+Snap a photo of a confusing letter, get a plain answer in your own language. Local Gemma 4 via Ollama; the mail never leaves the house.
+Kitchen Table
+tests
+
+Snap a photo of a confusing letter. Get a plain answer in your own language. The letter never leaves the house.
+
+Kitchen Table is a small app for a parent who gets mail they can't fully read: utility bills, insurance statements, jury summonses, "FINAL NOTICE" envelopes, and the scams that are designed to look exactly like them. They take a photo on their phone; a computer at home runs Gemma 4 locally through Ollama and answers:
+
+a traffic-light verdict: nothing to do, you need to do something, important, do it soon, or careful, this looks like a scam,
+what the letter says, in 2–4 plain sentences in their language (18 languages),
+what to do, by when (with an Add to calendar button), and how much money is involved,
+the hard words explained, the warning signs if it's suspicious,
+answers to follow-up questions, typed or…
+View on GitHub
+Python (FastAPI) on the home computer, a phone page with no framework and no CDN (it has to work offline), SQLite and Ollama. 27 model-free tests run in CI on every push, plus an evaluation harness over 30 synthetic and 9 real letters.
+
+How I Built It
+Two passes, and code owns the scary parts
+photo ─▶ quality check ─▶ Gemma 4 (vision): exact transcript
+                          scam rules on the transcript
+                          Gemma 4 (JSON schema): explanation in their language
+                          code: date maths, "days left", verdict overrides
+Pass 1 only transcribes: "copy names, dates, amounts and phone numbers exactly; write [unreadable] for anything you can't read." Pass 2 never sees pixels. It gets the transcript, today's date and the reader's language, and has to fill a JSON schema: verdict, headline, summary, steps, deadlines, money, glossary, warning signs, and a note for me. Ollama enforces the schema, so the phone never receives half a sentence of markdown.
+
+Splitting the passes gave me three things. Follow-up questions have a transcript to stay grounded in. Each step can be evaluated on its own. And code gets to check the model's work before anyone sees it.
+
+That's the design decision I care most about. The model reads and explains. Code owns everything a parent should never have to trust a model on:
+
+Dates. The model returns 2026-10-08. Python works out "6 days left" every time the letter is opened, not once on the day it was read.
+Scams. A short list of regex rules runs on the transcript. A strong hit forces the scam warning, whatever the model said: payment by gift card or crypto, "don't tell your bank", arrest threats, "your SSN is suspended", or an official-looking letter whose fine print admits it isn't the government. A suspected scammer's phone number is shown struck through, never as a tap-to-call link.
+Urgency. Anything due within 7 days is Important.
+Here's the overriding logic, lightly trimmed. It runs after the model and before the phone:
+
+if redflags.has_strong(hits):            # gift cards, crypto, "don't tell your bank", ...
+    verdict = "scam_warning"
+elif verdict in ("file_it", "action_needed") and money_direction != "you_receive":
+    upcoming = [d for d in deadlines if d["days_left"] >= 0]
+    if verdict == "file_it" and upcoming and steps:
+        verdict = "action_needed"
+    if verdict == "action_needed" and upcoming and upcoming[0]["days_left"] <= 7:
+        verdict = "urgent"
+if verdict == "scam_warning":
+    deadlines = []                       # a scammer's "deadline" is pressure, not an appointment
+Why Gemma 4, specifically
+I needed one open model family that could do four jobs: read a crooked photo, write fluent plain Russian (or Tagalog, or Persian), return strict JSON, and listen to a spoken question. Gemma 4 does all four, so the whole app is one model family behind one local API:
+
+gemma4:e4b    gemma4:26b
+Size on disk (Ollama, Q4_K_M)    6.6 GB, 7.5B params    18 GB, 25.2B params (mixture-of-experts, 8 of 128 experts active)
+Sees photos    ✓    ✓
+Hears audio    ✓    ✗
+Role in Kitchen Table    default; laptop-friendly; the "ears"    best reader if you have the GPU
+Time per letter (RTX 5090)    ~2.7 s    ~3.5 s
+Time per letter (CPU only, Ryzen 9 9950X)    ~39 s    not tested
+The mixture-of-experts design is why the 25B model is only about a second slower than the 7.5B one. Both fit on the same GPU at the same time, which is what lets 26b read while e4b listens.
+
+The 2020 bug
+I wanted numbers, not vibes. So I wrote 15 letters, rendered them with headless Chrome, and "photographed" them in code: a wood-grain table, a few degrees of rotation, perspective skew, a shadow across one corner, JPEG compression. Both Gemma 4 sizes I was planning to use (e4b and 26b) got all 15 right. That's how you know your test is too easy.
+
+So I wrote nine nastier ones:
+
+a deadline that only appears on page two;
+a coverage-ending date buried in the fine print of a cheerful newsletter;
+a Spanish-language school letter;
+a photo taken sideways;
+one taken in bad evening light with a shaky hand.
+On that last photo, gemma4:e4b read the year 2026 as 2020 and $84.17 as $64.17. Then it explained, confidently and in fluent Russian: "This is an old water bill and doesn't require any action."
+
+That's the worst failure this app can have. It's wrong and calm.
+
+Better prompting couldn't have caught that. A plain photo check could: brightness, contrast and edge sharpness flagged that photo and none of the other 30. A flagged photo gets auto-contrast and sharpening, which fixed the amount but not the year. More importantly, a bad photo can never produce "Nothing to do" any more. It produces "I'm not sure. The photo is too dark or blurry. Please take another one in good light." The bigger gemma4:26b read the same dark photo correctly. The guard stays anyway.
+
+Measuring it
+30 synthetic letters in three sets. I wrote the last six after I'd finished changing prompts and rules, ran them once, and didn't touch anything afterwards.
+
+Model    Right verdict    Never unsafe    Scams caught    Deadlines found    Answer in the right language    Time / letter
+gemma4:26b    30/30    30/30    8/8    100%    100%    ~3.5 s (GPU)
+gemma4:e4b    29/30    30/30    8/8    92%    100%    ~2.7 s (GPU), ~39 s (CPU only)
+gemma4:e2b    25/30    25/30    6/8    88%    3%    ~2 s (GPU)
+Neither e4b nor 26b raised a single false scam alarm on the 21 legitimate letters, including a debt collector's validation notice and a real water-utility "FINAL NOTICE", which are exactly the letters that look like scams.
+
+Then, real letters
+Synthetic letters only prove so much, so once all the tuning was finished I pulled 9 real documents from the agencies and counties that published them:
+
+three IRS notices, including a two-page "intent to seize your property" letter;
+a federal jury summons;
+a utility's 10-day shut-off notice;
+two fake "Social Security" letters the SSA Inspector General published as warnings;
+two deceptive "deed records" mailers that county offices warned residents about.
+I ran them once and changed nothing afterwards.
+
+gemma4:26b got all 9 right. It returned the exact IRS amounts ($1,075.21; $9,533.53) and pay-by dates, called the levy notice urgent, and caught all four scams.
+
+gemma4:e4b got 8. Its miss is the one I'd least like to have: it transcribed a "COUNTY DEED RECORDS — FINAL RENEWAL NOTICE" home-warranty mailer word for word, and then explained it as a real renewal that needs a $199 response. None of my rules fire on it, because it has no gift card and no government disclaimer. I could add a rule now, but I won't: that would turn my only untuned real-world number into a tuned one. So the recommendation is honest instead. e4b is the floor, and if there's a GPU in the house, run 26b.
+
+Four things I didn't expect:
+
+The scam rules barely mattered for the models I'd actually use. e4b and 26b flagged every scam on their own. On the tiny e2b, the model alone caught zero of the three hard-set scams, and the rules caught two. That's what a seatbelt is for.
+My rules made a weak model worse once. e2b invented deadlines for a library book-sale flyer, and my "upcoming deadline means act" override turned put it away into Important. With the bigger models the overrides only ever corrected things, but I wouldn't have known without the held-out set.
+One rule exists because of this eval, and I'm telling you so. e4b first called an "$89 certified deed copy" mailer you need to do something. Those mailers are legal, so no money-transfer rule fires. Their tell is the disclaimer they're required to print: "not affiliated with any county or government agency." That's now a rule. The held-out set includes a different look-alike, a homestead-exemption "filing service", and both models handled it.
+e2b won't answer in Russian. Ask it to explain in Russian or Ukrainian and it explains in English. For this user that rules it out, whatever its other scores.
+The full method is in EVAL.md, with every caveat (synthetic letters, typeset fonts, no handwriting, my own judgement of what counts as acceptable) and a script that regenerates the table.
+
+Voice, and the model that can't hear
+Gemma 4 takes audio in the same field as images, so a spoken question is just a 16 kHz WAV sent with the transcript. The phone records it and converts it to WAV itself, and the recording only ever goes to the home computer.
+
+Then I found that gemma4:26b accepts images but not audio; only the small "edge" models can hear. So Kitchen Table checks what the model can do. If the reading model can't hear, gemma4:e4b transcribes the question and 26b answers it: two open models, each doing the part it's good at, on one GPU, joined by about fifteen lines of Python. I tested it end to end with a Russian question synthesized by Piper, a local text-to-speech engine. Gemma transcribed it word for word.
+
+One honest wrinkle: phone browsers only allow in-page microphone recording over HTTPS. On plain home Wi-Fi, the 🎤 button opens the phone's own voice recorder instead, and the file goes through the same path.
+
+The interface is for them, not for me
+Base font size 20px.
+One primary button per screen; the main buttons are 64px tall and nothing tappable is under 48px.
+Colors that mean the same thing in every language.
+A setup screen that asks "Which language do you read best?", with each language written in itself.
+English, Russian, Spanish and Ukrainian strings are hand-written. The other 14 languages are translated once by Gemma itself and cached, with a check that no {placeholder} got lost on the way.
+Arabic and Persian flip the layout to right-to-left, and dates follow the reader's own calendar.
+Dark mode follows the phone.
+Lighthouse (mobile) scores the home and letter screens 100 for accessibility.
+
+Why Does Open Innovation Matter?
+Look at what's in that pile on the kitchen table: prescriptions, Medicare numbers, bank balances, a debt collector's letter, a court date. It's a map of an older person's life, and it's exactly the information scammers buy. Here's what the open stack gave me that a hosted API couldn't:
+
+The mail never leaves the house, and that includes voice. There's no cloud speech-to-text and no voice API: Gemma 4 e4b hears the question on the home computer, and the phone's own text-to-speech reads the answer aloud. Beyond that, it isn't "we don't train on it" or "deleted after 30 days": the letter physically never leaves. The photo's GPS metadata is stripped before even the local model sees it, and the photo is discarded after reading.
+It works when the internet doesn't. A home computer and home Wi-Fi. No API key to expire, no service to sunset, no price change.
+It costs nothing per letter. Nobody has to wonder whether a question is "worth" an API call. They can ask the same thing three times.
+I could look inside and change it. I could see that 26b can't hear and route around it. I could measure that e2b ignores the language instruction and rule it out. I could put the scam decision in code I can read, test and explain, instead of in a policy I can't.
+I can swap models without asking anyone. e4b on an old laptop, 26b on my desktop, whatever Gemma ships next on whatever they have. Same app, one environment variable.
+The closed version of this app already exists: "take a photo and paste it into a chatbot." It may even be smarter. But I'd have to teach my parent to upload their Medicare letter to a website. Teaching them the opposite is the whole point.
+
+What it can't do (yet)
+It's tested on 30 synthetic and 9 real letters, all photographed in software. Handwriting, creased paper and window envelopes aren't in the test set.
+On the small model, a deceptive mailer without any classic scam markers can still slip through (see above).
+It doesn't replace me, by design: every unclear or suspicious letter ends with "call Yaro first."
+On a laptop without a GPU it takes the better part of a minute per letter. That's fine for mail, less fine for impatience.
+Prize Categories
+Best Use of Gemma. Gemma 4 runs locally through Ollama and does all the reading, explaining, translating (including the app's own interface) and listening: gemma4:26b for vision, gemma4:e4b for audio, with e2b, e4b and 26b measured head to head on 30 synthetic letters, and e4b and 26b on 9 real ones.
+Thanks for reading. If there's a pile like this on a kitchen table in your life, setup is ollama pull gemma4:e4b and one Python command.
+
+— Yaro
+</pasted_content id="9303">
+
+ 
+
+<pasted_content id="9303">
+Rakshak: I built my parents a scam-checker that never leaves the house
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+What I Built
+My parents have never lost money to a scam. I'd like to keep it that way.
+
+My mom lives on WhatsApp. My dad pays for everything with UPI. Their phones get a steady drip of messages written to make someone panic: a KYC deadline "today", a parcel "held at customs", the electricity "disconnected tonight", a "police officer" on a video call. They've been careful so far. But these messages are designed for the one moment you're tired, alone or scared. And they only need to work once.
+
+So I built them Rakshak ("protector"): a second opinion that lives on a laptop in our house. You hand it a suspicious message, a screenshot, or a description of a phone call, and within seconds a calm voice tells you in plain English whether it's real and what to do.
+
+Mom (Android) shares a message to it straight from her share sheet. A big card comes up: red with a raised hand for This is a scam, amber for Be careful, green for This looks like a normal message, grey for Couldn't check right now. The explanation is read aloud. For a suspicious call, she holds a button and describes it.
+Dad (iPhone) uses two Shortcuts: "Rakshak" in the share sheet, and "Rakshak Bolo" (bolo means "speak") to describe a call out loud. Same card, same voice.
+Me: on a scam verdict my phone gets a push with which parent, what kind of scam, and what time. Never the message.
+Every explanation is three short sentences at most: the verdict, the one or two strongest warning signs quoted exactly from the message, and one thing to do. Don't tap. Don't pay. Never share the OTP. Call me.
+
+Nothing leaves the house. That's not a slogan, it's the architecture.
+
+Demo
+There's no public link, and that's on purpose. Rakshak runs on a MacBook at home and is reachable only over our private Tailscale network, because the whole point is that my parents' messages never touch someone else's server. Here it is running for real:
+
+Home screen: Check a message, Describe a call Checking on the home computer: Reading, Checking, Explaining
+
+An app-install scam: red card, the dangerous link quoted, and  A real bank OTP: green card, 
+
+Left to right: the home screen; the check in progress; an app-install scam caught with the dangerous link quoted, plus Listen again for the spoken explanation; a real bank OTP correctly left alone.
+
+The hub status page: model health, latency, per-parent counts, feedback queue, and no message text anywhere
+
+The hub's status page for me: three local models, latency against targets, today's verdicts per parent, and a "was this right?" queue. Metadata only. It never shows a message.
+
+Code
+GitHub logo MuaazSM / rakshak
+Rakshak
+A scam checker for my parents that runs on a MacBook at home.
+
+My mom uses an Android phone and my dad uses an iPhone. Both get a steady stream of messages written to make a parent panic: fake KYC deadlines, parcels "held at customs", electricity cut off "tonight", fake police calls. Rakshak gives them a second opinion. Mom shares a message or screenshot to the Rakshak web app from her share sheet; Dad shares it to an iOS Shortcut. A few seconds later they see a large verdict card (scam, be careful, looks normal, or couldn't check) and hear a short spoken explanation in plain English. If it's a scam, my phone gets a notification that says which parent and what kind of scam, never the message itself. Every model runs on the Mac. The messages never leave the house.
+
+The verdict comes from a small model fine-tuned…
+View on GitHub
+Everything is in the repo: the rules engine, the LangGraph pipeline, training, export and evaluation scripts, the web app, and the privacy tests. The dataset is regenerated locally and the model weights are built by the export script rather than checked in, but nothing about them is secret. They're trained only on synthetic and public data.
+
+How I Built It
+A MacBook Pro (M3 Pro, 18 GB) is the hub. It binds to localhost only; phones reach it over a private tailnet. Each check runs through a small LangGraph graph: normalize, perceive the image or audio, rules, detect, fuse, explain, then notify and store. SQLite keeps the records. Every model runs locally through llama.cpp and Ollama.
+
+Two open models, three jobs
+I wanted the verdict to come from a model I'd fine-tuned and measured, not a prompt. Tinker doesn't offer Gemma, which made the split natural. It also gave Gemma a second, less obvious job.
+
+Gemma 4 E2B wrote the training set. I had no scam dataset, and I refused to build one from my parents' private messages. So Gemma generated it: from about 60 short seed patterns across every scam and genuine category, it produced around 1,300 realistic messages in English, Hinglish and Devanagari, varied across channel and the tricks scammers use: misspellings, odd spacing, look-alike characters, shortened links. Every quoted red flag had to appear exactly in the generated text or the item was dropped.
+
+Tinker trained the judge. Rakshak-Detector is Qwen3.5-4B with a LoRA adapter trained on Tinker on that data, then merged, converted to GGUF and quantized to Q4_K_M (2.9 GB) for llama-server. It returns only JSON: verdict, category, red-flag quotes. I read the scam probability from the log-probabilities of the verdict token, not from the text, so the fusion step has a real number to work with.
+
+Gemma explains the verdict. It transcribes screenshots and voice notes on-device, and turns the verdict into a short explanation in plain words. It never decides. It receives the verdict as input, and a post-check rejects any explanation that drops the verdict word, negates it, adds a link or number that wasn't in the message, or runs long. On failure a fixed template takes over.
+
+Under all of it sits a rules engine of plain, unit-tested functions. An .apk link, a look-alike of a bank's domain, or "enter your UPI PIN to receive money" is a scam whatever the model says. Softer signals push toward Be careful: a bank claiming to text from a plain mobile number, a link shortener, arrest threats, urgency plus a payment ask. The word lists cover English, Hinglish and Devanagari, because that's how scams actually arrive.
+
+Two safety rules live in code, not prompts: red flags shown to my parents must be exact substrings of their message, or they're dropped; and if the detector is down the answer is Couldn't check, never looks normal.
+
+Training
+LoRA rank 32, loss on the assistant's JSON only, batch 32, 3 epochs, thinking mode off, learning rate 4.91e-4 from tinker_cookbook's get_lr. In 20% of training examples I blanked the rule signals so the model can't just copy the rules. I ran a smoke run, a learning-rate sweep, and then a retrain, because two independent review passes caught the quiet failure of synthetic data: the first model had learned shortcuts like a link means scam and an unknown sender means scam, which would have meant false alarms on real bank SMS. I fixed the generator to balance those cues and trained again. Total: about $3.80 of the $10 Tinker credit.
+
+Results, on data it never saw
+I did not dataset my parents' messages, so there is no family test set. Instead, the evaluation is 100 public fraud reports: scams and genuine messages documented by RBI, PIB, India's cybercrime advisories, news outlets, fact-checkers and court records, each with a source URL and verified verbatim on its page (65 scam, 35 genuine). The model never trains on them. 95% bootstrap CIs; scam recall counts any warning on a real scam.
+
+System    Scam recall    False alarms on genuine    On alarming-but-genuine    Macro-F1    Valid JSON
+Rules only    0.43    9%    11%    0.05    n/a
+Gemma 4 E2B zero-shot    0.86    14%    22%    0.38    0%
+Qwen3.5-4B base, few-shot    1.00    43%    89%    0.54    33%
+Qwen3.5-4B + Tinker LoRA    0.92 [0.86–0.98]    9%    22%    0.59 [0.55–0.63]    100%
+Full Rakshak (rules + fusion)    0.94    14%    22%    0.58    n/a
+The interesting number isn't the F1. It's the false alarms. The base Qwen model with few-shot prompting catches every scam, but only by crying wolf. It flags 43% of genuine messages and 89% of genuine-but-alarming ones (real OTPs, real debit alerts), and only a third of its replies are even valid JSON. Fine-tuning the same model on this one narrow task cuts false alarms on genuine messages to 9% and makes the output 100% machine-usable, while keeping recall at 0.92, on data it never trained on.
+
+That's the whole project in one row. Not missing scams is easy. Not terrifying your mom about a real OTP is the hard part, and that's exactly what a small, fine-tuned open model fixed.
+
+(Adding the rules on top nudges recall to 0.94 but raises genuine false alarms, because a few real government advisories trip the threat lexicon. I can see that trade-off in the numbers, which is the point of measuring.)
+
+These are small-sample numbers on public data, not a benchmark claim. The synthetic dev set is near-saturated and I don't report it.
+
+Speed on a laptop
+All three model servers run together on 18 GB. End to end:
+
+Genuine (detector only): p50 0.8 s, p95 0.9 s
+Scam (detector + spoken explanation): p50 4.1 s, p95 11.1 s
+The detector dominates the scam path; the explainer adds about 1.6 s. The scam path is over my 6-second goal. Shorter red-flag output, constrained JSON on the first attempt, and streaming the verdict before the explanation are next.
+
+Tracing without reading anyone's messages
+Sentry gets one transaction per check and one span per graph node, so I can see where the seconds go and which model answered, but never the content. Span attributes come from an allowlist (node, model, token counts, latency, verdict, category, p_scam, rule-signal names, retries, error type), and a scrubbing hook deletes any text, quote, explanation, image or audio field at any depth, including inside exception messages. Request bodies and local variables are never captured.
+
+I don't just trust that. A canary test pushes a fake message with a unique marker through every input path of the real app and fails if the marker appears in any Sentry payload, ntfy request, log line or console output, or if the hub talks to anything but the local model servers and ntfy. I broke the scrubber on purpose three ways; the test caught all three.
+
+Why Does Open Innovation Matter?
+Privacy that's literally true. The messages my parents get are about their bank, their pension, their family. Asking a hosted API "is this a scam?" means one more stranger reads them. With open weights, the model comes to the data, and checks keep working with the Mac's internet off.
+
+A small specialist beats a big generalist here. "Is this a scam, and which words prove it?" is narrow and structured. Open weights let me fine-tune a 4B model on exactly that and measure it against its own base: false alarms went from 43% to 9%, valid output from 33% to 100%. You can't do that with a model you can't fine-tune or run.
+
+Open models can make the data, too. Gemma generated the whole training set locally. No scraping, no labeling service, no one's private messages.
+
+Zero marginal cost. Each check costs electricity, so there's no reason to ration them. My parents can share every message that feels off.
+
+The honest caveat. Training wasn't fully local: synthetic and redacted public examples went to Tinker's servers to train the adapter. No family message was ever part of it. At runtime, nothing leaves the house.
+
+My Agent Session
+I built Rakshak with Claude Code, working from a written requirements document that fixed the schemas, prompts, thresholds and privacy rules before any code existed. The agent did the heavy lifting in parallel (rules engine, hub pipeline, training and export, web app), and the most valuable thing it did was review its own work. Two independent review passes caught the detector throwing away suspicious probability mass, and the synthetic-data shortcuts that would have caused false alarms on real messages. The judgment calls I kept for myself were the ones about honesty: never letting public reports become a "test set", and insisting the evaluation say plainly what data it actually ran on.
+
+Prize Categories
+Best Use of Gemma. Gemma 4 E2B generated the training set, reads screenshots and voice notes on-device, and writes every warning my parents hear, with a post-check that keeps it from ever changing the verdict.
+Best Use of Tinker. The verdict comes from Qwen3.5-4B fine-tuned with LoRA on Tinker, exported to a quantized GGUF, and measured against its own base model and Gemma on public data it never trained on, where fine-tuning cut genuine false alarms from 43% to 9% and raised valid structured output from 33% to 100%.
+Best Use of Sentry Agent Tracing. One trace per check and one span per LangGraph node, with a canary test proving no message text ever reaches Sentry.
+</pasted_content id="9303">
+
+ 
+
+<pasted_content id="9303">
+"If it's not in front of me, it's gone": I fine-tuned a 4B model for my friend with ADHD
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+ai
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+TL;DR. My friend Zee has ADHD. I asked him what actually goes wrong, and he answered in two lines: things he can't see disappear, and the one thing he locks onto eats the whole day. So I built Actually. You brain-dump in your own messy words. A Qwen3.5-4B I fine-tuned on Tinker turns that into tasks, and TabPFN reads your own history to tell you how long each one will actually take you. Nothing you dump disappears until you tick it off. Everything except the parser runs on my laptop, and the whole build cost $2.81.
+
+What I Built
+I had the idea before I asked him. That was mistake one.
+
+My plan was a time-blindness tool, a thing that tells you "this'll take 15 minutes" is a lie. It was a fine idea. Then I messaged Zee and asked what his actual problem was, and he sent back this, verbatim:
+
+"can't remember. if infront remember or else gone from brain. person or task"
+
+"addiction pro max. if i addict i addict too much. idk these 2 main."
+
+Two problems, and only half of one was the thing I'd planned to build.
+
+The first is out of sight, out of mind. A task or a person that isn't physically in front of him stops existing. The second is hyperfocus. When something grabs him, it takes the afternoon, and everything else silently falls off the end of the day.
+
+So I rebuilt the plan around his words, not mine.
+
+Actually is a single page. You type everything on your mind the way you'd text it: "email sir abt the attendance thing (5 min), finish dbms assignment should take like 30 min, laundry maybe, call nani back i keep forgetting." Three things happen:
+
+It splits your rant into tasks, and every one of them goes on a "Still on your plate" list that stays there until you press Done. People get an amber dot, because "call nani back" is exactly the kind of thing that vanishes.
+It tells you how long each task will take you. Not how long tasks take in general. How long your admin tasks take relative to your guesses, from your own history.
+It fits the day to your free time and warns you when a single task could swallow it.
+Split panel. Left, labelled BEFORE 
+
+The brief, in his words. The left side is Zee's description. The right side is the whole product.
+
+Demo
+Demo: docs/actually-demo.mp4.
+
+Code and setup: the repo runs locally in four commands (below). There is no hosted link yet, and I'll explain why in the concessions.
+
+This is the result screen for the brain-dump above, on the demo profile:
+
+Actually's result screen. A large verdict line reads 
+
+The verdict. 35 minutes of stated guesses, 3 hours 14 minutes of predicted reality.
+
+Every task gets a short lavender bar for your guess, a cobalt bar for the prediction, and a faint band for the 10–90% range. Tasks that don't fit go under "Move to tomorrow" in amber. They don't get deleted, and they don't fall off the list.
+
+The lower half of the plan: gym, call nani back and reply to hamza each with 
+
+Moved, not forgotten. Laundry doesn't fit in three hours, so it waits on the plate for tomorrow.
+
+Code
+GitHub logo ArqamWaheed / actually
+How long will it actually take? A time-blindness helper for a friend with ADHD — fine-tuned open model (Tinker) + TabPFN, runs on one box.
+Actually
+How long will it actually take you? A planning aid built for one friend with ADHD.
+
+My friend described his two problems like this:
+
+"if infront remember or else gone from brain. person or task" "if i addict i addict too much"
+Out of sight is out of mind, and when he does lock in, one thing eats the day. So Actually does two things:
+
+Nothing you dump disappears. Type a messy brain-dump. A small open model, fine-tuned on Tinker, splits it into tasks. Every task and every person you mention stays on a "Still on your plate" list until you tick it off.
+It shows the real cost of each task. TabPFN, a tabular foundation model, reads your own history of guessed vs real durations and predicts how long each task will take you, with a range, the chance you finish it today, and a…
+View on GitHub
+MIT licensed. eval/ reproduces every number in this post.
+
+Interesting files:
+
+app/parser.py: the brain-dump to JSON parser. One interface, two backends (Tinker sampling or any OpenAI-compatible local server).
+app/forecast.py: TabPFN regressor and classifier over the user's own task history.
+train/sft.py: the whole LoRA fine-tune in 65 lines of Tinker SDK.
+eval/parser_eval.py and eval/tabpfn_eval.py: the comparisons in the tables below.
+uv pip install --python .venv/bin/python -r requirements.txt
+cp .env.example .env            # TINKER_API_KEY, TABPFN_TOKEN, TINKER_SAMPLER_PATH
+python scripts/make_demo_data.py
+PARSER_BACKEND=tinker uvicorn app.main:app --port 8000
+How I Built It
+System flow diagram titled 
+
+The pipeline. Two open models, each doing the one job it's actually good at.
+
+Why two models, not one. I could have asked one large model to read the rant and guess durations. It would have answered confidently and been wrong in a generic way, because it has never seen how long Zee's tasks take. Reading messy language is a language model's job. Predicting a number from a small table of personal history is a tabular model's job. Splitting them made each one honest.
+
+The parser: a 4B model that reads a brain-dump. Brain-dumps are hard for small models. They merge two tasks into one, miss the "maybe" that makes a task optional, and lose deadlines buried mid-sentence. I needed strict JSON with seven fields per task, from text like "ugh exams are killing me rn... reply to dad about fee slip. also need batteries for the remote?? maybe."
+
+The data: every model in the pipeline is open-weight. I didn't have hundreds of real brain-dumps, and I wasn't going to fake Zee's. So Qwen3.6-35B-A3B wrote 450 messy brain-dumps in a Pakistani-student register, and Qwen3.5-397B-A17B labelled every task in them. Both ran on Tinker's sampling API. 448 survived validation. I held out 48 and trained on 400.
+
+The fine-tune: LoRA rank 32, 3 epochs, 75 steps. Tinker gives you a training loop, not a black box. train/sft.py renders each example with the chat template, masks the loss to the assistant's JSON tokens only, and runs forward_backward plus optim_step with a linear decay. Loss went from 335.5 to 43.3.
+
+Pipeline diagram titled 
+
+The training loop. The amber note is the caveat, and it stays in the picture on purpose.
+
+Did it beat the baseline? Same 48 held-out dumps, same prompt, temperature 0:
+
+Parser    valid JSON    task F1    kind    deadline    p50 latency
+Qwen3.5-4B zero-shot    98%    95%    78%    69%    3.19 s
+Qwen3.5-4B 5-shot    96%    93%    82%    55%    3.28 s
+Qwen3.5-9B zero-shot    100%    94%    88%    61%    4.53 s
+Qwen3.5-4B + LoRA    100%    97%    93%    76%    3.28 s
+The fine-tuned 4B beats a model more than twice its size on every column that matters, and it's 1.4x faster than that 9B. Few-shot prompting made deadlines worse (69% to 55%). Five examples in the prompt taught the base model the format, not the judgement.
+
+Two honest caveats. First, the test set is synthetic, and its labels come from the 397B teacher, so this measures agreement with a much larger open model, not accuracy against a human. Second, "all fields exactly right on every task in a dump" is still only 8% for the fine-tune. Seven fields times six tasks is a brutal bar, and the misses are mostly dreaded and deadline, which are judgement calls.
+
+The forecaster: TabPFN, because the table is tiny. A person's task history is maybe 40 to 100 rows. You can't train a model on that, and you shouldn't try. TabPFN doesn't train. It reads the whole table in-context and predicts. I run TabPFNRegressor on log-duration and ask for the 10th, 50th and 90th quantiles, so every estimate comes with a range. A TabPFNClassifier predicts whether the task gets done the day it was planned. The features are boring on purpose: kind, his guess, start hour, weekday, dreaded, leaves the house, has a deadline.
+
+In-context means every finished task counts immediately. When you press Done and log how long something took, that row joins the history and the next plan uses it. No retraining step exists, because TabPFN has nothing to retrain. For a tool about a single person, that's the whole bet.
+
+The carry-over list is the boring feature that matters most. db.remember() writes every parsed task to SQLite and dedupes near-identical titles, so saying "call nani back" three days running doesn't create three entries. The list renders above the input box, so it's the first thing on screen, which is the literal fix for "if infront remember."
+
+The 
+
+Out of sight is the bug. This list is the fix: it stays in front of you until you clear it.
+
+The hyperfocus warning is one line of logic. If a task's 90th-percentile estimate is at least half your free time, the card says "This one can swallow your day. Set a timer before you start." It isn't clever. It's the sentence Zee needs to see before he starts, not after.
+
+Sentry found the slowest part, and it was not the language model. Every plan request is one agent run: invoke_agent actually, then a gen_ai.chat span for the fine-tuned model with the model name and token counts, then execute_tool tabpfn_forecast. OpenAIIntegration(include_prompts=False) and send_default_pii=False keep the brain-dumps out of Sentry entirely.
+
+I assumed the model call would dominate. It didn't. The TabPFN tool span was taking 2.4 to 3.5 seconds per request, because predict() was re-attending over every history row on every call.
+
+Sentry Explore view filtered to the execute_tool tabpfn_forecast span. The table shows six slow spans between 2.41s and 3.51s, then the two newest at 278ms and 268ms
+
+The fix, as Sentry saw it. Same tool, same history, 3.25 seconds down to 268 milliseconds.
+
+TabPFN has a fit_mode="fit_with_cache" that computes the history's attention state once at fit time. Fitting gets slower (2.50 s to 3.43 s, once per history change). Predicting got 9x faster, from 2.43 s to 0.27 s. End to end, a plan went from 5.6 s to 3.5 s.
+
+Editorial plate titled 
+
+The slow part was re-reading 70 rows of history on every request, not the model.
+
+The trace also showed what's left. The gen_ai.chat span is now 3.2 s of a 3.5 s request, and most of it is two HTTP round-trips to Tinker with a gap between them, not token generation. That's the clearest argument I have for the next step: serve the parser locally.
+
+Sentry trace waterfall for one /api/plan request: http.server 3.52s, gen_ai.invoke_agent actually 3.52s, gen_ai.chat actually-lora (Qwen3.5-4B) 3.24s with two Tinker HTTP calls nested under it, and gen_ai.execute_tool tabpfn_forecast 278ms
+
+Where the time goes now. The remaining cost is network, which is a hosting decision, not a model one.
+
+Things I refused to do:
+
+Do not invent Zee's data. The live demo runs on a profile labelled "Demo person (made-up data)".
+Do not claim the parser is local while it's served from Tinker. The footer of the app changes depending on which backend is running.
+Do not send brain-dumps to the observability tool. Sentry gets durations and token counts, never prompts.
+Do not use a Shapley chart where a plain sentence works. The "why" chips are per-kind overrun ratios from your own history: "admin tasks take you ~2.9x your guess."
+Why Does Open Innovation Matter?
+Three reasons, all specific to Zee.
+
+I could teach a model his way of writing. The fine-tune is the whole trick: task type 78% to 93% on held-out dumps for $2.81 of compute. You can't fine-tune a closed model this way, and you can't download what you trained. I downloaded mine. The LoRA adapter is a 291 MB file on my disk, and Tinker's cookbook can convert it to a standard PEFT adapter or merge it into the base model.
+
+His history never leaves the machine. An ADHD diagnosis, what he avoids, how long he spends on things: that's health data. TabPFN-3.5 runs locally on CPU with open weights, so the part that reads his life is on a laptop, not behind an API. Sentry only ever sees timings.
+
+The tools are inspectable all the way down. When the forecast was slow, I could read TabPFN's source, find fit_mode, and fix it in one line. The parser's chat template let me switch off the model's thinking mode, so it answers in JSON instead of reasoning first. A closed API gives you neither lever.
+
+Where closed would have been better, honestly: a frontier API would probably parse these brain-dumps about as well as my fine-tune with zero training, and it would be faster to call than Tinker's beta sampling endpoint. I traded that for owning the weights and keeping his data local. For a tool about one person's head, that trade is the point.
+
+My Agent Session
+I built this with Claude Code, and every session is captured with Entire. Entire stores the prompts, reasoning and tool calls next to the commits they produced, with secrets redacted before anything leaves the machine. I added explicit redaction rules for every key this project touches, then grepped the checkpoint for each one before pushing. Zero hits.
+
+Checkpoint 01M4494DVYMY4YYYJF1ZKAK7S3: the full session, from reading the challenge page and measuring every prize pool, to picking the stack, training the parser and the Sentry fix. 17 turns.
+Inspect it with entire checkpoint explain 01M4494DVYMY4YYYJF1ZKAK7S3 in a clone of the repo.
+The checkpoint's generated summary is the best changelog this project has. One line from it: "Tinker's raw LoRA adapter export through tinker-cookbook's PEFT builder downloads the full 8GB base model. That won't fit on a low-disk machine, so convert the adapter directly instead." That decision, why the parser isn't self-hosted yet, now lives next to the code it explains.
+
+What I Learned
+Ask the person before you design. I had a polished time-blindness pitch. Zee's two-line answer turned it into a carry-over list plus a hyperfocus warning, and those are the parts he'll actually use.
+A small model plus a fine-tune beats a bigger model plus a prompt. The 4B LoRA beat the 9B on every column, and few-shot prompting made the hardest field worse.
+Profile before you optimise, and don't trust your guess about where the time goes. I'd have bet on the LLM. It was a tabular model re-reading 70 rows.
+Concessions belong in the product, too. The demo profile says "made-up data" in the dropdown. The footer says where the parser runs. A tool for someone who's hard on himself should never lie to him.
+Prize Categories
+Best Use of Tinker: LoRA fine-tune of Qwen3.5-4B (rank 32, 400 examples). On 48 held-out brain-dumps it beats the base 4B, base 4B 5-shot, and the 9B: task type 93% vs 78/82/88%, deadline 76% vs 69/55/61%, 100% valid JSON, and 1.4x faster than the 9B. The dataset was also generated and labelled on Tinker with open models. Total spend $2.81. Adapter downloaded.
+Best Use of TabPFN: local TabPFN-3.5 regressor (log-duration, 10/50/90% quantiles) and classifier (done the same day?) over the user's own small history. In-context, so every logged task updates the next plan with no retraining. fit_with_cache cut predict latency from 2.43 s to 0.27 s.
+Best Use of Sentry Agent Tracing: invoke_agent → gen_ai.chat (model, input and output tokens) → execute_tool tabpfn_forecast, prompts excluded. Traces found the real bottleneck (TabPFN predict, not the LLM), I fixed it, and the traces confirmed it: 3.25 s to 268 ms on the tool span, 5.6 s to 3.5 s end to end.
+Best Use of Entire: the full build session captured as a redaction-checked checkpoint linked to its commit, and quoted above to explain why the code is the way it is.
+Top comments (3)
+
+</pasted_content id="9303">
+
+ 
+
+<pasted_content id="9303">
+Padh Ke Batao: an AI that reads my grandfather's documents to him, on a laptop with no GPU
+#
+devchallenge
+#
+weekendchallenge
+#
+hf26challenge
+#
+ai
+Hacktoberfest Weekend Challenge: Build for a Friend Submission 🤝
+This is a submission for the Hacktoberfest Weekend Challenge: Build for a Friend
+
+🏆 Update: This project won Best Use of ElevenLabs! Thank you, DEV and ElevenLabs. See all the winners.
+
+Best Use of ElevenLabs badge
+
+What I Built
+My Nana (my mother's father) gets a steady stream of paper he can't fully read: bank notices, hospital reports, pension circulars, government letters. They're dense, formal, often in English, and the one thing that matters (do I need to do something, and by when?) is usually buried in paragraph three.
+
+Recently it was a notice about SIR, the Election Commission's Special Intensive Revision of the voter rolls: the kind of notice where missing a step can keep your name off the voter list. He couldn't read it. So he asked the way he always does: "padh ke batao", read it and tell me.
+
+That's the name of what I built. Padh Ke Batao (पढ़ के बताओ) does exactly what he asks. He chooses a photo of the document and, about a minute later, gets:
+
+What it is and who sent it
+What it says, including what happens if he ignores it
+What to do, step by step, with every document he needs to bring written out
+The last date, with a countdown ("15-10-2026 · 10 दिन बाकी", 10 days left)
+How urgent it is: जल्दी करें (act soon), ध्यान दें (needs attention) or सिर्फ जानकारी (information only)
+A big 🔊 सुनें (Listen) button that reads it all out in a natural Hindi voice
+Everything that reads the document runs on an ordinary laptop: an open-weight vision model in Ollama, no GPU, no cloud AI. The photo of his bank letter never leaves the machine.
+
+Nana is far from the only one. In millions of Indian homes, an official letter arrives and sits on a shelf until someone has time to read it to the person it was sent to. I built this for him, but it works for anyone in that spot.
+
+Padh Ke Batao explaining a bank KYC notice in Hindi: urgency badge, deadline with days left, what it says, what to do, key details
+
+The letter in these screenshots is made up, so no real account appears anywhere. The explanation is the model's real output.
+
+Demo
+
+
+Start    Reading    Result (English, dark mode)
+Start screen in Hindi    Progress while the model reads the document    English result in dark mode
+Code
+GitHub logo Rahullkumr / padh-ke-batao
+Hacktoberfest 2026 Launch Weekend DEV Challenge - Build for a Friend (winner 😍)
+Hacktoberfest 2026 Weekend Challenge: Open-Source AI Challenge
+
+Badge: Best Use of ElevenLabs in a #HF26Challenge
+
+🏆 Winner: Best Use of ElevenLabs. See all winners
+
+पढ़ के बताओ · Padh Ke Batao
+Padh ke batao is Hindi for "read it and tell me". It's what my Nana says whenever he hands someone a letter he can't read.
+
+Take a photo of a document (bank notice, hospital report, pension circular, government letter) and get it explained in simple Hindi or English: what it says, what to do, and by when. An open-weight vision model reads it locally through Ollama, so the photo never leaves the computer.
+
+Built for my grandfather for DEV's Hacktoberfest 2026 Launch Weekend DEV Challenge: Build for a Friend. 📝 Read the full story on DEV
+
+Watch the Padh Ke Batao demo on YouTube
+
+▶ Watch the demo (sound on for the Hindi voice)
+
+Features
+One big button. Choose or drag in a photo and the explanation starts.
+Answers what matters: document type, what it says, what to do…
+View on GitHub
+How I Built It
+Architecture: photo to browser page, POST /explain to a Fastify server on 127.0.0.1, image and prompt to Ollama running qwen3.5:4b, all inside 
+
+The open-source AI at the core is qwen3.5:4b, an open-weight vision model (3.4 GB), running locally in Ollama. Around it:
+
+A small Fastify server, listening only on 127.0.0.1. It sends the photo to Ollama with a prompt and a JSON schema passed to Ollama's format field, so every answer has the same six fields: document_type, summary, key_details, action_needed, deadline, urgency.
+Streaming. The answer streams back as newline-delimited JSON, so the page shows "reading…" then "writing…" with a progress bar instead of a frozen screen for a minute.
+A plain HTML/CSS/JS page. No framework, no build step, big text, high contrast, Hindi/English and light/dark toggles.
+Built for a CPU-only laptop: an i7-13700H with 16 GB RAM and integrated graphics, the kind of machine a family already owns.
+Making a 4B model trustworthy on a CPU
+Getting an answer was easy. Getting an answer I'd trust in front of Nana took four rounds of testing on six real documents: a bank KYC reminder, the Election Commission's press note about the same SIR drive, a Hindi government message, a medical check-up report, a pension notice and a YouTube copyright email.
+
+1. Speed: the image was the bottleneck, not the model. My first run took 147 seconds. Ollama's timing stats showed why: the photo became 2,391 image tokens that took 95 s just to read, while writing the answer took only ~35 s. Shrinking the photo to 768 px brought a full explanation down to 50 s. Then I found out what that cost.
+
+2. The scariest bug wasn't a crash. At 768 px, a harmless Hindi announcement from a state government department came back as a warning that "you may be punished if you don't submit your details", complete with an invented city and a phone number, 1234567890. Nothing in the letter said any of that. The model couldn't read dense Devanagari at that size, so it confidently made something up. At full resolution it read the same letter perfectly: "only information, nothing to do."
+
+A fixed width was the wrong knob. The page now shrinks photos to a budget of ~900,000 pixels: big enough for dense Hindi text, small enough to read in about 30 s. Final runs on the six documents took 56–91 seconds. I'll take a minute of waiting over a fast answer that frightens him.
+
+3. Language drift. In Hindi mode, an English press note got an English answer, and others came back in Roman-letter Hinglish ("Aapko branch jaakar…"). The fix was a rule that every field must be in the chosen language and Hindi must be Devanagari, repeated in Hindi at the end of the prompt.
+
+4. Temperature, in both directions. At 0.2 the model got stuck repeating itself until the JSON broke. At 0.7 it translated YouTube's "claimed" as अपहरण (kidnapping). 0.4, with top_p 0.8, top_k 20 and a 900-token cap, was the balance.
+
+5. Small rules that matter. I'd put today's date in the prompt so it could flag past deadlines; it started reporting today's date as a date in the letter. I removed it, and the page now counts the days itself. Other rules came straight from failures:
+
+A printed or test date is not a deadline.
+Write out every step and document; never say "the items below".
+At most six key details, preferring a phone number over an IFSC code.
+For medical reports, explain the values but never diagnose or suggest changing medicines.
+After the final round, the urgency was right on all six documents, with no invented threats, names or numbers. It isn't perfect: it still picks an odd word sometimes, and it once translated the bank name "Sunrise" as सूरज (sun). So the page always ends with "if in doubt, check with family or the office that sent it." The final prompt is short enough to read in a minute.
+
+The voice: ElevenLabs
+A lot of the reason Nana hands letters over is that reading is the hard part, so the explanation needs to be heard, not just shown. The 🔊 सुनें button uses ElevenLabs (eleven_multilingual_v2, slowed to 0.9× speed) for a natural Hindi or English voice. I was careful about what crosses the internet:
+
+Sent: only the urgency, deadline, summary and steps. Never the photo, and never the key-details list, which is where names and account numbers live.
+Server-side key: the API key stays on the local server; the browser never sees it.
+Replay is free: pressing Listen again reuses the audio instead of using more credits.
+Offline fallback: with no internet or no key, it falls back to a voice installed on the computer.
+Honest UI: a line under the button says exactly what is sent to ElevenLabs.
+Why Does Open Innovation Matter?
+Because these are Nana's bank letters, pension papers and medical reports.
+
+His documents stay home. The model runs on the laptop, and the server only listens on 127.0.0.1. No account, no upload, no third party keeping a copy of his bank details under a retention policy he never agreed to.
+It runs on what we already own. No GPU, no cloud bill, no rented server. An open 4B model on an ordinary laptop CPU is enough, once you tune it.
+Nothing costs anything per document. He can check every envelope, not just the scary-looking ones, and nobody has to think about a bill.
+I could look inside and fix it. Ollama told me exactly where the time went (reading the image vs writing the answer), which is how I found the resolution trade-off. I could tune temperature, sampling, output length and the schema until the answers were trustworthy, then pin that exact model so it doesn't change under him.
+It works with the internet unplugged. Reading and explaining need no connection; only the ElevenLabs voice does, and it falls back to a local one.
+A closed vision API would have meant uploading photos of a family's financial and medical paperwork to someone else's servers, and paying for every one.
+
+Handing It Over
+I showed it to Nana, and he loved it. The part he liked most was the Hindi voice. He speaks Hindi most of the time, so hearing the explanation out loud, in his own language, is what made it click for him. He didn't have to read anything, not even the screen.
+
+That changed how I see the app. I'd treated the Listen button as an add-on; for Nana it's the main way in. It's also why I'm comfortable with the one thing that leaves the laptop: a few sentences of summary sent to ElevenLabs, in exchange for a voice he actually enjoys listening to.
+
+My Agent Session
+I built this with Claude Code as a pair programmer for planning, debugging and the test rounds. That was during development only: at runtime the app uses no closed-model AI. All the reading and explaining is done by the open Qwen model in Ollama.
+
+Building Padh Ke Batao: a local Hindi document explainer for my Nana
+claude-opus-5-5
+YOU
+Continue my Hacktoberfest "Build for a Friend" entry (letter explainer for my grandfather). Read my project memory first; everything is decided, so don't redo it. Deadline is Oct 5, 12:29 IST.
+Start with the pending repo housekeeping, then build step 1: install Ollama, pull gemma4:e4b, and time it on one sample letter. Ask before installing anything.
+When we finish, save this session to DEV via DevRelay so I can embed it in my post.
+AGENT
+
+▸
+Bash
+cat "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frie...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && ls -la scripts; git ls-fi...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npm uninstall backboard-s...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i 's/^# Private test...
+Housekeeping done. Package files stay uncommitted until real app code lands (per plan), now clean of Backboard.
+Step 1 check before install:
+
+▸
+Bash
+which ollama 2>/dev/null || echo "ollama: not found"; winget --version 2>/dev...
+
+▸
+AskUserQuestion
+{ "questions": [ { "question": "Ollama not installed. OK to insta...
+Fine. While you install Ollama (ollama.com/download, Windows installer), I'll make a synthetic letter and the timing script.
+
+▸
+Write
+<scratchpad>\make-letter.ps1 Add-Type -AssemblyName System.Drawing $out = $a...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && powershell -NoProfile -Ex...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\samples\synthetic-kyc-notice.jpg
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\scripts\time-letter.js // Times ...
+
+▸
+Bash
+node --check "~/Desktop/Hacktober Fest/build-for-a-friend/scripts/time-letter...
+Ready on my side. Waiting on your Ollama install.
+Done:
+- Housekeeping: most of it was already finished last session (5b3d3d0 has .gitignore with .agents/ and .env.example; backboard-test.js was already deleted). Today I removed the leftover backboard-sdk dependency and the test:backboard script from package.json, deleted the empty scripts/ folder, and added samples/ to .gitignore. Committed as 01fe098. Nothing pushed. The package files stay uncommitted until real app code lands.
+- Sample letter: made a fake "final reminder" bank KYC notice at samples/synthetic-kyc-notice.jpg. The bank and person are invented. It has a deadline, a list of documents to bring, a warning about debit restrictions, and an offer of a doorstep visit for seniors, so it tests the action, deadline and urgency fields.
+- Timing script: scripts/time-letter.js sends the photo to Ollama with the agreed JSON schema and prints the explanation. It reports model load time, image-reading time and generation speed separately. It also doubles as a prompt playground for step 4. Syntax checks out; I haven't run it yet because Ollama isn't installed.
+Your turn:
+1. Install Ollama from ollama.com/download (Windows installer, native, not Docker).
+2. Tell me when it's done. I'll then run ollama pull gemma4:e4b (about 10 GB) and the timing script twice. The first run includes loading the model, so the second run is the real per-letter speed:
+
+node scripts/time-letter.js samples/synthetic-kyc-notice.jpg hi
+
+If the second run takes more than about 1 minute, we try qwen3.5:4b or shrink the image before rethinking anything.
+I'll upload the session to DevRelay when we finish today's work, not now.
+Show more
+YOU
+we will use qwen3.5:4b not the gemma4:e4b. tell me what is it's size. ollama is being downloaded
+AGENT
+
+▸
+WebFetch
+{ "url": "https://ollama.com/library/qwen3.5/tags", "prompt": "List every...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i "s/|| 'gemma4:e4b'...
+Recording the model switch and the finished housekeeping in project memory so the next session doesn't redo them.
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+The script now uses qwen3.5:4b by default and is ready to time.
+Size: qwen3.5:4b is 3.4 GB (text + image, 256K context), from the ollama.com tags page. Gemma4:e4b was about 10 GB, so the download is faster and more of your 16 GB RAM stays free.
+Thinking turned off: Qwen3.5 thinks before answering by default in Ollama, which could add minutes per letter on CPU. I added think: false to the request in scripts/time-letter.js and made qwen3.5:4b the default model. Syntax checks out; it hasn't been run yet.
+Memory updated: project memory now records the model switch and that the repo cleanup is finished.
+When Ollama finishes installing, tell me and I'll run:
+
+ollama pull qwen3.5:4b
+node scripts/time-letter.js samples/synthetic-kyc-notice.jpg hi # twice: first includes model load, second is real speed
+Show more
+YOU
+[screenshot attached]
+ollama download and install finished, it is showing this
+AGENT
+Installed. Locating the binary and checking the server is up before pulling.
+
+▸
+Bash
+OL="%LOCALAPPDATA%/Programs/Ollama/ollama.exe"; ls -la "$OL" 2>/dev/null || w...
+Ollama 0.35.1 running on localhost:11434. Pulling qwen3.5:4b (3.4 GB) in background.
+
+▸
+Bash
+"%LOCALAPPDATA%/Programs/Ollama/ollama.exe" pull qwen3.5:4b 2>&1 | tr '\r' '\...
+The install worked: Ollama 0.35.1 is running on localhost:11434. You can ignore the "Run Ollama" window; I'm calling the binary directly.
+qwen3.5:4b (3.4 GB) is now downloading in the background. When it finishes I'll run the timing script on the sample letter twice. The first run includes loading the model; the second shows the real per-letter time. You'll get both results plus the Hindi explanation.
+
+▸
+Bash
+cat "~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fest-build-f...
+Model pulled (3.4 GB, digest verified). Run 1 — cold, includes model load:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node scripts/time-letter....
+Node 22 resolves localhost to IPv6 ::1, but Ollama listens only on IPv4 [REDACTED]. Switching the default URL to [REDACTED] (the backend will need the same).
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i "s#'http://localho...
+Works. Cold run: 147.5s. The bottleneck is reading the image: 2391 image+prompt tokens take 95s. Generation speed is fine at 8.5 tok/s. Warm run next, to remove the 13s model load:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node scripts/time-letter....
+
+▸
+Bash
+SP="<scratchpad>"; cat > "$SP/resize.ps1" <<'EOF' Add-Type -AssemblyName Syst...
+
+▸
+Bash
+SP="<scratchpad>"; cd "~/Desktop/Hacktober Fest/build-for-a-friend"; for m in...
+Step 1 numbers are in. Recording them in memory before the session upload:
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+Step 1 is done, so I'm saving the session to DEV as you asked. First I'll build a cleaned transcript from the local session log, scrubbing your email, machine paths and any secrets.
+
+▸
+Bash
+ls -la ~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-fr...
+Uploading only the cleaned transcript, not the raw S3 upload, because the raw log would include your unscrubbed paths and email.
+
+▸
+Write
+<scratchpad>\normalize.js // Turn Claude Code JSONL transcript into DEV agen...
+
+▸
+Bash
+SP="<scratchpad>"; node "$SP/normalize.js" "$HOME/.claude/projects/c--Users-U...
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && node -e ' const fs=require("fs");let s=fs.read...
+Scrubbed transcript is clean: 6 messages, no leaks found. It covers the session from your first prompt through the step 1 timing results. Submitting it to DEV as claude_code:
+
+▸
+Bash
+node -e 'process.stdout.write(JSON.stringify(require(process.argv[1])))' "<sc...
+34 KB is too big to paste reliably into the submit call. DevRelay has an upload slot for that, so I'll upload the scrubbed file there instead of the raw log.
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && sed -i 's/^const MAX_OUT = 2500;/const MAX_OUT...
+
+▸
+Read
+<scratchpad>\session.json
+Two gaps in the cleaned transcript: some of my in-between explanations are missing (e.g. the "Misleading: 0.3s is the cache" note), and the 768px result got cut off. Checking why:
+
+▸
+Bash
+F="$HOME/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-fr...
+
+▸
+Bash
+F="$HOME/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-fr...
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && sed -i "s/output: scrub(clip(results.get(b.id)...
+All four timings are now in, with no leaks. Pulling the two updated outputs so the submission matches the file exactly:
+
+▸
+Bash
+cd "<scratchpad>" && node -e 'const d=require("./session.json");for(const b o...
+Saved. Recording the session ID in memory:
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+Step 1 is done and the session is saved to DEV. qwen3.5:4b is fast enough if we shrink the photo before sending it: about 50s per letter at 768px.
+Timing on the synthetic bank letter (Hindi output):
+Photo size    Time per letter    Image tokens
+Full, 1240×1754    ~130s (147s on the first run, which includes 13s model load)    2391
+1024px long side    69s    982
+768px long side    50s    654
+Reading the image is the slow part. Writing the answer runs at about 9 tokens/s and adds 33–40s whatever the photo size. A repeat run on the identical image took only 34s, but that's because Ollama cached the image; a new letter won't get that.
+Plan for step 2 (recorded in memory):
+- Shrink in the browser: resize photos to 768px on the long side before upload. Go to 1024px if real phone photos get misread.
+- Keep the model loaded: set Ollama's keep_alive long so Grandpa doesn't wait for the 13s load.
+- Stream the answer: show text as it arrives so the wait feels shorter.
+Prompt problems for step 4:
+- Missed: the warning that ATM and cheque payments will be blocked, and the doorstep-visit offer for seniors.
+- Urgency: it said "medium" when it should probably be "high".
+- Invented: at 1024px it made up an "online/mobile app" option.
+- Word choice: at 768px it called the letter "पत्रिका" (magazine).
+Bug fixed: Node 22 sends localhost to the IPv6 address, but Ollama only listens on IPv4. The script now uses [REDACTED], and the backend will need the same.
+DEV session: saved as an unpublished draft (ID 453): https://dev.to/agent_sessions/build-for-a-friend-step-1-a-local-vision-model-reads-grandpas-bank-letter-ax9nge. To embed it in your post: {% agent_session 453 %}.
+- Scrubbed: your email, home folder paths and session IDs. No API keys appear in it.
+- Trimmed: long outputs are shortened; the timing results are kept in full. I also removed terminal colour codes and shortened the error trace.
+- Left out: the upload steps themselves, because they contained the scrub rules, including your email. A few of my short in-between notes weren't in the session log, so they're missing too.
+Review it on DEV before publishing.
+Repo:
+- Committed: 01fe098, which ignores samples/. Nothing pushed.
+- Not committed: scripts/time-letter.js and the cleaned-up package.json. I'll commit them with the backend code unless you want the script committed now.
+Next is step 2, the Fastify /explain backend.
+Show more
+YOU
+revert the last commit, and you do not do any git code movement or commits, I will do it myself
+AGENT
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && git log --oneline -2 && g...
+Recording this preference in memory and fixing the step 1 note that mentions the commit:
+
+▸
+Write
+~\.claude\projects\c--Users-USER-Desktop-Hacktober-Fest-build-for-a-friend\me...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+I've undone the commit with git reset HEAD~1, so it no longer exists. Your .gitignore change (ignoring samples/) is still there, just uncommitted, and main is back at 5b3d3d0. I'd committed locally only, so there's nothing to undo on GitHub.
+From now on I won't commit, stage, reset, switch branches or push. I'll only edit files and use read-only git commands like status, log and diff. That preference is now saved in memory for future sessions.
+Ready for you to commit:
+- .gitignore: adds samples/
+- scripts/time-letter.js: the timing script
+- package.json and package-lock.json: Backboard removed
+The saved DEV session (453) still shows the 01fe098 commit being made. Mention that it was reverted if you embed that part, or tell me and I'll trim it from the session.
+Show more
+YOU
+lets go to next step
+AGENT
+
+▸
+Bash
+date "+%Y-%m-%d %H:%M %Z"; cd "~/Desktop/Hacktober Fest/build-for-a-friend" &...
+
+▸
+AskUserQuestion
+{ "questions": [ { "question": "OK to run `npm install fastify` (...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\explain.js // Sends one docu...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\server.js // Local web serve...
+Now switching the timing script to the shared module, so step 4 prompt tuning changes the real app's prompt too:
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\scripts\time-letter.js // Times ...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npm pkg set main=src/serv...
+package.json already lists fastify ^5.12.5, so it looks like you installed it. Checking, and making sure Ollama is running:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node -e 'console.log("fas...
+Fastify 5.12.5 is installed. Ollama is down, so I'm starting it in the background, then the server:
+
+▸
+Bash
+"%LOCALAPPDATA%/Programs/Ollama/ollama.exe" serve
+
+▸
+Bash
+sleep 4; curl -s http://127.0.0.1:11434/api/version
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npm start
+
+▸
+Bash
+sleep 20; cat "~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fe...
+
+▸
+Bash
+SP="<scratchpad>"; grep -o '"msg":"[^"]*"' "$SP/../tasks/bv3orn0fl.output"; e...
+Model loads at startup, and bad requests are rejected. GET / returns 500 for now because the page comes in step 3. Now a real streamed request with the 768px letter:
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && node -e ' const img=require("fs").readFileSync...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i "s|^// onProgress ...
+Restarting the server, then testing that closing the page mid-request really stops Ollama. If it doesn't, the next letter would wait behind the abandoned one.
+
+▸
+TaskStop
+{ "task_id": "bv3orn0fl" }
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npm start
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && powershell -NoProfile -ExecutionPolicy Bypass ...
+
+▸
+Bash
+grep -o '"msg":"[^"]*"\|Error[^"]*' "~/AppData/Local/Temp/claude/c--Users-USE...
+
+▸
+Bash
+taskkill //PID 23308 //F && sleep 1 && netstat -ano | grep ":3000 .*LISTENING...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node src/server.js
+Rerunning the cancel test on the new server, using two image sizes that haven't been sent before so Ollama's cache can't skew the timing:
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && for m in 960 880; do powershell -NoProfile -Ex...
+"Reading" now shows instantly (0.1s). Cancelling half works: request B still waited about 25s extra. Checking Ollama's log to see when the cancelled request actually stopped:
+
+▸
+Bash
+grep -a "api/chat" "~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktob...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+Step 2 is done: the backend explains a 768px letter in about 54s, streaming progress while it works. All tests passed except one known delay after cancelling, explained below.
+What's built:
+- src/explain.js holds the prompt, the agreed JSON schema and the Ollama call. The timing script now uses it too, so prompt tuning in step 4 changes the real app.
+- src/server.js is a Fastify server that listens only on [REDACTED]:3000, so the letter never leaves the laptop. It loads the model at startup and keeps it in memory for 30 minutes.
+- POST /explain takes { image, lang } and streams progress lines ("reading", then "writing"), then the result.
+- GET / will serve public/index.html, which comes in step 3. Until then it returns a 500.
+- package.json now has npm start and npm run time (the timing script).
+Tested:
+- Bad input: a wrong language or a non-image file gets a clear error back.
+- Real letter: the 768px letter streamed correctly, with "reading" shown instantly and the full result in about 54s.
+- Better answers: the stricter prompt now gives the consequence of ignoring the letter and the bank's phone number.
+- Still weak: it still misses the doorstep-visit offer and rates urgency "medium". That's step 4.
+- Cancelling: if the page closes mid-request, the Ollama request stops at once. But Ollama finishes reading the current image (about 20s) before it can start the next letter. That's inside Ollama; it only matters on an immediate retry.
+Bug fixed: the "reading" message used to arrive 16s late because Ollama sends nothing until its first word. The server now sends it immediately.
+On Windows, stopping npm start left the old server running on port 3000. Run node src/server.js directly when restarting.
+Ollama and the new server are still running in the background for step 3.
+Ready for you to commit: src/, scripts/time-letter.js, package.json, package-lock.json and .gitignore.
+Next is step 3, the page: photo upload, resizing to 768px in the browser, big text, a Hindi/English toggle and live progress. Shall I go ahead?
+Show more
+YOU
+yes
+AGENT
+Building the page now. Design choices for your grandfather:
+- One big button: choosing a photo starts the explanation straight away, no second click.
+- Hindi by default: the toggle switches both the page labels and the explanation language.
+- Big text, high contrast, Hindi fonts built into Windows: no web fonts, so the page makes zero internet requests, which supports the privacy story.
+- Urgency and deadline first: urgency is a colored badge with words, and the deadline shows "N days left".
+- Progress: the progress bar and seconds counter cover the ~50s wait.
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html <!doctype html...
+One gap: the server's error messages are English-only, so in Hindi mode they'd show up in English. Making the page show its own translated error text instead:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i "s| offline: 'ऐ...
+
+▸
+Bash
+EDGE="/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"; ls "$EDG...
+
+▸
+Bash
+EDGE="/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"; SP="<scr...
+
+▸
+Read
+<scratchpad>\shot-start.png
+
+▸
+Read
+<scratchpad>\shot-result.png
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i 's|^ \* { box-siz...
+It was my test's fault: sed turned \n into real line breaks inside a JS string. The app code is fine. Rebuilding the mock-up with Node, plus a phone-width (400px) shot:
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && node -e ' const fs=require("fs"); const data={...
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && for w in 800 400; do "/c/Program Files (x86)/M...
+
+▸
+Read
+<scratchpad>\shot-result-800.png
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+Step 3 is written: the page is public/index.html. I checked it with screenshots in a headless browser, but nobody has clicked through it yet. That's the next thing to do.
+What it does:
+- One button: "चिट्ठी की फोटो चुनें" opens the photo picker, and choosing a photo starts the explanation right away.
+- Shrinks the photo to 768px in the browser before sending it.
+- Language toggle (हिंदी / English): switches the page text, and if a letter is showing, explains it again in the new language (about 50s).
+- Progress: a progress bar for "reading" then "writing", plus a seconds counter with "usually takes about 1 minute".
+- Result: a colored urgency badge, the deadline box with "N days left", what the letter says, step-by-step actions, key details, and a "check with family if in doubt" note.
+- Errors in the chosen language: for a bad photo, a failed reading, or the app not running.
+- No internet requests at all. It uses Hindi fonts already on Windows.
+Checked:
+- The page loads from the server.
+- The page's code has no syntax errors.
+- Screenshots of the start screen and a mock-up result screen look right.
+Your turn: both servers are still running, so open http://[REDACTED]:3000 and pick samples/synthetic-kyc-notice.jpg, or a real letter. Tell me what looks off.
+For step 4 (prompt tuning):
+- Language: the document type came back in English in Hindi mode.
+- Doorstep visit: still missing.
+- Urgency: still rated too low.
+- Real letters: testing 3–4 real ones will show whether 768px is sharp enough for phone photos.
+New file ready for you to commit: public/index.html.
+Show more
+YOU
+I added few more documents for testing
+AGENT
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && ls -la samples/; git stat...
+Five new documents: copyright notice, Election Commission letter, gau seva portal inauguration, general checkup report, pension notice. Looking at each first, so I know what the model should say:
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\samples\copyright notice.png
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\samples\ec letter test.jpg
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\samples\gau seva portal innograti...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\samples\gen checkup.webp
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\samples\pension notice.png
+
+▸
+Bash
+SP="<scratchpad>"; mkdir -p "$SP/t768" && cd "~/Desktop/Hacktober Fest/build-...
+
+▸
+Bash
+SP="<scratchpad>"; S="~/Desktop/Hacktober Fest/build-for-a-friend/samples"; p...
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP/t768" && mv "gen checkup.jpg" checkup-full.jpg && ...
+All five are now at the size the browser would send. Running the Hindi baseline. This takes about 5 minutes, so it runs in the background:
+
+▸
+Bash
+SP="<scratchpad>"; cd "~/Desktop/Hacktober Fest/build-for-a-friend" && mkdir ...
+While the baseline runs I'll leave the prompt alone, because each run loads it fresh. Once I see the results I'll make all the prompt fixes in one pass.
+
+▸
+Bash
+SP="<scratchpad>"; cat "$SP/../tasks/bx0ay3uwx.output"; for f in "$SP"/baseli...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node scripts/time-letter....
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\src\explain.js
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\src\explain.js - function buildPr...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i "s|^const MAX_SIDE...
+Code changes are done. Rerunning all six documents with the new prompt and photo size, in the background, about 7 minutes:
+
+▸
+Bash
+SP="<scratchpad>"; S="~/Desktop/Hacktober Fest/build-for-a-friend/samples"; m...
+
+▸
+Bash
+SP="<scratchpad>"; cd "~/Desktop/Hacktober Fest/build-for-a-friend" && for f ...
+Round 2 is running: 6 documents at about 70s each. The running web server still has the old prompt loaded, so I'll restart it once the test finishes.
+Saving the findings so far to memory:
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+Findings are in memory. The test is still running; I'll report as soon as all six are done (about 7 minutes).
+
+▸
+Bash
+SP="<scratchpad>"; cat "$SP/../tasks/byv2u9ytk.output"; for f in "$SP"/round2...
+
+▸
+Bash
+SP="<scratchpad>"; for f in "$SP"/round2/*.txt; do echo "$(basename "$f" .txt...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+My replacement turned \n into a real line break inside a quoted string. Fixing it:
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\src\explain.js
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\src\explain.js - const today = ...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node --check src/explain....
+All edits are in and the syntax is valid. Running round 3 on all six documents in the background (about 7 minutes):
+
+▸
+Bash
+SP="<scratchpad>"; mkdir -p "$SP/round3"; cd "~/Desktop/Hacktober Fest/build-...
+Round 3 is running. I'll report when all six finish.
+
+▸
+Bash
+cat "~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fest-build-f...
+Round 3 is 2 of 6 done; the remaining 4 need about 5 more minutes. Both finished faster than round 2: copyright 53s, Election Commission 56s (was 84s). Here's what they say:
+
+▸
+Bash
+SP="<scratchpad>"; for n in "copyright notice" "ec letter test"; do echo "===...
+Round 3, 2 of 6 done (02:28 IST). The remaining four (gau seva, checkup, pension, KYC) need about 5 more minutes.
+So far, partly better and partly worse:
+Fixed: both answers are in Devanagari, both are faster, and the Election Commission note is correctly flagged as general information with low urgency.
+New problem 1, today's date leaks into answers: the model wrote "5 अक्टूबर 2026" (today) as a date in the documents. That's wrong: the Election Commission work started on 4.11.2025, not today. Adding today's date to the prompt caused this.
+New problem 2, scary wording: for the copyright email, the model translated "claimed" as "अपहरण" (kidnapping). It also added an invented "your video may be removed". The higher temperature makes word choice looser.
+My plan once the last four finish:
+- Keep Devanagari and the 6-detail limit.
+- Today's date: stop putting it in the prompt. Instead the page compares the deadline with today itself, which it already does ("N days left" / "date has passed"). That's more reliable than asking the model.
+- Temperature: settle on 0.4 with the 900-token cap as the safety net against loops.
+Then one final run, and step 4 is done.
+Show more
+
+▸
+Bash
+cat "~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fest-build-f...
+Five of six are done; the KYC letter is still running. The three newest:
+
+▸
+Bash
+SP="<scratchpad>"; for n in "gau seva portal innogration" "gen checkup" "pens...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+Round 3 finished. Starting the final round in the background, then looking at the KYC result from round 3:
+
+▸
+Bash
+SP="<scratchpad>"; mkdir -p "$SP/round4"; cd "~/Desktop/Hacktober Fest/build-...
+
+▸
+Bash
+SP="<scratchpad>"; tail -1 "$SP/../tasks/bstoj5el3.output"; sed '/^model:/,$d...
+The round 3 KYC result is the best so far:
+- Urgency: high, correctly.
+- Consequence: the ATM and cheque block, with pension still coming in.
+- Doorstep visit: mentioned for the first time ("call and they'll come home to update KYC").
+- Documents: all four listed.
+It also listed "आज की तारीख: 5-10-2026" as a fact from the letter, which confirms removing today's date was right.
+The final round is running (about 7 minutes). After that I'll restart the web server so the page uses the final prompt.
+
+▸
+Bash
+cat "~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fest-build-f...
+
+▸
+Bash
+SP="<scratchpad>"; for n in "copyright notice" "ec letter test"; do echo "===...
+The final round is 2 of 6 done (02:37 IST). The other four need about 5 more minutes. Both answers are the cleanest so far:
+YouTube copyright: accurate and calm. "Just information, your account is fine, nothing to do", plus the dispute option. No scary words like "अपहरण" this time.
+Election Commission: most numbers right now.
+Right: 51 करोड़ voters (was "51 लाख"), the real dates (published 04.11.2025, work runs until 4 Dec 2025), Booth Level Officer (was "Blue Level"), helpline 1950, and it's flagged as a general notice.
+Still off: "12 states and 3 UTs" (it's 9 + 3 = 12). The deadline went into the details rather than the deadline field, so the page won't show the "date has passed" warning for this one.
+I'll restart the web server with the final prompt once all six finish.
+Show more
+
+▸
+Bash
+SP="<scratchpad>"; cat "$SP/../tasks/bgxz2n40h.output"; for n in "gau seva po...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+
+▸
+TaskStop
+{ "task_id": "b9kx2plyx" }
+
+▸
+Bash
+sleep 1; netstat -ano | grep ":3000 .*LISTENING" || echo "port 3000 free"
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node src/server.js
+
+▸
+Bash
+sleep 5; curl -s -o /dev/null -w "GET / %{http_code}\n" http://127.0.0.1:3000...
+Step 4 is done. The final prompt gave the right urgency on all six test documents, with no made-up threats or numbers, at 56–91s per letter. The web server is restarted with it, so http://[REDACTED]:3000 is ready to try.
+What changed in step 4:
+- Photo size: capped at ~900k pixels instead of 768px on the long side. That fixed the gau seva letter, where the model had invented "Jamshedpur" and a punishment because the Hindi text was too small to read.
+- Language: every answer in Devanagari Hindi. Earlier rounds drifted into English or Roman-letter Hindi.
+- Prompt rules:
+- Copy numbers and units exactly.
+- Never invent anything.
+- A printed or report date isn't a deadline.
+- Say who a notice applies to.
+- Flag general announcements.
+- No medical advice.
+- At most 6 details, preferring ones he needs to act on.
+- Write out every step and every document to bring.
+- Settings: temperature 0.4 with a 900-token cap. 0.2 made the model loop and break its output; 0.7 produced odd words like "अपहरण" (kidnapping) for "claimed".
+- Today's date is no longer in the prompt. The model was copying it into answers as a date from the document. The page already works out "N days left" itself.
+Still imperfect:
+- An occasional odd word.
+- The Election Commission note still says "12 states" instead of 9 states + 3 UTs.
+- The deadline sometimes lands only in the details list, so the "date has passed" box doesn't show for that letter.
+Worth saying honestly in the post. The four rounds, the invented "punishment" letter and the speed-versus-accuracy trade-off are all strong material.
+Next is step 5, the optional read-aloud. I suggest swapping ElevenLabs for the browser's built-in speech. It works offline and keeps the "nothing leaves this computer" promise, which ElevenLabs would break. It needs a Hindi voice installed on Windows; I can check whether yours has one. Or we skip step 5 and go straight to the README and demo (step 6). It's 02:50, and the deadline is 12:29. Which do you prefer?
+Show more
+YOU
+go to step 5 no elevenlabs for this project
+AGENT
+No ElevenLabs. I'll use the browser's built-in speech, restricted to voices that run on the computer. Edge also offers "Online (Natural)" voices that send the text to Microsoft's servers, and the page will skip those. First, checking which Hindi voices Windows has installed:
+
+▸
+Bash
+powershell -NoProfile -Command "Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Speec...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -n "class=\"badge\"\...
+The page is longer than when I wrote it (618 lines, was about 340), so you or something else has edited it. Reading the current version before changing anything:
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html
+You've redesigned the page (dark mode, steps, drag-and-drop, phase pills), so I'll build on your version and keep its style.
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - .doc-type {...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - :is(.pick, ...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - <p clas...
+Now the text strings and the speech logic:
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - toDark: '...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - toDark: '...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - for (const ...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - controller?...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - $('theme').ad...
+Checking the page's syntax, then listing which voices Edge reports and which of them run on this computer:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i 's| id="listenWave...
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && node -e ' const fs=require("fs"); const data=J...
+
+▸
+Bash
+SP="<scratchpad>"; cd "$SP" && ls -la mock-result.html && "/c/Program Files (...
+
+▸
+Read
+<scratchpad>\shot-listen.png
+The layout works: with no voices, the "add a Hindi voice" note appears where the button would be. The card looks faded only because the screenshot caught its fade-in animation.
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+Step 5 is written: a "सुनें / Listen" button on the result, using only voices that run on the computer. It hasn't been heard yet. Headless Edge has no voices, and your Windows has no Hindi voice, so in Hindi mode you'll see the "add a voice" note instead of the button for now.
+How it works:
+- Button on the result: "सुनें / Listen" sits just under the urgency badge. Pressing it again ("रोकें / Stop") stops it.
+- What it reads: urgency, document type, deadline with days left, what the letter says, what to do, and the key details. It speaks at 0.9× speed, one sentence at a time.
+- Only voices that run on this computer. Edge's "Online (Natural)" voices are skipped because they send the text to Microsoft.
+- Stops when a new letter starts or the language changes.
+- No voice installed: the button hides and a note explains how to add one.
+To hear it in Hindi, add the free Hindi voice (your call):
+Windows Settings › Time & language › Speech › Add voices › हिंदी (भारत). Then reload http://[REDACTED]:3000.
+English mode should work right away, since Windows already has the Indian-English voices Heera and Ravi.
+Please try:
+1. Explain a letter and press "सुनें / Listen".
+2. Check it reads clearly.
+3. Check "रोकें" stops it.
+.env.example probably still has an ElevenLabs key line. Remove it if so, since ElevenLabs is out.
+Ready for you to commit: public/index.html, src/explain.js.
+Next is step 6: the README, demo video and screenshots. Shall I start on the README?
+Show more
+YOU
+let us use the elevenlabs
+AGENT
+Switching back to ElevenLabs is your call, and it's quick to wire up. Two things to settle first, because one of them could disqualify the entry:
+Rules: your memory notes say the app's AI must be open-weight, and ElevenLabs is a closed AI voice service. Checking the official challenge rules now.
+Privacy: the page promises "never sent over the internet". With ElevenLabs, the explanation text goes to their servers when he presses Listen, so that line has to change.
+
+▸
+get_challenges
+{}
+
+▸
+Skill
+{ "skill": "devrelay-sponsor-skills", "args": "ElevenLabs text-to-speech ...
+
+▸
+list_my_mlh_events
+{}
+
+▸
+list_event_agent_skills
+{ "event_id": "<session-id>" }
+
+▸
+AskUserQuestion
+{ "questions": [ { "question": "Install ElevenLabs' official agen...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npx -y skills add elevenl...
+Installed into .agents/skills/, which is gitignored, so nothing extra gets committed. The skill loads properly next session, so I'm reading its text-to-speech guide directly now:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend/.agents/skills" && ls text-to...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\.agents\skills\text-to-speech\SKI...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && cat .env.example; echo "-...
+ELEVENLABS_API_KEY is set. Checking which voices on your ElevenLabs account suit Hindi. This reads the key from .env and never prints it:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node --env-file=.env -e '...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node --env-file=.env --in...
+The key is empty: ELEVENLABS_API_KEY exists in .env but has no value. Checking the line's length without showing its contents:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && awk -F= '{ v=substr($0, i...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\src\server.js
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\speak.js // Turns the explan...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\src\server.js - import Fastify fr...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\src\server.js - await app.listen(...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npm pkg set scripts.start...
+Server side is done. Now the page: ElevenLabs first, local voice as fallback, and the honest privacy wording. Checking the current speech code first, since you've been editing this file:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -n "privacy: \|voice...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html - // Read aloud...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+Page code is valid. Restarting the server with .env loading, then checking the new routes:
+
+▸
+TaskStop
+{ "task_id": "b4c5j822u" }
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node --env-file-if-exists...
+
+▸
+Bash
+sleep 5; grep -o '"msg":"[^"]*"' "~/AppData/Local/Temp/claude/c--Users-USER-D...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\.env.example # Optional: ElevenL...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+ElevenLabs is wired in as the main "Listen" voice, but it's untested. Your .env has an empty ELEVENLABS_API_KEY, so only the "no key" path has been checked. With no key, the page falls back to a voice installed on the computer.
+How it works:
+- Server: src/speak.js calls ElevenLabs directly (model eleven_multilingual_v2, which supports Hindi, at 0.9× speed). The key stays on the server.
+- Routes: POST /speak returns the MP3, and GET /config tells the page whether ElevenLabs is set up.
+- Sent to ElevenLabs: only urgency, deadline, summary and steps, as you chose. Never the photo or the details list.
+- Replay is free: pressing Listen again on the same letter reuses the audio instead of using more credits.
+- Fallback: if there's no key, no internet or an error, it uses a local Windows voice. Those voices stay on the computer, so they can also read the details list.
+- Privacy text: the page now says "the photo never goes online". A note under the Listen button says exactly what goes to ElevenLabs. You'll want the same honesty in the post.
+- Prize: the rules only require open-source AI at the core, which Qwen via Ollama is. "Best Use of ElevenLabs" is a $100 prize category, so the entry now qualifies for it.
+- Start command: npm start now loads .env automatically.
+- Official skill: ElevenLabs' skill is installed in .agents/skills/, which is gitignored. Full loading needs a new session.
+- .env.example: rewritten to list only the ElevenLabs and Ollama settings. I removed the unused Backboard, Render and Tinker lines.
+Your turn:
+1. Paste your key into .env: ELEVENLABS_API_KEY=sk_.... ElevenLabs dashboard › Developers › API Keys.
+2. Tell me when it's done. I'll restart the server and test a real Hindi clip.
+3. Optional: the default voice, George, is British. For Hindi, an Indian voice from the ElevenLabs Voice Library will sound more natural. Add one to your account and put its ID in .env as ELEVENLABS_VOICE_ID=....
+Ready for you to commit: src/speak.js, src/server.js, public/index.html, package.json, .env.example.
+Next is step 6: README, screenshots and demo video.
+Show more
+YOU
+api key added in .env
+AGENT
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && awk -F= '/^ELEVENLABS/{ v...
+The key looks well formed (51 characters, sk_ prefix, no stray quotes or spaces). Restarting the server so it picks up the key:
+
+▸
+TaskStop
+{ "task_id": "bjel1l9ip" }
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node --env-file-if-exists...
+
+▸
+Bash
+sleep 5; SP="<scratchpad>"; curl -s http://127.0.0.1:3000/config; echo; cd "$...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+ElevenLabs works with your key: the KYC explanation in Hindi came back as a 553 KB MP3 in 7.5s. I can't listen to audio, so you need to judge how it sounds.
+Test clip: samples/elevenlabs-test-kyc-hi.mp3 is the KYC letter read in Hindi (gitignored). Check the Hindi pronunciation and the pace.
+Wait label: during the ~7s it takes to make the voice, the button now shows "आवाज़ बन रही है… (रोकें)". It switches to "रोकें" once playback starts. The page is read fresh on every load, so a browser refresh picks this up.
+Full flow: the server is running with the key. On http://[REDACTED]:3000: choose a letter, wait for the explanation, press "सुनें", replay it, then switch to English.
+If George's British accent sounds off in Hindi, pick an Indian voice in the ElevenLabs Voice Library and put its ID in .env as ELEVENLABS_VOICE_ID. I'll restart the server to apply it.
+Ready for you to commit: src/speak.js, src/server.js, public/index.html, package.json, .env.example.
+Next is step 6: README, screenshots and demo video. It's 03:15, about 9 hours before the deadline.
+Show more
+YOU
+voice is fine, and it is working perfectly fine. before going to next step. let's make the folder structure professional
+AGENT
+I'll check the current layout and what git sees, since the ElevenLabs skill install may have added folders:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && git status --short; echo ...
+
+▸
+AskUserQuestion
+{ "questions": [ { "question": "Which folder structure?", "...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\public\index.html
+The split boundaries are clear. Splitting the page with a script that cuts at exact markers, so nothing gets retyped by hand:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+The page is split into five files, all with valid syntax. Checking that no code still refers to something that moved to another file:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend/public" && echo "app.js refs ...
+Frontend done: the theme script stays inline in <head> on purpose, so dark mode doesn't flash white on load. Now the server side. Reading the current prompt file so it moves over unchanged:
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\src\explain.js
+Writing the new server layout. The prompt and schema move over by cutting the exact lines out of the old file, so the tested prompt stays byte-for-byte identical:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && mkdir -p src/prompts src/...
+The prompt moved unchanged; the only differences are the two export keywords. Now config, services, routes and the server entry:
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\config.js // Every setting t...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\services\ollama.js // Sends ...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\services\elevenlabs.js // Tu...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\routes\explain.js // POST /e...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\routes\speak.js // GET /conf...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\routes\pages.js // Serves th...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\src\server.js // Local web serve...
+Now the timing script imports, removing the old files, the banner move, LICENSE, package.json and .gitignore:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i "s|^import { expla...
+npm pkg set saved private as the string "true" instead of a boolean. Fixing that and adding the LICENSE:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npm pkg set private=true ...
+Everything parses. Restarting the server on the new layout and testing every route, including that crafted paths can't escape public/:
+
+▸
+TaskStop
+{ "task_id": "br9czzj86" }
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && npm start
+
+▸
+Bash
+sleep 6; T="~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fest-...
+All routes work, ElevenLabs is enabled, and all four path-escape attempts get a 404. Last check: the page's JavaScript modules actually run in a browser. If they do, the text labels get filled in:
+
+▸
+Bash
+SP="<scratchpad>"; "/c/Program Files (x86)/Microsoft/Edge/Application/msedge....
+
+▸
+Bash
+SP="<scratchpad>"; "/c/Program Files (x86)/Microsoft/Edge/Application/msedge....
+Edge's DOM dump returned nothing; it's been unreliable all night. Using a screenshot instead, since those have worked:
+
+▸
+Bash
+SP="<scratchpad>"; rm -f "$SP/shot-restructure.png"; "/c/Program Files (x86)/...
+Probably leftover headless Edge processes from earlier runs blocking new ones. Closing only the ones I started (they have my scratch profile folder in their command line), not your normal browser:
+
+▸
+Bash
+powershell -NoProfile -Command "\$p = Get-CimInstance Win32_Process -Filter \...
+
+▸
+Read
+<scratchpad>\shot-restructure.png
+The page renders from the new files. The styles load, the scripts run (all labels filled in), and the updated privacy line shows. Final layout and memory update:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && find . -path ./node_modul...
+The project now uses the layered structure with an MIT license. The server is running on it and every route passed. The page renders and its scripts run, but I could only check the start screen in a headless browser; a real letter hasn't been explained through the new files yet.
+build-for-a-friend/
+├── public/
+│   ├── index.html
+│   ├── css/styles.css
+│   └── js/
+│       ├── app.js           upload, resize, progress, result
+│       ├── i18n.js          Hindi/English text
+│       └── speech.js        Listen button (ElevenLabs, then local voice)
+├── src/
+│   ├── server.js            sets up Fastify and registers the routes
+│   ├── config.js            every env setting in one place
+│   ├── prompts/explain-document.js   prompt + schema (moved over unchanged)
+│   ├── services/ollama.js, elevenlabs.js
+│   └── routes/explain.js, speak.js, pages.js
+├── scripts/time-letter.js
+├── docs/images/banner.webp  (README link updated)
+├── .env.example · LICENSE (MIT) · package.json · README.md
+└── samples/                 (gitignored)
+Worth knowing:
+- Prompt file: src/prompts/explain-document.js holds the prompt exactly as tested, so the post can link to it.
+- Serving the page: pages.js only serves files that exist in public/, with no extra dependency. I tried four ways of reaching files outside it (like ../.env) and all were blocked.
+- package.json: MIT license, author, private: true, Node 22.9 or newer required, and keywords.
+- .gitignore: now covers .claude/ and skills-lock.json, which the ElevenLabs skill install added. They're tooling, not app code.
+Checked:
+- The server starts with npm start, with ElevenLabs enabled and the model loaded.
+- Every page file loads with the right type, and bad uploads are still rejected.
+- The start screen renders correctly in headless Edge.
+Git, for you to sort out when you commit:
+- Staged but deleted: you'd staged src/explain.js, which no longer exists.
+- Old banner: hfw1c.webp shows as deleted; it now lives at docs/images/banner.webp.
+- New files and folders: LICENSE, docs/, public/css/, public/js/, scripts/, src/config.js, src/prompts/, src/routes/, src/services/.
+- Modified: README.md, .gitignore, .env.example, package.json, public/index.html, src/server.js.
+Please run one real letter at http://[REDACTED]:3000, including "सुनें", to confirm nothing broke for you. Then step 6: README, screenshots and demo video. It's about 03:30.
+Show more
+YOU
+let's do step 6
+AGENT
+Screenshots first, since the README needs them.
+For honest screenshots, the result screens will show real model output. I'll replay the actual answers from the test rounds through the real page code: a small separate demo server in my scratch folder fakes only the network responses, and nothing in the project changes. There's no English result for the KYC letter yet, so I'm running one now (about 60s):
+
+▸
+Bash
+SP="<scratchpad>"; cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node s...
+
+▸
+Write
+<scratchpad>\demo-server.mjs // Screenshot helper: serves the real public/ f...
+The demo server replays saved results through the real page and fakes only the network calls. Starting it and taking the Hindi shots while the English run finishes:
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; cat > "$SP/shoot.sh" <<'EOF' #!/bin/bash # shoot.sh <name>...
+
+▸
+Bash
+SP="<scratchpad>"; sed -i 's/--virtual-time-budget=6000/--timeout=5000/' "$SP...
+
+▸
+Bash
+powershell -NoProfile -Command "\$p = Get-CimInstance Win32_Process -Filter \...
+Screenshots keep failing even with plain settings. Running Edge directly with its error output visible:
+
+▸
+Bash
+SP="<scratchpad>"; mkdir -p "$SP/shots"; timeout 60 "/c/Program Files (x86)/M...
+The screenshots were being written; Edge's launcher just exits a moment before the file lands, so my check ran too early. Adding a short wait to the helper and taking the set again:
+
+▸
+Bash
+SP="<scratchpad>"; sed -i 's|^\[ -f "\$SP/shots/\$1.png" \]|for i in 1 2 3 4 ...
+
+▸
+Read
+<scratchpad>\shots\result-hi.png
+The CSS and JS didn't load. That's a bug in my demo server: on Windows, join() returns backslash paths, so my folder check rejected every file. Fixing it:
+
+▸
+Bash
+SP="<scratchpad>"; sed -i "s| const file = join(PUBLIC, url.pathname);\n||...
+
+▸
+TaskStop
+{ "task_id": "b4kie7w62" }
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; sed '/^time to/,$d' "$SP/round4/synthetic-kyc-notice-en.tx...
+
+▸
+Read
+<scratchpad>\shots\result-hi.png
+Styles load now, but the screenshot is taken before the replayed result arrives. My earlier "failures" with the wait flag were only the file-check timing, so I'm restoring it:
+
+▸
+Bash
+SP="<scratchpad>"; sed -i 's|--window-size=\$3,\$4|--window-size=$3,$4 --virt...
+
+▸
+Read
+<scratchpad>\shots\result-hi.png
+
+▸
+Bash
+SP="<scratchpad>"; cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node s...
+
+▸
+Bash
+SP="<scratchpad>"; "$SP/shoot.sh" start-hi "state=start&lang=hi&theme=light" ...
+
+▸
+Read
+<scratchpad>\shots\progress-hi.png
+
+▸
+Read
+<scratchpad>\shots\result-en-dark.png
+
+▸
+Read
+<scratchpad>\shots\mobile-hi.png
+
+▸
+Bash
+SP="<scratchpad>"; sed -i "s| setTimeout(() => { scrollTo(0, 0); document....
+
+▸
+Read
+<scratchpad>\shots\w600.png
+At 600px the page has its proper right margin, so the clipping at 500px was a headless Edge quirk, not a layout bug. I'll skip the phone shot. Checking on the final-prompt Hindi run:
+
+▸
+Bash
+SP="<scratchpad>"; sed '/^time to/,$d' "$SP/round4/synthetic-kyc-notice-final...
+Still running. Ollama is sharing the CPU with the screenshot runs. While it finishes, I'll write the README, starting from your existing one:
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\README.md
+
+▸
+Bash
+SP="<scratchpad>"; cat "$SP/round4/synthetic-kyc-notice-final.txt" | sed '/^t...
+
+▸
+Bash
+SP="<scratchpad>"; sed -i "s|results('synthetic-kyc-notice.txt')|results('syn...
+
+▸
+TaskStop
+{ "task_id": "bk9dtcgbx" }
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; sleep 2; rm -f "$SP"/shots/result-*.png; "$SP/shoot.sh" re...
+
+▸
+Read
+<scratchpad>\shots\result-hi.png
+
+▸
+Bash
+SP="<scratchpad>"; sed -i "s|data: result, seconds: 56 }|data: result, second...
+
+▸
+TaskStop
+{ "task_id": "b3nk3bxap" }
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; sleep 2; rm -f "$SP"/shots/result-*.png; "$SP/shoot.sh" re...
+
+▸
+Write
+~\Desktop\Hacktober Fest\build-for-a-friend\README.md ![Hacktoberfest 2026 W...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -n "चिट्ठी\|letter\|...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+The page wording is switched over. Now the README:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+A pointless line in my edit script stopped it before it changed anything. Removing it and covering the remaining product mentions:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+The remaining "letter" mentions are about actual letters (the story, the sample, the test documents), so they stay. Retaking the four screenshots with the new name:
+
+▸
+Bash
+SP="<scratchpad>"; D="~/Desktop/Hacktober Fest/build-for-a-friend/docs/images...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\docs\images\start.png
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\docs\images\result-english-dark.png
+Both screenshots show the new name. Checking the GitHub remote so the README's clone command has the real URL instead of a placeholder:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && git remote -v | head -1
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i 's|git clone https...
+
+▸
+TaskStop
+{ "task_id": "blqidd9z3" }
+The app is now Document Explainer / दस्तावेज़ समझाओ, and the README and screenshots for step 6 are done. The demo video is left for you to record.
+Rename:
+- App: page title, header, buttons and messages now say "document" / "दस्तावेज़" in both languages. The Hindi grammar is adjusted for masculine दस्तावेज़ ("आपका दस्तावेज़… पढ़ा जाता है", "दूसरा दस्तावेज़ समझें").
+- README and package.json: updated too. "Letter" stays only where it means actual letters: the story about your grandfather, the sample letter and the test documents.
+Screenshots in docs/images/:
+- start.png, progress.png, result-hindi.png, result-english-dark.png, plus sample-letter.jpg (the made-up bank letter).
+- Real output only: the results are the model's actual answers to the synthetic letter with the final prompt (59s in Hindi, 78s in English). I replayed them through the real page code, so no personal data appears anywhere.
+README (README.md): this replaces your challenge notes (deadline, prize list), since the README is for repo visitors.
+- The pitch, why and features: what it does, why you built it for your grandfather, and the main features.
+- How it works: a diagram GitHub renders automatically, plus "why open-source AI".
+- Setup and settings: setup steps (the clone command uses your real repo URL) and the settings table.
+- "What it took to make the answers trustworthy": each failure from the four tuning rounds and its fix. This is also strong material for the post.
+- Limits, project layout, credits and MIT license.
+Your turn: the demo video (about 90 seconds)
+1. Start Ollama and the server: npm start, then open http://[REDACTED]:3000.
+2. Record with Win+Alt+R (Xbox Game Bar) or Clipchamp.
+3. Shot list:
+- Start screen in Hindi (3s). Point at the privacy line.
+- Pick docs/images/sample-letter.jpg and let the progress run. Cut or speed up the middle of the wait, but say "about 1 minute on a laptop CPU".
+- Result: scroll slowly past the urgency badge, deadline "10 दिन बाकी", summary and steps.
+- Press सुनें and let the ElevenLabs voice play about 10s.
+- Switch to English, show the English result, then the dark mode toggle.
+- Optional: one real document from your grandfather with personal details blurred, or his reaction.
+4. Upload it to YouTube (unlisted is fine) or a similar site so the DEV post can embed it.
+Ready for you to commit: README.md, docs/images/ (5 new images), public/index.html, public/js/i18n.js, package.json.
+Next is step 7, the DEV post. I can start drafting it on DEV now while you record. Shall I?
+Show more
+YOU
+let's rename to this name: Padh Ke Batao. i thnk it will be good one
+AGENT
+Good name. "पढ़ के बताओ" means "read it and tell me", which is exactly what your grandfather says when he hands someone a letter. Renaming:
+- Hindi title: पढ़ के बताओ
+- English title: Padh Ke Batao, keeping the name itself rather than translating it
+- README: add a line explaining what the name means
+Then retaking the screenshots.
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i "s|^\*\"Read it an...
+Retaking the screenshots with the new name:
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; D="~/Desktop/Hacktober Fest/build-for-a-friend/docs/images...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\docs\images\start.png
+
+▸
+TaskStop
+{ "task_id": "btud5fhmw" }
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+The app is now Padh Ke Batao / पढ़ के बताओ.
+Page: the Hindi title is "पढ़ के बताओ", the English title is "Padh Ke Batao", and the browser tab shows both.
+README: the heading is renamed, with a line explaining what the name means: Hindi for "read it and tell me", what you say when you hand someone a letter you can't fully read. I first wrote "that's what my grandfather says", but you never told me that, so I took it out. If he really says it, it's a lovely opening line for the DEV post.
+Screenshots: all four in docs/images/ are retaken with the new name.
+Not renamed: the GitHub repo (build-for-a-friend) and the npm package name. Renaming the repo to padh-ke-batao is up to you, on GitHub under Settings › Repository name. If you do, I'll update the clone URL in the README.
+Ready for you to commit: public/js/i18n.js, public/index.html, public/css/styles.css, README.md, docs/images/*.png.
+Next: record the demo video (shot list in my previous message), and I'll draft the DEV post. Shall I start the post now?
+Show more
+YOU
+repo is renamed
+AGENT
+Checking what the repo is called now, rather than guessing:
+
+▸
+Bash
+gh api repos/Rahullkumr/build-for-a-friend --jq '.full_name + " " + .html_url...
+
+▸
+Bash
+curl -s https://api.github.com/repos/Rahullkumr/build-for-a-friend -L | grep ...
+The repo is now Rahullkumr/padh-ke-batao. Updating the README clone commands, and the package.json name to match:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -i 's|git clone https...
+package-lock.json still carries the old name in its two top-level name fields. Updating just those:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -n '"build-for-a-fri...
+The repo is now Rahullkumr/padh-ke-batao, and the project files point to it:
+- README: the clone commands now use git clone https://github.com/Rahullkumr/padh-ke-batao.git and cd padh-ke-batao.
+- package.json and package-lock.json: the package name is now padh-ke-batao. No old name is left in either file or the README.
+Your local git remote still points at the old URL. GitHub redirects it, so pushing still works, but you can update it with:
+
+git remote set-url origin https://github.com/Rahullkumr/padh-ke-batao.git
+
+Your local folder is still called build-for-a-friend. That's harmless; rename it whenever you like, with the server stopped.
+Ready for you to commit: README.md, package.json, package-lock.json, plus the earlier rename and screenshot changes.
+Next: you record the demo video and I draft the DEV post. Shall I start the post?
+Show more
+YOU
+@docs/images/result-hindi.png image is cut at the top, so regenrate it and replace it
+AGENT
+The page's own "scroll to the result" runs after my scroll-back-to-top in the demo setup, so the header ends up cut off. A timing tweak won't fix that reliably. I'll turn off scrollIntoView in the demo page only (the app is untouched), then retake both result shots:
+
+▸
+Bash
+SP="<scratchpad>"; sed -i "s| await import('/js/app.js');| Element.prototyp...
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; D="~/Desktop/Hacktober Fest/build-for-a-friend/docs/images...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\docs\images\result-hindi.png
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\docs\images\result-english-dark.png
+
+▸
+TaskStop
+{ "task_id": "bxvqwzlll" }
+I regenerated docs/images/result-hindi.png, and it now shows the full header with nothing cut at the top. The English dark one (docs/images/result-english-dark.png) had the same problem, so I replaced it too.
+The cause was my screenshot setup, not the app. When a result arrives, the page scrolls down to it, which cut off the header in the screenshot. I turned off that auto-scroll for screenshots only; the app itself still scrolls to the result as before.
+Next: record the demo video (shot list two messages up), and I draft the DEV post. Shall I start the post?
+YOU
+why you are using optional wherever elevenlabs it there?
+AGENT
+I've been calling ElevenLabs "optional" for two reasons:
+1. It's technically true. The app runs without an ElevenLabs key: the Listen button falls back to a voice installed on the computer. Someone who clones the repo without a key still gets a working app.
+2. The rules. The challenge requires open-source AI at the core. Calling ElevenLabs an add-on made it clear the core (Qwen in Ollama) is open.
+But it undersells ElevenLabs. You're entering "Best Use of ElevenLabs", and it's the voice your grandfather actually hears. Here's where the word appears:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -rn -i "optional" RE...
+I'll reword it so ElevenLabs reads as the voice of the app, with the local-voice fallback mentioned once as a safety net rather than labelling the whole feature "optional":
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+"Optional" is gone. ElevenLabs is now presented as the app's voice everywhere, and the local-voice fallback is mentioned once as a safety net.
+What changed:
+- README diagram: ElevenLabs is a solid arrow, labelled "Listen: summary + steps only".
+- "Works offline": now says reading and explaining need no internet, the ElevenLabs voice does, and without a connection Listen switches to a local voice.
+- Setup heading: "ElevenLabs voice", no longer "Optional: …".
+- Settings line: "Everything except the ElevenLabs key has a default".
+- "Built with": ElevenLabs is listed as the "Hindi and English voice".
+- .env.example, src/server.js, src/routes/speak.js: comments reworded the same way.
+The open-source requirement is still clearly met: Qwen in Ollama does all the reading and explaining. I've noted this framing for the DEV post too.
+Ready for you to commit: README.md, .env.example, src/server.js, src/routes/speak.js.
+Show more
+YOU
+in the mermaid diagram optional is still visible
+AGENT
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -n '/```mermaid/,/```...
+The README file on disk no longer has "optional" anywhere. The diagram's last line now reads:
+  B -->|Listen: summary + steps only| E[ElevenLabs voice]
+A search of the whole project (excluding node_modules and the agent tooling) also finds no "optional".
+So what you're seeing is probably an older copy:
+- VS Code preview: close and reopen the Markdown preview. If the README tab shows an unsaved dot, that open copy is older than the file on disk. Revert it with File › Revert File.
+- GitHub: it shows the last version you pushed, so the change appears there after you commit and push README.md.
+If it still says "optional" after reopening, send me a screenshot of where you see it.
+Show more
+YOU
+I have special skill: archify installed for architecture/other diagrams, can you use that instead of this mermaid diagram
+AGENT
+
+▸
+Skill
+{ "skill": "archify", "args": "Architecture/data-flow diagram for the Pad...
+Using archify. Architecture is the right type here: components plus a "this laptop" vs "internet" boundary. Reading its schema and one example first:
+
+▸
+Bash
+cd "~/.claude/skills/archify" && ls schemas examples | head -40; wc -c schema...
+
+▸
+Bash
+cd "~/.claude/skills/archify" && cat schemas/architecture.schema.json schemas...
+
+▸
+Bash
+cd "~/.claude/skills/archify" && for b in ollama elevenlabs fastify qwen; do ...
+
+▸
+Write
+<scratchpad>\archify\padh-ke-batao.architecture.json { "schema_version": 1...
+
+▸
+Bash
+cd "~/.claude/skills/archify" && node bin/archify.mjs validate architecture "...
+Source-file links need a pinned public commit, and this code isn't pushed yet. Removing the sources fields, which is the fix the validator offers:
+
+▸
+Bash
+F="<scratchpad>/archify/padh-ke-batao.architecture.json"; node -e ' const fs=...
+Two labels sit on top of their boxes. Applying the validator's suggested fix, labelDy +24, to both:
+
+▸
+Bash
+F="<scratchpad>/archify/padh-ke-batao.architecture.json"; node -e ' const fs=...
+Showcase validation passed: all 9 checks, 0 errors, 0 warnings. That spec is now frozen. Running the skill's one-time update check, then delivering the HTML:
+
+▸
+Bash
+cd "~/.claude/skills/archify" && node scripts/check-update.mjs 2>&1 | head -c...
+
+▸
+Bash
+SP="<scratchpad>/archify"; cd "~/.claude/skills/archify" && node bin/archify....
+Delivery passed: 9/9 checks, exit 0. Running archify's browser check on the delivered HTML. It also captures screenshots, which I need for the README image:
+
+▸
+Bash
+SP="<scratchpad>/archify"; cd "~/.claude/skills/archify" && timeout 240 node ...
+
+▸
+Read
+<scratchpad>\archify\architecture.visual-check.1440x900.light.png
+
+▸
+Bash
+SP="<scratchpad>/archify"; grep -o 'class="[^"]*\(toolbar\|dock\|controls\|he...
+The viewer marks its controls with no-print, so I can hide them with one CSS rule. Then a 2× capture at 1440×900:
+
+▸
+Bash
+SP="<scratchpad>/archify"; sed 's|</head>|<style>.toolbar, .no-print, .diagra...
+
+▸
+Read
+<scratchpad>\archify\clean@2x.png
+
+▸
+Bash
+SP="<scratchpad>/archify"; node -e ' const fs=require("fs");const d=JSON.pars...
+Version 2 passes showcase validation too (9/9, 0 errors, 0 warnings). Delivering it and re-running the browser check:
+
+▸
+Bash
+SP="<scratchpad>/archify"; cd "~/.claude/skills/archify" && node bin/archify....
+Both checks pass, and text is now larger (smallest label 9.0px, up from 7.4px). Capturing clean 2× images in light and dark:
+
+▸
+Bash
+SP="<scratchpad>/archify"; sed 's|</head>|<style>.toolbar, .no-print, .diagra...
+
+▸
+Read
+<scratchpad>\archify\v2-light@2x.png
+
+▸
+Bash
+SP="<scratchpad>/archify"; D="~/Desktop/Hacktober Fest/build-for-a-friend/doc...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\docs\images\architecture-dark.png
+Both versions are cleanly cropped. Replacing the Mermaid block in the README with a <picture> element, so GitHub shows the light or dark image to match the reader's theme:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+The Mermaid diagram in the README is replaced with an archify architecture diagram. GitHub shows the light or dark version to match each reader's theme.
+What it shows:
+- Main path, left to right: Document photo → Browser page (resize to ~900k px) → POST /explain → Fastify server ([REDACTED]:3000) → image + prompt → Ollama (qwen3.5:4b, with the Ollama logo).
+- Listen branch: the Listen button sends POST /speak to the server, which sends text only over HTTPS to ElevenLabs. A dashed arrow shows the fallback to the local OS voice.
+- The boundary: "This laptop: the photo never leaves" around everything local, and a separate "Internet" box around ElevenLabs.
+- Three summary cards: what stays on the laptop, what goes to ElevenLabs, and how streaming works.
+Checks:
+- Archify validation: 9/9 checks passed with 0 errors and 0 warnings.
+- Archify browser check: no overflow, and labels readable at every size from 1440×900 to 2048×1320.
+- My own look: I checked the final images by eye.
+- Layout fix: my first version had a big empty band at the top, so I moved everything up. That also made the smallest text larger (7.4px to 9px).
+Files:
+- docs/images/architecture-light.png and architecture-dark.png, at 2× resolution for sharp text.
+- docs/architecture.archify.json: the source, so the diagram can be regenerated later.
+- README.md: a <picture> element replaces the Mermaid block, with alt text for screen readers and a credit line for archify.
+Limits:
+- No clickable file links: archify can link each box to its source file, but only with a pinned public commit. Your latest code isn't pushed yet, so I left the links out.
+- No SVG: archify's viewer can export one, but only through its Export button in a browser, which I can't click from here. PNG is what the README needs anyway.
+Ready for you to commit: README.md, docs/architecture.archify.json, docs/images/architecture-light.png, docs/images/architecture-dark.png.
+Show more
+YOU
+[screenshot attached]
+in archify image the heading should be one line (marked in red arrow)
+AGENT
+The title wraps because archify's viewer limits its width to leave room for the toolbar. I already hide the toolbar in the README capture, so I'll lift that width limit in the same capture-only stylesheet:
+
+▸
+Bash
+SP="<scratchpad>/archify"; grep -o '<h1[^>]*>[^<]*' "$SP/architecture-v2.html...
+
+▸
+Bash
+SP="<scratchpad>/archify"; grep -o '.\{300\}<h1>Padh' "$SP/architecture-v2.ht...
+Found it: .header reserves padding-right: 29.5rem for the toolbar. Setting it to 0 in the capture copy, plus white-space: nowrap on the title, then recapturing both themes:
+
+▸
+Bash
+SP="<scratchpad>/archify"; D="~/Desktop/Hacktober Fest/build-for-a-friend/doc...
+
+▸
+Read
+<scratchpad>\archify\v2-dark@2x.png
+The title is on one line now. Removing the reserved space made the layout wider, so I'll adjust the crop to match:
+
+▸
+Bash
+SP="<scratchpad>/archify"; D="~/Desktop/Hacktober Fest/build-for-a-friend/doc...
+
+▸
+Read
+~\Desktop\Hacktober Fest\build-for-a-friend\docs\images\architecture-light.png
+The diagram title is now on one line in both the light and dark images. The README picks them up automatically, since the file names (architecture-light.png, architecture-dark.png) are unchanged.
+The diagram content and archify validation are unchanged. This only affects how the image is captured: the width archify reserves for its toolbar is removed in the copy I screenshot, and I widened the crop to fit. I checked the new light image and nothing is cut off at the edges.
+Ready for you to commit: docs/images/architecture-light.png, docs/images/architecture-dark.png.
+YOU
+do: 1. DEV post draft
+AGENT
+
+▸
+Skill
+{ "skill": "devrelay-publishing", "args": "Draft (unpublished) DEV post f...
+Checking two things before drafting: whether you already have a draft for this on DEV (so I don't create a duplicate), and the challenge's exact submission template. Loading the tools:
+
+▸
+get_my_articles
+{ "state": "unpublished" }
+
+▸
+search_dev_to_semantic
+{ "query": "Hacktoberfest 2026 Weekend Challenge Build for a Friend announc...
+
+▸
+get_article_content
+{ "id": 4779462 }
+
+▸
+get_article_content
+{ "id": 4797288 }
+
+▸
+create_article
+{ "title": "Padh Ke Batao: an AI that reads my grandfather's letters to him...
+The draft is saved. Checking whether your commit is pushed, since the post's images load from GitHub:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && git status -sb | head -1;...
+Written for: DEV readers and the challenge judges, who score writing quality most heavily.
+Your DEV post is saved as an unpublished draft: https://dev.to/rahullkumr/padh-ke-batao-an-ai-that-reads-my-grandfathers-letters-to-him-on-a-laptop-with-no-gpu-14o4-temp-slug-4672643/edit
+The draft is marked as written with some AI help ("some AI"). That's the honest setting, since I drafted it.
+Title: Padh Ke Batao: an AI that reads my grandfather's letters to him, on a laptop with no GPU
+What's in it:
+- Format: it follows the official template, with the tags devchallenge, weekendchallenge, hf26challenge and ai.
+- Story: the four tuning rounds told with real numbers:
+- 147s down to 50s: shrinking the photo, because reading the image was the slow part.
+- The invented threat: a harmless Hindi letter turned into "you may be punished", plus a fake phone number, until the resolution was fixed.
+- Language drift: English and Roman-letter Hindi creeping into Hindi mode.
+- Temperature: "अपहरण" for "claimed" at a high setting, broken output at a low one.
+- Honest about limits: the remaining small mistakes, such as "Sunrise" becoming "सूरज".
+- ElevenLabs: presented as the app's voice, with exactly what is and isn't sent. It's entered under "Best Use of ElevenLabs".
+- Development vs runtime: it states that Claude Code was used for building only, and the app itself uses no closed AI.
+- Images: your push is done, and I checked that the images load from GitHub.
+Four TODOs only you can fill, marked in bold brackets so they can't slip through:
+1. Opening: a real detail about your grandfather (what you call him, a letter that started this).
+2. Demo: the video link.
+3. Handing It Over: his reaction, ideally his own words in Hindi with a translation, plus a photo if he's comfortable. This earns the bonus points.
+4. Agent session: I'll replace the session embed with this full session right before you publish.
+Before publishing, preview it on DEV and read it once aloud. If anything sounds unlike you, change it, since judges reward an authentic voice. When the TODOs are filled, tell me and I'll upload this session and update the embed. Then you publish, before 12:29 IST.
+Show more
+YOU
+Prize categories: "Best Use of ElevenLabs".
+Writing quality counts most in judging, so it helps to have a few real details from you. Answer whatever you can now and I'll leave the rest as clearly marked blanks:
+What do you call him (Nanaji, Dadaji, something else), and which language does he read best? ==> Nana
+Was there a real moment that made you build this, like a letter he worried about or a deadline someone nearly missed? he got SIR notice but was not able to read it, so I created this solution. This solution can be usful for so many people in real world
+Does he actually say "padh ke batao"? yes
+AGENT
+That's a great detail. The Election Commission SIR press note was one of your six test documents, so the story connects directly: the notice he couldn't read is the same voter-roll drive the app was tested on. Fetching the current draft first, in case you've edited it on DEV:
+
+▸
+get_my_articles
+{ "state": "unpublished" }
+
+▸
+update_article
+{ "id": 4798300, "title": "Padh Ke Batao: an AI that reads my grandfather...
+The draft is updated. The README's name line can now be personal too, since you confirmed Nana says it:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+The DEV draft now opens with your real story, and the README's name line matches.
+What changed in the draft:
+- Opening: "My Nana (my mother's father)…". Then the SIR notice he couldn't read, the kind where missing a step can keep your name off the voter list. Then him asking, as he always does, "padh ke batao", which is where the name comes from.
+- New line: Nana is far from the only one. In millions of Indian homes an official letter waits on a shelf until someone has time to read it, so the app is for anyone in that spot.
+- Nana throughout: he's "Nana" in the body; the title keeps "grandfather" so readers anywhere understand it.
+- Test connection: the Election Commission test document is now "the press note about the same SIR drive".
+- README (README.md): the name line now reads "It's what my Nana says whenever he hands someone a letter he can't read."
+Open the draft: https://dev.to/rahullkumr/padh-ke-batao-an-ai-that-reads-my-grandfathers-letters-to-him-on-a-laptop-with-no-gpu-14o4-temp-slug-4672643/edit
+Please check the SIR paragraph is accurate for his notice. If it was specifically the enumeration form a booth officer brought, you could say so, which makes it even more concrete.
+Still left:
+1. Demo video (you): record it and paste the link into the Demo section.
+2. Handing It Over (you): let Nana try it, ideally on his real SIR notice. His reaction in his own words is the strongest part the post can have.
+3. Session (me): before you publish, I save this full session and swap the embed.
+Ready for you to commit: README.md.
+Show more
+YOU
+Handing It Over (you): let Nana try it, ideally on his real SIR notice. His reaction in his own words is the strongest part the post can have.
+he loved it specially the Hindi speech, as he speak Hindi mostly
+AGENT
+That's a perfect detail for the post, and it supports the ElevenLabs entry directly: the voice is the part he liked most. I'll fill in the Handing It Over section using only what you've told me, with no invented quotes or details. Fetching the current draft first in case you've edited it:
+
+▸
+get_my_articles
+{ "state": "unpublished" }
+
+▸
+update_article
+{ "id": 4798300, "title": "Padh Ke Batao: an AI that reads my grandfather...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+The draft's Handing It Over section is filled in, using only what you told me:
+I showed it to Nana, and he loved it. The part he liked most was the Hindi voice. He speaks Hindi most of the time, so hearing the explanation out loud, in his own language, is what made it click for him. He didn't have to read anything, not even the screen.
+That changed how I see the app. I'd treated the Listen button as an add-on; for Nana it's the main way in. It's also why I'm comfortable with the one thing that leaves the laptop: a few sentences of summary sent to ElevenLabs, in exchange for a voice he actually enjoys listening to.
+The ElevenLabs entry under Prize Categories now ends with "It was also Nana's favourite part."
+Optional, but it makes this section stronger: if you remember anything he actually said, even one short Hindi line like "अब किसी से पढ़वाना नहीं पड़ेगा", add it with a translation. A photo of him using it, if he's comfortable, helps too. I won't make up a quote for him.
+Draft: https://dev.to/rahullkumr/padh-ke-batao-an-ai-that-reads-my-grandfathers-letters-to-him-on-a-laptop-with-no-gpu-14o4-temp-slug-4672643/edit
+Left before you publish (deadline 12:29 IST):
+1. Demo video (you): record it, upload it, and replace the Demo TODO with the link.
+2. Session (me): when you're ready to publish, tell me. I'll save this full session to DEV and swap the embed.
+3. Final read (you): preview the post on DEV, check that no "[TODO" is left, then publish.
+Show more
+YOU
+Padh Ke Batao: an AI that reads my grandfather's letters to him, on a laptop with no GPU
+i think it should be documents instead of letters
+AGENT
+I'll change only the title, through DEV's API, so the body stays exactly as it is:
+
+▸
+execute_dev_api_request
+{ "method": "PUT", "path": "/api/articles/4798300", "body": { "arti...
+The response was too large to display, so I'm pulling out just the key fields to confirm the change worked and the post is still a draft:
+
+▸
+Bash
+F="~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-friend...
+
+▸
+Bash
+echo "checking current disclosure before fix"; node -e ' const s=require("fs"...
+
+▸
+execute_dev_api_request
+{ "method": "PUT", "path": "/api/articles/4798300", "body": { "arti...
+
+▸
+update_article
+{ "id": 4798300, "title": "Padh Ke Batao: an AI that reads my grandfather...
+The update went through with the new title. The response doesn't show the disclosure field, so I'm reading it back from DEV to confirm:
+
+▸
+execute_dev_api_request
+{ "method": "GET", "path": "/api/articles/me/unpublished", "query_param...
+
+▸
+Bash
+cd "~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-frien...
+I've also saved that lesson in memory: for any future edits to this post, I'll only use the DevRelay update tool, which keeps the disclosure setting.
+YOU
+when the document is being processed we should not show the file choosing section
+AGENT
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -n "pick\|function s...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && node - <<'EOF' const fs =...
+Syntax is valid. Checking it visually. This also changes how the progress screen looks, so docs/images/progress.png (used in the README and the post) needs retaking anyway:
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; sleep 2; rm -f "$SP"/shots/progress-hi.png "$SP"/shots/res...
+
+▸
+Read
+<scratchpad>\shots\progress-hi.png
+
+▸
+Read
+<scratchpad>\shots\result-hi.png
+
+▸
+Bash
+cp "<scratchpad>/shots/progress-hi.png" "~/Desktop/Hacktober Fest/build-for-a...
+
+▸
+TaskStop
+{ "task_id": "b23ozqcdu" }
+The photo picker now disappears while a document is being processed. Only the progress card shows: thumbnail, progress bar, reading/explaining steps and the timer. When the result or an error appears, the picker comes back in its compact form at the top.
+I checked both states with screenshots.
+- What changed in code: three lines in public/js/app.js. The picker is hidden when processing starts and shown again in showResult and showError.
+- Edge cases: dropping a photo onto the page mid-processing does nothing, because the drop target is hidden too. Switching language mid-processing still restarts the explanation in the new language, as before.
+- Screenshot: I retook docs/images/progress.png so the README and the DEV post match the new behaviour. Its URL is the same, so the post updates once you push.
+On the result screen, the top "दस्तावेज़ की फोटो चुनें" button and the bottom "दूसरा दस्तावेज़ समझें" button do the same thing. Should I hide the top one on the result screen as well, so there's only one clear "next document" button?
+Ready for you to commit: public/js/app.js, docs/images/progress.png, plus the earlier README.md change. The running server picks up the page change on a browser refresh, so your demo recording can use it straight away.
+Show more
+YOU
+[screenshot attached] remove these sections also, red arrow pointing
+AGENT
+Removing the "पढ़ना / समझाना" step pills. The status line above the bar ("चिट्ठी पढ़ रहे हैं…" / "आसान भाषा में लिख रहे हैं…") already says the same thing. I'll delete them from the HTML, the JS that updates them, their CSS, and their text strings, so nothing is left behind:
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -n "phase" public/in...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && sed -n '135,152p' public/...
+
+▸
+Bash
+cd "~/Desktop/Hacktober Fest/build-for-a-friend" && grep -c "pulse" public/cs...
+All the step-pill code is gone and the scripts still parse; pulse was only used by the pills. Retaking the progress screenshot to check the look and update the README image:
+
+▸
+Bash
+node "<scratchpad>/demo-server.mjs"
+
+▸
+Bash
+SP="<scratchpad>"; sleep 2; rm -f "$SP"/shots/progress-*.png; "$SP/shoot.sh" ...
+
+▸
+Read
+<scratchpad>\shots\progress-dark.png
+
+▸
+Read
+<scratchpad>\shots\progress-hi.png
+
+▸
+Bash
+cp "<scratchpad>/shots/progress-hi.png" "~/Desktop/Hacktober Fest/build-for-a...
+
+▸
+TaskStop
+{ "task_id": "baaivyw0m" }
+The "पढ़ना / समझाना" pills are gone. The progress card now shows only the thumbnail, the status line, the bar and the timer. I checked it in light and dark mode.
+I removed them from four places, so nothing unused is left:
+- public/index.html: the pill list.
+- public/js/app.js: the two lines that switched them between active and done.
+- public/css/styles.css: their styles and the pulse animation, which only they used.
+- public/js/i18n.js: their Hindi and English text.
+The status line above the bar still tells you the stage: "दस्तावेज़ पढ़ रहे हैं…" (reading), then "आसान भाषा में लिख रहे हैं…" (writing).
+I also retook docs/images/progress.png, so the README and the DEV post show the new card once you push.
+Refresh http://[REDACTED]:3000 to see it before recording the demo; no server restart is needed.
+Commit message, if you want one:
+```
+fix: simplify the processing screen
+Hide the photo picker while a document is being read; it returns (compact) with the result or an error
+Remove the reading/explaining step pills; the status line above the progress bar already shows the stage
+Update the progress screenshot
+Co-Authored-By: Claude Opus 5.5 <[REDACTED]>
+```
+Ready for you to commit: public/js/app.js, public/index.html, public/css/styles.css, public/js/i18n.js, docs/images/progress.png, plus the earlier README.md change.
+Show more
+YOU
+https://youtu.be/VO9MM8JvKCQ also add it in the readme
+AGENT
+
+▸
+get_article_content
+{ "id": 4798300 }
+
+▸
+Bash
+cd "~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fest-build-fo...
+
+▸
+Bash
+S="~/AppData/Local/Temp/claude/c--Users-USER-Desktop-Hacktober-Fest-build-for...
+
+▸
+execute_dev_api_request
+{ "method": "GET", "path": "/api/articles/me/unpublished", "query_param...
+The draft matches my last version, so you haven't made editor changes that I would overwrite. I'll replace the Demo TODO with the YouTube embed, keeping the AI disclosure at some_ai.
+
+▸
+update_article
+{ "id": 4798300, "title": "Padh Ke Batao: an AI that reads my grandfather...
+The video is now in the post's Demo section. Next I'll add it to the README, using the thumbnail as a clickable preview, since GitHub can't play videos inline.
+
+▸
+Bash
+cp ~/Videos/padh-ke-batao-thumbnail.png "~/Desktop/Hacktober Fest/build-for-a...
+
+▸
+Edit
+~\Desktop\Hacktober Fest\build-for-a-friend\README.md - ![Hindi explanation o...
+
+▸
+Bash
+M="~/.claude/projects/c--Users-USER-Desktop-Hacktober-Fest-build-for-a-friend...
+52 of 52 messages
+Prize Categories
+Best Use of ElevenLabs. ElevenLabs is the voice of the app: the सुनें / Listen button reads each explanation aloud in natural Hindi or English, at a slower pace for an elderly listener. Only the summary and steps are sent, never the photo or the details list, and the audio is cached so replays are free. It was also Nana's favourite part.
+</pasted_content id="9303">
+
+ check out and how must time left for v2?
