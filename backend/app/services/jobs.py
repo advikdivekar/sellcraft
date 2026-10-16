@@ -52,7 +52,8 @@ def _stage_copy(job_id, stages, copy_service):
         db.update_job(job_id, copy_output=copy)
         _set_stage(job_id, stages, "copy", "running", f"{done}/{total} parts", progress=done / total)
 
-    with tracing.span("llm", "copy.generate", model=getattr(svc.llm, "model", "demo")) as sp:
+    with tracing.span("gen_ai.invoke_agent", "invoke_agent sellcraft-copy", **{"gen_ai.agent.name": "sellcraft-copy", "gen_ai.operation.name": "invoke_agent",
+                      "model": getattr(svc.llm, "model", "demo"), "job_id": job_id, "prompt_version": tracing.PROMPT_VERSION}) as sp:
         result = svc.generate(job.product, job.settings, on_progress=partial)
         if sp is not None:
             for k, v in result.usage.items():

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -120,6 +121,7 @@ class CreativeSettings(BaseModel):
     aspect_ratio: str = Field(default="9:16", pattern=r"^\d{1,2}:\d{1,2}$")
     voiceover: bool = False
     voice_id: str | None = None
+    quality: Literal["fast", "best"] = "fast"  # which model writes the copy: small and quick, or larger and slower
 
     @field_validator("platforms")
     @classmethod
@@ -207,6 +209,12 @@ class RegenerateCopyRequest(BaseModel):
     section: str | None = None  # a CopyOutput field, or "platform:<name>"; None = everything
     tone: Tone | None = None
     instructions: str | None = Field(default=None, max_length=300)
+
+
+class ReportRequest(BaseModel):
+    """'This looks wrong' on one section. Fixed reason codes only: free text could carry product facts into telemetry."""
+    section: str = Field(max_length=40, pattern=r"^(platform:)?[a-z_]+$")
+    reason: Literal["invented_claim", "wrong_fact", "bad_tone", "other"]
 
 
 class AnalyzePhotosRequest(BaseModel):

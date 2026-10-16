@@ -3,14 +3,16 @@ import { useEffect, useState } from "react";
 import { Button, Card, inputCls } from "./ui";
 
 type State = "loading" | "open" | "needcode";
+const DEMO_ONLY = process.env.NEXT_PUBLIC_DEMO_ONLY === "1"; // public landing build: there is no backend to ask
 
 /** When the backend has an ACCESS_CODE (phone/tunnel mode), ask for it once. A `#k=code` in the URL (from the QR) signs in automatically. */
 export function AccessGate({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<State>("loading");
+  const [state, setState] = useState<State>(DEMO_ONLY ? "open" : "loading");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (DEMO_ONLY) return;
     (async () => {
       const m = window.location.hash.match(/[#&]k=([^&]+)/);
       if (m) {
@@ -18,7 +20,8 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
         window.history.replaceState(null, "", window.location.pathname + window.location.search);
       }
       const r = await fetch("/api/access").then((x) => x.json()).catch(() => null);
-      setState(!r || !r.required || r.granted ? "open" : "needcode");
+      // The public landing page never asks for the code; only the app screens do (the API itself stays locked either way).
+      setState(window.location.pathname === "/" || !r || !r.required || r.granted ? "open" : "needcode");
     })();
   }, []);
 

@@ -155,7 +155,13 @@ def regulated_terms(copy: CopyOutput, product: ProductInput) -> list[str]:
 class CopyService:
     def __init__(self, llm: LLMProvider | None = None):
         self.demo = get_settings().demo_mode and llm is None
+        self._auto = llm is None and not self.demo  # no model injected: pick one per job from the seller's speed/quality choice
         self.llm = llm or (None if self.demo else OllamaProvider())
+
+    def _use(self, settings: CreativeSettings) -> None:
+        if self._auto:
+            s = get_settings()
+            self.llm = OllamaProvider(model=s.ollama_fast_model if settings.quality == "fast" else s.ollama_model)
 
     def _call(self, system: str, user: str, schema: dict):
         """One call plus a single repair retry on malformed/invalid output."""
@@ -227,6 +233,7 @@ class CopyService:
         """on_progress(partial_copy, done, total) is called as parallel parts finish."""
         if self.demo:
             return CopyResult(demo_copy(product, settings), "demo")
+        self._use(settings)
         jobs = self._chunks(product, settings)
         cb = None
         if on_progress:
@@ -248,7 +255,7 @@ class CopyService:
             results.update(self._run(retry_jobs))
             data, usage, model = self._merge(results)
             copy = _validate(data, settings.platforms, strict=False)
-        copy = self._post_check(copy, product)
+        copy = self._post_check(copy, product, model=model)
         return CopyResult(copy, f"ollama:{model}", usage)
 
     def regenerate(self, current: CopyOutput, product: ProductInput, settings: CreativeSettings, *,
@@ -263,6 +270,7 @@ class CopyService:
                 raise AppError("bad_section", f"Unknown platform section '{section}'.")
         elif section not in prompts.CORE_FIELDS:
             raise AppError("bad_section", f"Unknown section '{section}'.")
+        self._use(settings)
         if self.demo:
             patch = demo_section(product, settings, section)
             usage = {}
@@ -289,20 +297,21 @@ class CopyService:
             data = merged.model_dump()
             data[section] = val
             merged = CopyOutput.model_validate(data)
-        return CopyResult(self._post_check(merged, product), source, usage)
+        return CopyResult(self._post_check(merged, product, model=source.split(":", 1)[-1]), source, usage)
 
     @staticmethod
-    def _post_check(copy: CopyOutput, product: ProductInput) -> CopyOutput:
+    def _post_check(copy: CopyOutput, product: ProductInput, model: str = "") -> CopyOutput:
         hits = forbidden_hits(copy, product.forbidden_words)
+        risky, regulated = risky_terms(copy, product), regulated_terms(copy, product)
         flagged = [c for c in copy.claims_requiring_review if not c.startswith(("Forbidden word used:", "Not in your facts:", "Regulated claim"))]
         flagged += [f"Forbidden word used: {w}" for w in hits]
-        flagged += [f"Not in your facts: \"{w}\". Remove it unless it's true." for w in risky_terms(copy, product)]
+        flagged += [f"Not in your facts: \"{w}\". Remove it unless it's true." for w in risky]
         flagged += [f"Regulated claim not in your facts: \"{w}\". Medical and cosmetic claims can create legal problems; remove it or check the rules that apply to you."
-                    for w in regulated_terms(copy, product)]
-        for w in hits:
-            tracing.flag("forbidden", w)
-        for w in risky_terms(copy, product):
-            tracing.flag("risky", w)
-        for w in regulated_terms(copy, product):
-            tracing.flag("regulated", w)
+                    for w in regulated]
+        # Metadata only: the rule that fired and the matched word, tagged with the model so a regression after a model swap shows up in Sentry
+        for kind, terms in (("forbidden", hits), ("risky", risky), ("regulated", regulated)):
+            for w in terms:
+                tracing.flag(kind, w, model=model)
+        tracing.annotate(**{"flags.total": len(hits) + len(risky) + len(regulated), "flags.forbidden": len(hits),
+                            "flags.risky": len(risky), "flags.regulated": len(regulated)})
         return copy.model_copy(update={"claims_requiring_review": flagged})

@@ -3,6 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { BuildingHero } from "@/components/building";
+import { useFeedback } from "@/components/feedback";
 import { Progress } from "@/components/progress";
 import { Results } from "@/components/results";
 import { Card, Skeleton } from "@/components/ui";
@@ -18,6 +21,19 @@ export default function JobPage() {
   });
   const retry = useMutation({ mutationFn: () => api.retry(id), onSuccess: (j) => qc.setQueryData(["job", id], j) });
   const working = job && job.status !== "completed";
+  const { toast } = useFeedback();
+  const [startedAt] = useState(() => Date.now());
+  const wasWorking = useRef(false);
+  const status = job?.status;
+  useEffect(() => {
+    if (!status) return;
+    if (status !== "completed" && status !== "failed") { wasWorking.current = true; return; }
+    if (status === "completed" && wasWorking.current) {  // finished while the seller was watching: a small moment of delight
+      wasWorking.current = false;
+      toast(`Your kit is ready · built in ${Math.max(1, Math.round((Date.now() - startedAt) / 1000))} s`);
+      try { navigator.vibrate?.(25); } catch { /* not supported */ }
+    }
+  }, [status, startedAt, toast]);
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 pb-safe pt-6 sm:px-6">
@@ -27,10 +43,9 @@ export default function JobPage() {
         <>
           {working && (
             <Card className="anim-in mx-auto w-full max-w-2xl space-y-1">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div><h1 className="text-xl font-semibold tracking-tight">{job.status === "failed" ? "Something went wrong" : "Building your kit"}</h1>
-                  <p className="text-sm text-muted">{job.product.name}. {job.status === "failed" ? "" : "You can leave this page; it keeps running."}</p></div>
-              </div>
+              {job.status === "failed"
+                ? <div className="mb-3"><h1 className="text-xl font-semibold tracking-tight">Something went wrong</h1><p className="text-sm text-muted">{job.product.name}</p></div>
+                : <div className="mb-4"><BuildingHero job={job} startedAt={startedAt} /><p className="mt-3 text-xs text-muted">{job.product.name}. You can leave this page; it keeps running.</p></div>}
               <Progress job={job} onRetry={() => retry.mutate()} retrying={retry.isPending} />
             </Card>
           )}

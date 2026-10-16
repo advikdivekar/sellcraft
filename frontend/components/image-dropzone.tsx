@@ -1,5 +1,5 @@
 "use client";
-import { Camera, ImagePlus, Loader2, Star, X } from "lucide-react";
+import { Camera, ImagePlus, Loader2, Sparkles, Star, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { prepareImage } from "@/lib/image";
@@ -19,7 +19,13 @@ export function ImageDropzone({ value, update, onAdded }: {
   const [error, setError] = useState<string | null>(null);
   const room = MAX_PHOTOS - value.length - pending;
 
-  async function handle(files: FileList | null) {
+  async function sample() {
+    try {
+      const blob = await (await fetch("/sample-product.png")).blob();
+      await handle([new File([blob], "sample-candle.png", { type: "image/png" })]);
+    } catch { setError("Couldn't load the sample photo."); }
+  }
+  async function handle(files: FileList | File[] | null) {
     if (!files || files.length === 0) return;
     setError(null);
     const picked = Array.from(files).slice(0, Math.max(0, room));
@@ -86,6 +92,11 @@ export function ImageDropzone({ value, update, onAdded }: {
             <Button onClick={() => camera.current?.click()} size="lg"><Camera className="size-5" />Take photo</Button>
             <Button variant="secondary" size="lg" onClick={() => gallery.current?.click()}><ImagePlus className="size-5" />{value.length ? "Add more" : "Choose from library"}</Button>
           </div>
+          {value.length === 0 && pending === 0 && (
+            <button type="button" onClick={sample} className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-accent-text transition hover:bg-accent-soft">
+              <Sparkles className="size-4" aria-hidden />No photo handy? Try a sample product
+            </button>
+          )}
         </div>
       )}
       <p className="text-xs text-muted">{value.length}/{MAX_PHOTOS} photos. The <strong>Main</strong> photo opens and closes your video.</p>

@@ -8,14 +8,15 @@ const DESKTOP_NAV = [{ href: "/create", label: "Create" }, { href: "/connections
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  const showTabBar = path === "/" || path.startsWith("/connections");
+  const showTabBar = path.startsWith("/connections");
+  if (path === "/") return <>{children}</>; // the landing page has its own navigation
   return (
     <>
       <header className="pt-safe sticky top-0 z-30 border-b border-border/70 bg-glass backdrop-blur-xl backdrop-saturate-150">
         <div className="mx-auto flex h-13 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex min-h-11 items-center gap-2 font-semibold tracking-tight" aria-label="SellCraft home">
-            <span className="grid size-7 place-items-center rounded-[8px] bg-primary text-primary-fg"><Layers className="size-4" aria-hidden /></span>
-            <span className="text-[15px]">SellCraft</span>
+            <span className="grid size-7 place-items-center rounded-[8px] bg-accent text-accent-fg"><Layers className="size-4" aria-hidden /></span>
+            <span className="text-[15px]">SellCraft<span className="serif-it text-accent-text"> AI</span></span>
           </Link>
           <nav aria-label="Main" className="hidden items-center gap-1 sm:flex">
             {DESKTOP_NAV.map(({ href, label }) => (

@@ -33,6 +33,7 @@ export interface CreativeSettings {
   aspect_ratio: string;
   voiceover: boolean;
   voice_id?: string | null;
+  quality?: "fast" | "best";
 }
 
 export interface StoryBeat { time: string; visual: string; on_screen_text: string }

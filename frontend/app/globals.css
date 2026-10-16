@@ -1,48 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafaf9;
+  --background: #f6f4ee;
   --surface: #ffffff;
-  --surface-2: #f4f4f2;
-  --foreground: #0a0a0a;
-  --muted: #6c6c72;
-  --border: #e7e7e3;
-  --border-strong: #d5d5d0;
-  --primary: #0a0a0a;
-  --primary-fg: #ffffff;
-  --accent: #ea580c;
-  --accent-text: #c2410c;
-  --accent-fg: #ffffff;
-  --accent-soft: #fff1e8;
+  --surface-2: #efece3;
+  --foreground: #0b0b0a;
+  --muted: #67655d;
+  --border: #e4e0d4;
+  --border-strong: #d3cfc1;
+  --primary: #0b0b0a;
+  --primary-fg: #f6f4ee;
+  --accent: #c6f432;
+  --accent-text: #4a6100;
+  --accent-fg: #1b2300;
+  --accent-soft: #f1f8d4;
   --ok: #15803d;
   --warn: #a16207;
   --danger: #b91c1c;
-  --shadow-sm: 0 1px 2px rgb(10 10 10 / 0.05);
-  --shadow-md: 0 12px 32px -14px rgb(10 10 10 / 0.22), 0 2px 6px -2px rgb(10 10 10 / 0.06);
-  --glass: rgb(250 250 249 / 0.93);
+  --shadow-sm: 0 1px 2px rgb(11 11 10 / 0.05);
+  --shadow-md: 0 12px 32px -14px rgb(11 11 10 / 0.22), 0 2px 6px -2px rgb(11 11 10 / 0.06);
+  --glass: rgb(246 244 238 / 0.93);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090a;
-    --surface: #111113;
-    --surface-2: #18181b;
-    --foreground: #fafafa;
-    --muted: #9b9ba3;
-    --border: #222226;
-    --border-strong: #34343a;
-    --primary: #fafafa;
-    --primary-fg: #0a0a0a;
-    --accent: #fb923c;
-    --accent-text: #fdba74;
-    --accent-fg: #1a0d04;
-    --accent-soft: #2a1a0e;
+    --background: #0b0b0a;
+    --surface: #141412;
+    --surface-2: #1c1c19;
+    --foreground: #f3f0e8;
+    --muted: #9a9a90;
+    --border: #24241f;
+    --border-strong: #38382f;
+    --primary: #f3f0e8;
+    --primary-fg: #0b0b0a;
+    --accent: #c6f432;
+    --accent-text: #d4f65e;
+    --accent-fg: #1b2300;
+    --accent-soft: #1d2508;
     --ok: #4ade80;
     --warn: #facc15;
     --danger: #f87171;
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
     --shadow-md: 0 12px 32px -14px rgb(0 0 0 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.5);
-    --glass: rgb(9 9 10 / 0.92);
+    --glass: rgb(11 11 10 / 0.9);
   }
 }
 
@@ -66,6 +66,7 @@
   --color-glass: var(--glass);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-serif), Georgia, serif;
   --shadow-card: var(--shadow-sm);
   --shadow-float: var(--shadow-md);
 }
@@ -126,3 +127,10 @@ dialog[open].sheet { animation: sheet-up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) bo
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+.serif-it { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+@keyframes scan { 0% { transform: translateY(-10%); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(110%); opacity: 0; } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes sweep { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
+.scan-line { animation: scan 2.2s cubic-bezier(.4,0,.2,1) infinite; }
+.rise-in { animation: rise-in .45s cubic-bezier(.2,.8,.2,1) both; }

@@ -81,10 +81,7 @@ class StudioAdProvider(ImageToVideoProvider):
             studio.catalog_image(prod).save(cat_p, quality=94)
             images += [("catalog_image", cat_p), ("cutout_image", src_p)]
         notes = [f"Photo {i + 1}: {w}." for w in stats.warnings]
-        if refined:
-            notes.append(f"Photo {i + 1}: refined the product itself ({', '.join(refined)}).")
-        if palette_note:
-            notes.append(f"Photo {i + 1}: {palette_note}")
+        # Routine clean-up (denoise, contrast, backdrop choice) is not reported: notes are for things the seller must act on.
         if cut is None:
             notes.append(f"Photo {i + 1}: background removal wasn't possible, so it was shown as a framed photo.")
         return {"layer": layer_p, "bg": bg_p, "lay": lay, "LW": layer.width, "LH": layer.height,

@@ -20,8 +20,10 @@ const step = (m) => console.log("•", m);
 const fail = async (m) => { console.error("FAIL:", m); await page.screenshot({ path: "e2e-failure.png" }).catch(() => {}); await browser.close(); process.exit(1); };
 
 await page.goto(`${base}/${accessCode ? `#k=${accessCode}` : ""}`, { waitUntil: "load" });
-step("home page");
-await page.getByRole("link", { name: /Create your first kit/ }).first().click();
+step("landing page: hero, then into the app");
+await page.getByRole("heading", { level: 1 }).waitFor({ timeout: 20000 });
+if (!(await page.getByText(/ready-to-sell/).first().isVisible())) await fail("landing headline missing");
+await page.getByRole("link", { name: /Create your first listing/ }).first().click();
 await page.getByRole("heading", { name: "Create a marketing kit" }).waitFor({ timeout: 20000 });
 
 step("photos step: upload two photos");

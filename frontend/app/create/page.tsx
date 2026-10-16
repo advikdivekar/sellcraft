@@ -15,7 +15,9 @@ const EMPTY = {
   audience: "", brand_name: "", brand_voice: "", care: "", forbidden: "", extra: "",
 };
 type Form = typeof EMPTY;
-type Draft = { v: Form; platforms: Platform[]; tone: Tone; style: VisualStyle; objective: Objective; voiceover: boolean };
+type Quality = "fast" | "best";
+const QUALITY: { value: Quality; label: string }[] = [{ value: "fast", label: "Fast" }, { value: "best", label: "Best quality" }];
+type Draft = { v: Form; platforms: Platform[]; tone: Tone; style: VisualStyle; objective: Objective; voiceover: boolean; quality?: Quality };
 const DRAFT_KEY = "sellcraft:draft:v1";
 const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
 
@@ -60,14 +62,15 @@ function Wizard() {
   const [style, setStyle] = useState<VisualStyle>(draft?.style ?? "premium_studio");
   const [objective, setObjective] = useState<Objective>(draft?.objective ?? "sales");
   const [voiceover, setVoiceover] = useState(draft?.voiceover ?? false);
+  const [quality, setQuality] = useState<Quality>(draft?.quality ?? "fast");
   const [scan, setScan] = useState<{ state: "idle" | "running" | "done" | "error"; message?: string; visible: string[] }>({ state: "idle", visible: [] });
   const f = form.v;
 
   // Autosave the draft (text and settings; photos can't be saved) so a refresh never loses typing.
   useEffect(() => {
-    const t = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ v: f, platforms, tone, style, objective, voiceover } satisfies Draft)); } catch { /* storage unavailable */ } }, 400);
+    const t = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ v: f, platforms, tone, style, objective, voiceover, quality } satisfies Draft)); } catch { /* storage unavailable */ } }, 400);
     return () => clearTimeout(t);
-  }, [f, platforms, tone, style, objective, voiceover]);
+  }, [f, platforms, tone, style, objective, voiceover, quality]);
 
   const updateImages = (fn: (cur: UploadedImage[]) => UploadedImage[]) => {
     imagesRef.current = fn(imagesRef.current);
@@ -115,7 +118,7 @@ function Wizard() {
         care_instructions: f.care || null, extra_notes: f.extra || null,
         forbidden_words: f.forbidden.split(/[,\n]/).map((x) => x.trim()).filter(Boolean),
       };
-      const settings: CreativeSettings = { platforms, tone, visual_style: style, objective, duration_seconds: 10, aspect_ratio: "9:16", voiceover };
+      const settings: CreativeSettings = { platforms, tone, visual_style: style, objective, duration_seconds: 10, aspect_ratio: "9:16", voiceover, quality };
       return api.createJob(product, settings);
     },
     onSuccess: (job) => { try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ } router.push(`/jobs/${job.id}`); },
@@ -156,7 +159,7 @@ function Wizard() {
               <SectionTitle hint="Different angles make a better video and deck. The first photo is your main one.">Product photos</SectionTitle>
               <ImageDropzone value={images} update={updateImages} onAdded={onPhotosAdded} />
               {photoErr && <p role="alert" className="mt-3 text-sm font-medium text-danger">{photoErr}</p>}
-              <ScanStatus scan={scan} filled={form.s.length} onRescan={() => images.length > 0 && analyze(images.map((i) => i.assetId))} onAdd={addNote} />
+              <ScanStatus scan={scan} filled={form.s.length} onRescan={() => images.length > 0 && analyze(images.map((i) => i.assetId))} onAdd={addNote} onQuick={f.name.trim() ? submit : undefined} busy={create.isPending} />
             </Card>
           )}
 
@@ -205,6 +208,10 @@ function Wizard() {
                 </div>
                 <div><SectionTitle>Writing tone</SectionTitle><Chips label="Tone" options={TONES} value={tone} onChange={setTone} /></div>
                 <div><SectionTitle>Marketing goal</SectionTitle><Chips label="Marketing goal" options={OBJECTIVES} value={objective} onChange={setObjective} /></div>
+                <div>
+                  <SectionTitle hint="Fast finishes in about 20 seconds. Best quality uses a larger model and takes about a minute.">Writing speed</SectionTitle>
+                  <Chips label="Writing speed" options={QUALITY} value={quality} onChange={setQuality} />
+                </div>
               </Card>
               <Card>
                 <SectionTitle hint="Sets the backdrop, lighting and mood of your photos, deck and video.">Visual style</SectionTitle>
@@ -260,7 +267,10 @@ function Wizard() {
         <div className="mx-auto flex max-w-xl gap-2">
           {step > 0 && <Button variant="secondary" size="lg" onClick={() => go(step - 1)} aria-label="Back"><ArrowLeft className="size-5" /></Button>}
           {step < 2
-            ? <Button className="flex-1" size="lg" onClick={next}>Next <ArrowRight className="size-5" /></Button>
+            ? <>
+                {step === 0 && scan.state === "done" && f.name.trim() && <Button variant="accent" className="flex-1" size="lg" busy={create.isPending} onClick={submit}><Sparkles className="size-5" />Generate now</Button>}
+                <Button variant={step === 0 && scan.state === "done" && f.name.trim() ? "secondary" : "primary"} className={step === 0 && scan.state === "done" && f.name.trim() ? "" : "flex-1"} size="lg" onClick={next}>Next <ArrowRight className="size-5" /></Button>
+              </>
             : <Button className="flex-1" size="lg" busy={create.isPending} onClick={submit}><Sparkles className="size-5" />Generate kit</Button>}
         </div>
       </div>
@@ -276,8 +286,8 @@ function Row({ k, v }: { k: string; v: string }) {
   return <div className="flex justify-between gap-3"><dt className="text-muted">{k}</dt><dd className="truncate text-right font-medium">{v}</dd></div>;
 }
 
-function ScanStatus({ scan, filled, onRescan, onAdd }: {
-  scan: { state: "idle" | "running" | "done" | "error"; message?: string; visible: string[] }; filled: number; onRescan: () => void; onAdd: (t: string) => void;
+function ScanStatus({ scan, filled, onRescan, onAdd, onQuick, busy }: {
+  scan: { state: "idle" | "running" | "done" | "error"; message?: string; visible: string[] }; filled: number; onRescan: () => void; onAdd: (t: string) => void; onQuick?: () => void; busy?: boolean;
 }) {
   if (scan.state === "idle") return null;
   if (scan.state === "running")
@@ -298,7 +308,11 @@ function ScanStatus({ scan, filled, onRescan, onAdd }: {
           <div className="flex flex-wrap gap-1.5">{scan.visible.map((t) => <button key={t} type="button" onClick={() => onAdd(t)} className="min-h-9 rounded-full border border-border-strong bg-surface px-3 text-xs transition hover:bg-background">{t}</button>)}</div>
         </div>
       )}
-      <Button variant="ghost" size="sm" onClick={onRescan}><ScanSearch className="size-4" />Scan again</Button>
+      <div className="flex flex-wrap items-center gap-2">
+        {onQuick && <Button variant="accent" size="sm" busy={busy} onClick={onQuick}><Sparkles className="size-4" />Looks right: generate now</Button>}
+        <Button variant="ghost" size="sm" onClick={onRescan}><ScanSearch className="size-4" />Scan again</Button>
+      </div>
+      {onQuick && <p className="text-xs text-muted">Uses your last settings (Fast writing, premium studio style). Prefer to review? Tap Next.</p>}
     </div>
   );
 }

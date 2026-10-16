@@ -36,12 +36,17 @@ class OllamaProvider(LLMProvider):
 
     def generate_json(self, system, user, schema, *, temperature=0.4, images=None) -> LLMResult:
         # One gen_ai span per model call: model name, token counts, latency. Never the prompt or the reply (it holds product facts).
-        with tracing.span("gen_ai.chat", f"chat {self.model}", **{"gen_ai.request.model": self.model, "gen_ai.system": "ollama"}) as sp:
+        with tracing.span("gen_ai.chat", f"chat {self.model}", **{"gen_ai.request.model": self.model, "gen_ai.system": "ollama", "gen_ai.operation.name": "chat",
+                                                                       "prompt_version": tracing.PROMPT_VERSION}) as sp:
             res = self._generate_json(system, user, schema, temperature=temperature, images=images)
             if sp is not None:
                 sp.set_data("gen_ai.usage.input_tokens", res.usage.get("prompt_tokens"))
                 sp.set_data("gen_ai.usage.output_tokens", res.usage.get("completion_tokens"))
                 sp.set_data("latency_ms", res.latency_ms)
+                out, inp = res.usage.get("completion_tokens") or 0, res.usage.get("prompt_tokens") or 0
+                sp.set_data("gen_ai.usage.total_tokens", inp + out)
+                if res.latency_ms and out:
+                    sp.set_data("gen_ai.response.tokens_per_second", round(out / (res.latency_ms / 1000), 1))
             return res
 
     def _generate_json(self, system, user, schema, *, temperature=0.4, images=None) -> LLMResult:

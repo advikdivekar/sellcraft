@@ -4,7 +4,7 @@
 
 Small-seller marketing studio: upload a product photo, enter a few verified facts, pick a platform / tone / style / goal, and get platform-specific listing copy plus a video-ad brief. Copy is written by an **open-weight model (Gemma) running locally through Ollama**, so product data never leaves your machine. See [`plan.md`](plan.md) for the full design.
 
-**Status:** Phase 1 (form → Gemma copy → editable results) is working. Video (FFmpeg animated-photo ad), ElevenLabs voiceover and Sentry tracing are next.
+**Status:** Working end to end: facts and photos → Gemma copy → studio photos, image deck and a 10-second video → export or Shopify draft. A LoRA fine-tune on Tinker, an independent Gemma judge and Sentry tracing are in; see [`docs/RESULTS.md`](docs/RESULTS.md) for the measured numbers and [`docs/DECISIONS.md`](docs/DECISIONS.md) for why things are the way they are.
 
 ## What it makes
 From up to **5 photos** and a few facts (the app measures each photo, flags blur/low-res/dark shots, cleans the cut-out, and picks a backdrop that makes your product stand out): platform-specific copy, **studio-style product photos** (background removed, re-lit, designed backdrop, shadow/reflection), and a **10-second vertical video ad** built from those photos with multi-shot camera moves and text. Photos are read by the model to pre-fill the form (marked "From photo: check it"); you can add anything it can't see. One tap shares the video + caption from your phone, downloads everything as a zip, or sends a **draft** product to Shopify.
@@ -26,8 +26,26 @@ The refined product feeds everything: the video, the studio photos, a white-back
 | Copy + photo reading | Local (Ollama, Gemma 3) | Open weights, no per-use cost. Check Gemma's terms before commercial use. |
 | Background removal | Local (rembg / U2-Net, ONNX on CPU) | Downloads a 44 MB model on first use |
 | Video + photos | Local (FFmpeg, Pillow) | |
-| Voiceover | ElevenLabs (cloud, optional, not built yet) | Script would be sent to ElevenLabs |
 | Shopify publish | Your Shopify store (optional) | Token stays on the backend |
+
+## Open models, and the job each one does
+| Model | Job | Where it runs |
+|---|---|---|
+| **Gemma 3 (4B / 12B)** | Writes the listing copy (default), reads the product photos to pre-fill the form | Local, Ollama |
+| **Gemma 3 12B** | Independent judge: reads each kit next to its facts and lists every statement the facts don't support | Local, Ollama |
+| **Qwen3.5-4B + LoRA** (`sellcraft-copy-v2`) | Fine-tuned copy writer, trained on Tinker to follow the grounding rules | Tinker sampling today; adapter can be exported |
+| Qwen3.5-397B (teacher) | Wrote and revised the training data under the checker's feedback | Tinker |
+
+Gemma is the product's default brain and also its referee. The fine-tune is measured against Gemma on the same 60 held-out kits.
+
+## Measured results
+On 60 held-out synthetic fact sets, under one deterministic checker: the fine-tune (Qwen3.5-4B + LoRA, trained on Tinker) writes a kit with no hard violation **88%** of the time (95% CI 78-95%), against 45% for Gemma 3 12B, 23% for Gemma 3 4B and 18% for the untuned Qwen base. An independent Gemma judge (n=30) is more modest: the fine-tune halves the base model's unsupported statements per kit (0.43 to 0.20) and is level with Gemma 4B, but the intervals overlap. Full tables, caveats, cost per 1,000 kits and reproduce commands: [`docs/RESULTS.md`](docs/RESULTS.md).
+
+In the app, the default **Fast** setting (Gemma 3 4B) builds the whole kit (copy, studio photos, deck, video) in about 18 seconds; **Best quality** (Gemma 3 12B) takes about a minute. Pick it under "Writing speed" when creating a kit.
+
+## Observability (Sentry)
+Every model call is a `gen_ai.chat` span (model, token counts, tokens/second, latency) under a `gen_ai.invoke_agent` span per job. Every flagged claim (forbidden word, not-in-your-facts, regulated claim) is a Sentry issue tagged with the rule, the model and the prompt version, and the "The copy still made something up" button on a finished kit logs a report against that job.
+**Seller text never leaves the machine:** callers pass metadata only, and an allow-list scrubber (`app/tracing.py`) drops everything else before sending. `tests/test_tracing.py` pushes a unique marker through the facts and the model output and fails if it shows up in any outgoing Sentry payload. Set `SENTRY_DSN` in `backend/.env` to turn it on; without it tracing is a no-op.
 
 ## Why it's fast
 - Copy is split into 5-6 small JSON generations that run **in parallel** (Ollama `OLLAMA_NUM_PARALLEL`), and finished parts appear on screen immediately.
@@ -79,6 +97,12 @@ brew install cloudflared qrencode   # once
 scripts/dev-phone.sh                # production build (use for demos); --dev for hot reload; DEMO_MODE=true to skip Ollama
 ```
 It starts the backend, the frontend and a Cloudflare quick tunnel, then prints an `https://…trycloudflare.com` URL and a QR code. Scan it with the iPhone camera. HTTPS gives Safari the secure context it needs for camera capture, clipboard and share, and the tunnel works even when the Wi-Fi blocks device-to-device traffic (or on cellular). Code changes hot-reload. Anyone with the link can use the app while it runs; stop with Ctrl+C.
+
+## Public demo (landing page only)
+The landing page and its in-browser studio can be deployed on their own: no backend, no model, nothing leaves the visitor's browser. `render.yaml` does it for Render (`NEXT_PUBLIC_DEMO_ONLY=1`; the app routes then redirect home). The full app, which needs Ollama on your computer, is not part of that deploy.
+
+## Screenshots and demo
+`docs/images/` has landing and app screenshots (mobile and desktop); `docs/demo/sellcraft-demo-mobile.mp4` is a 70-second phone walkthrough from the landing page to a finished kit built from the sample product.
 
 ## Tests
 `cd backend && .venv/bin/python -m pytest` (mocked LLM, no live services needed).

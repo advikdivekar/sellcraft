@@ -28,7 +28,7 @@ def assemble(clip: Path, cards: list[tuple[Path, float, float, float]], *, durat
     if audio:
         args += ["-i", str(audio), "-map", f"{len(cards) + 1}:a", "-af", "loudnorm=I=-16:TP=-1.5:LRA=11,apad",
                  "-c:a", "aac", "-b:a", "128k"]
-    args += ["-t", str(duration), "-r", str(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+    args += ["-t", str(duration), "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
              "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(out)]
     ffmpeg.run(args)
     return out

@@ -17,8 +17,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     let body: { error?: { code: string; message: string; retryable?: boolean; fields?: { field: string; message: string }[] } } = {};
     try { body = await res.json(); } catch { /* non-JSON error */ }
     const e = body.error;
-    throw new ApiError(e?.code ?? "http_" + res.status, e?.message ?? `Request failed (${res.status}).`, e?.retryable ?? res.status >= 500, e?.fields);
+    throw new ApiError(e?.code ?? "http_" + res.status, e?.message ?? (res.status >= 500 ? "The server took too long or hit a snag. Please try again." : `Request failed (${res.status}).`), e?.retryable ?? res.status >= 500, e?.fields);
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -45,6 +46,8 @@ export const api = {
   saveCopy: (id: string, copy: CopyOutput) => request<GenerationJob>(`/api/generations/${id}/copy`, json("PATCH", copy)),
   regenerate: (id: string, body: { section?: string | null; tone?: Tone | null; instructions?: string | null }) =>
     request<GenerationJob>(`/api/generations/${id}/regenerate-copy`, json("POST", body)),
+  report: (id: string, section: string, reason: "invented_claim" | "wrong_fact" | "bad_tone" | "other") =>
+    request<void>(`/api/generations/${id}/report`, json("POST", { section, reason })),
   reassemble: (id: string) => request<GenerationJob>(`/api/generations/${id}/reassemble`, { method: "POST" }),
   retry: (id: string) => request<GenerationJob>(`/api/generations/${id}/retry`, { method: "POST" }),
   assetUrl: (jobId: string, assetId: string) => `/api/generations/${jobId}/assets/${assetId}`,

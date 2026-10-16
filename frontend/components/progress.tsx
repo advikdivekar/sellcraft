@@ -49,7 +49,6 @@ export function Progress({ job, onRetry, retrying }: { job: GenerationJob; onRet
                 {st === "skipped" && " (not enabled yet)"}
                 {st === "running" && s.key === "copy" && entry?.detail?.includes("parts") && <span className="ml-1.5 font-normal text-muted">{entry.detail}</span>}
                 {st === "running" && s.hint && <span className="block text-xs font-normal text-muted">{s.hint}</span>}
-                {entry?.notes?.map((n) => <span key={n} className="block text-xs font-normal text-warn">{n}</span>)}
               </span>
             </li>
           );

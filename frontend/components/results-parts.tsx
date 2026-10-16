@@ -10,7 +10,14 @@ import type { CopyOutput, GeneratedAsset, GenerationJob, Platform } from "@/lib/
 import { useFeedback } from "./feedback";
 import { Badge, Button, Card, SectionTitle, cx } from "./ui";
 
-export function Insights({ copy, photoNotes, deckNotes }: { copy: CopyOutput; photoNotes: string[]; deckNotes: string[] }) {
+export function Insights({ copy, photoNotes, deckNotes, jobId }: { copy: CopyOutput; photoNotes: string[]; deckNotes: string[]; jobId?: string }) {
+  const { toast } = useFeedback();
+  const [reported, setReported] = useState(false);
+  async function report() {
+    if (!jobId) return;
+    try { await api.report(jobId, "copy", "invented_claim"); setReported(true); toast("Thanks. We logged that the copy made something up (no text is sent)."); }
+    catch { toast("Couldn't send the report. Try again."); }
+  }
   const blocks = [
     { show: copy.missing_information.length > 0, icon: Info, title: "Not provided, so left out of the copy", items: copy.missing_information, hint: "Add these on the Facts step to improve the result." },
     { show: copy.claims_requiring_review.length > 0, icon: AlertTriangle, title: "Double-check before posting", items: copy.claims_requiring_review },
@@ -24,6 +31,9 @@ export function Insights({ copy, photoNotes, deckNotes }: { copy: CopyOutput; ph
           <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold"><Icon className="size-4 text-warn" aria-hidden />{title}</h3>
           <ul className="list-disc space-y-1 pl-5 text-sm text-muted">{items.map((c) => <li key={c}>{c}</li>)}</ul>
           {hint && <p className="mt-2 text-xs text-muted">{hint}</p>}
+          {jobId && title === "Double-check before posting" && (
+            <Button variant="ghost" size="sm" className="mt-2" onClick={report} disabled={reported}>{reported ? "Reported" : "The copy still made something up"}</Button>
+          )}
         </div>
       ))}
     </Card>

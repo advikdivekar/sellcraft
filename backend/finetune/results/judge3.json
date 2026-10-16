@@ -1,0 +1,718 @@
+{
+ "Qwen/Qwen3.5-4B": {
+  "n": 30,
+  "kits_with_unsupported": 0.233,
+  "flags_per_kit": 0.43,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": [
+     "offer a practical play experience",
+     "Ideal for creative construction projects"
+    ]
+   },
+   {
+    "id": "test-0002",
+    "flags": []
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": [
+     "The perfect dinner plate for your next gathering."
+    ]
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": [
+     "durable"
+    ]
+   },
+   {
+    "id": "test-0009",
+    "flags": []
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": [
+     "verified as easy for small hands"
+    ]
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": []
+   },
+   {
+    "id": "test-0021",
+    "flags": [
+     "designed to bring a touch of elegance to your space",
+     "offers a practical way to move your greenery around",
+     "it is an accessible addition to your home or a thoughtful gift for someone who appreciates simple, well-made items",
+     "Let this planter be the centerpiece of your decor, reflecting a sense of calm and order",
+     "Ceramic material for a classic look"
+    ]
+   },
+   {
+    "id": "test-0022",
+    "flags": []
+   },
+   {
+    "id": "test-0023",
+    "flags": []
+   },
+   {
+    "id": "test-0024",
+    "flags": []
+   },
+   {
+    "id": "test-0025",
+    "flags": []
+   },
+   {
+    "id": "test-0026",
+    "flags": [
+     "The tray is made with natural fibres",
+     "While this size is perfect for everyday use, many customers have requested a larger option for their collections."
+    ]
+   },
+   {
+    "id": "test-0027",
+    "flags": []
+   },
+   {
+    "id": "test-0028",
+    "flags": []
+   },
+   {
+    "id": "test-0029",
+    "flags": [
+     "Imagine the morning ritual of pouring golden syrup over a bowl of warm oats."
+    ]
+   },
+   {
+    "id": "test-0030",
+    "flags": []
+   }
+  ]
+ },
+ "tinker://5ba7b6dc-50fc-5142-8c29-c1c733f4af9a:train:0/sampler_weights/sellcraft-copy-v1": {
+  "n": 30,
+  "kits_with_unsupported": 0.333,
+  "flags_per_kit": 0.63,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": [
+     "Ideal for gift ideas."
+    ]
+   },
+   {
+    "id": "test-0002",
+    "flags": [
+     "creates a satisfying crackle when lit",
+     "creates a warm glow",
+     "ensures the scent stays fresh until you are ready to use it",
+     "is the ideal choice for filling a small room with a citrusy atmosphere",
+     "fills a small room with a fresh citrus scent"
+    ]
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": [
+     "Ideal for gifting."
+    ]
+   },
+   {
+    "id": "test-0005",
+    "flags": []
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": []
+   },
+   {
+    "id": "test-0009",
+    "flags": []
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": [
+     "Available now."
+    ]
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": [
+     "It is a straightforward addition to your play area",
+     "No complicated rules, just immediate use for imaginative stories",
+     "Great for play or display",
+     "bringing a soft texture to your playtime",
+     "Whether you are prepping for a birthday, a holiday party, or just need a new toy for a friend, this set stands on its own as a thoughtful gift",
+     "Suitable for gift giving"
+    ]
+   },
+   {
+    "id": "test-0018",
+    "flags": [
+     "It arrives in a gift box, so the moment of giving is immediate."
+    ]
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": [
+     "Fifty milligrams of calm for your evening."
+    ]
+   },
+   {
+    "id": "test-0021",
+    "flags": []
+   },
+   {
+    "id": "test-0022",
+    "flags": [
+     "Users report that it leaves skin feeling soft."
+    ]
+   },
+   {
+    "id": "test-0023",
+    "flags": []
+   },
+   {
+    "id": "test-0024",
+    "flags": []
+   },
+   {
+    "id": "test-0025",
+    "flags": []
+   },
+   {
+    "id": "test-0026",
+    "flags": [
+     "There's a reason customers are asking for more space on this tray."
+    ]
+   },
+   {
+    "id": "test-0027",
+    "flags": []
+   },
+   {
+    "id": "test-0028",
+    "flags": [
+     "Ashwagandha capsules are available for purchase."
+    ]
+   },
+   {
+    "id": "test-0029",
+    "flags": []
+   },
+   {
+    "id": "test-0030",
+    "flags": []
+   }
+  ]
+ },
+ "tinker://62aeeae3-2658-5da2-84f0-b1cf23e7fe4a:train:0/sampler_weights/sellcraft-copy-v2": {
+  "n": 30,
+  "kits_with_unsupported": 0.2,
+  "flags_per_kit": 0.2,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": []
+   },
+   {
+    "id": "test-0002",
+    "flags": [
+     "built to last"
+    ]
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": []
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": [
+     "Made for you."
+    ]
+   },
+   {
+    "id": "test-0009",
+    "flags": [
+     "It is ready for use whenever you need to shield your items."
+    ]
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": [
+     "It is crafted to bring a sense of coziness to your space."
+    ]
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": []
+   },
+   {
+    "id": "test-0021",
+    "flags": []
+   },
+   {
+    "id": "test-0022",
+    "flags": []
+   },
+   {
+    "id": "test-0023",
+    "flags": []
+   },
+   {
+    "id": "test-0024",
+    "flags": [
+     "It gets softer with every wash."
+    ]
+   },
+   {
+    "id": "test-0025",
+    "flags": []
+   },
+   {
+    "id": "test-0026",
+    "flags": []
+   },
+   {
+    "id": "test-0027",
+    "flags": [
+     "fits 13-inch laptops with room to spare."
+    ]
+   },
+   {
+    "id": "test-0028",
+    "flags": []
+   },
+   {
+    "id": "test-0029",
+    "flags": []
+   },
+   {
+    "id": "test-0030",
+    "flags": []
+   }
+  ]
+ },
+ "gemma3:4b": {
+  "n": 30,
+  "kits_with_unsupported": 0.2,
+  "flags_per_kit": 0.2,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": [
+     "Endless creative play."
+    ]
+   },
+   {
+    "id": "test-0002",
+    "flags": []
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": []
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": []
+   },
+   {
+    "id": "test-0009",
+    "flags": [
+     "it’s perfect for keeping contents secure."
+    ]
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": [
+     "Perfect for winding down."
+    ]
+   },
+   {
+    "id": "test-0021",
+    "flags": []
+   },
+   {
+    "id": "test-0022",
+    "flags": []
+   },
+   {
+    "id": "test-0023",
+    "flags": []
+   },
+   {
+    "id": "test-0024",
+    "flags": [
+     "feels great right out of the wash"
+    ]
+   },
+   {
+    "id": "test-0025",
+    "flags": []
+   },
+   {
+    "id": "test-0026",
+    "flags": [
+     "Customers appreciate the size."
+    ]
+   },
+   {
+    "id": "test-0027",
+    "flags": []
+   },
+   {
+    "id": "test-0028",
+    "flags": [
+     "These capsules offer a verified benefit."
+    ]
+   },
+   {
+    "id": "test-0029",
+    "flags": []
+   },
+   {
+    "id": "test-0030",
+    "flags": []
+   }
+  ]
+ },
+ "gemma3:12b": {
+  "n": 30,
+  "kits_with_unsupported": 0.133,
+  "flags_per_kit": 0.13,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": []
+   },
+   {
+    "id": "test-0002",
+    "flags": []
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": [
+     "Ideal for gifting."
+    ]
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": []
+   },
+   {
+    "id": "test-0009",
+    "flags": []
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": []
+   },
+   {
+    "id": "test-0021",
+    "flags": []
+   },
+   {
+    "id": "test-0022",
+    "flags": []
+   },
+   {
+    "id": "test-0023",
+    "flags": []
+   },
+   {
+    "id": "test-0024",
+    "flags": [
+     "The gift they’ll reach for, again and again."
+    ]
+   },
+   {
+    "id": "test-0025",
+    "flags": [
+     "feels weightless all day long"
+    ]
+   },
+   {
+    "id": "test-0026",
+    "flags": []
+   },
+   {
+    "id": "test-0027",
+    "flags": []
+   },
+   {
+    "id": "test-0028",
+    "flags": [
+     "Ashwagandha Capsules are available now."
+    ]
+   },
+   {
+    "id": "test-0029",
+    "flags": []
+   },
+   {
+    "id": "test-0030",
+    "flags": []
+   }
+  ]
+ }
+}

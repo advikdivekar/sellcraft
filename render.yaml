@@ -1,0 +1,15 @@
+# Public demo of the SellCraft landing page (no backend, no model). The full app runs locally; see the README.
+services:
+  - type: web
+    name: sellcraft-landing
+    runtime: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NEXT_PUBLIC_DEMO_ONLY
+        value: "1"
+      - key: NODE_VERSION
+        value: "22"

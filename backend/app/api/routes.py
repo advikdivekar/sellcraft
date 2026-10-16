@@ -3,11 +3,11 @@ from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, File, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response
 
-from .. import db
+from .. import db, tracing
 from ..config import get_settings
 from ..errors import AppError
 from ..schemas import (AnalyzePhotosRequest, CopyOutput, CreateGenerationRequest, GenerationJob, JobStatus,
-                       PublishRequest, RegenerateCopyRequest)
+                       PublishRequest, RegenerateCopyRequest, ReportRequest)
 from ..services import export, jobs, storage, vision
 from ..services.publish.shopify import ShopifyPublisher
 from ..services.copy import CopyService
@@ -100,6 +100,14 @@ def regenerate_copy(job_id: str, req: RegenerateCopyRequest):
     if req.tone and req.tone != job.settings.tone:
         db.update_job(job_id, settings=job.settings.model_copy(update={"tone": req.tone}))
     return _job_or_404(job_id)
+
+
+@router.post("/generations/{job_id}/report", status_code=204)
+def report_section(job_id: str, req: ReportRequest):
+    """Lets the seller flag a section; shows up in Sentry next to that job's trace (section + reason code only, no text)."""
+    _job_or_404(job_id)
+    tracing.report(job_id, req.section, req.reason)
+    return Response(status_code=204)
 
 
 @router.post("/generations/{job_id}/reassemble", status_code=202)

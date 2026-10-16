@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="ignore")
 
     ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "gemma3:4b"
+    ollama_model: str = "gemma3:12b"  # "Best quality" copy
+    ollama_fast_model: str = "gemma3:4b"  # "Fast" copy (the default): a small model finishes the kit in seconds
     ollama_timeout: float = 240.0
     vision_model: str = ""  # defaults to OLLAMA_MODEL; must be a multimodal model (Gemma 3 is)
     demo_mode: bool = False

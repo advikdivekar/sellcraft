@@ -102,6 +102,7 @@ export function Results({ job }: { job: GenerationJob }) {
               {save.isPending ? <><Loader2 className="size-3 animate-spin" />Saving…</> : savedOnce ? <><Check className="size-3 text-ok" />All changes saved</> : null}
             </span>
           </div>
+          <p className="text-[13px] text-muted">{[slides.length ? `${slides.length} slides` : "", photoCount ? `${photoCount} studio photos` : "", video ? "10 s video" : "", `copy for ${platforms.length} platform${platforms.length > 1 ? "s" : ""}`].filter(Boolean).join(" · ")}</p>
         </div>
         <div className="flex gap-2 max-sm:hidden">
           {video && <Button onClick={shareAll}><Share2 className="size-4" />Share</Button>}
@@ -118,7 +119,7 @@ export function Results({ job }: { job: GenerationJob }) {
               <VideoCard job={job} video={video} rendering={rendering} updating={reassemble.isPending || job.status === "assembling_video"} onUpdate={() => reassemble.mutate()} />
               <DeckCarousel job={job} slides={slides} building={stage("deck")?.status === "running" || rendering || !stage("deck")} />
             </div>
-            <Insights copy={copy} photoNotes={stage("video")?.notes ?? []} deckNotes={stage("deck")?.notes ?? []} />
+            <Insights jobId={job.id} copy={copy} photoNotes={stage("video")?.notes ?? []} deckNotes={stage("deck")?.notes ?? []} />
           </div>
         )}
 
