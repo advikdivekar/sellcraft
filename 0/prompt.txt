@@ -1,0 +1,118 @@
+<pasted_content id="9303">
+(base) advikdivekar@Adviks-MacBook-Pro ~ % brew install ollama
+brew services start ollama
+ollama pull gemma3:4b
+ollama list
+brew services start ollama
+Warning: The following taps are not trusted:
+  mongodb/brew
+  powershell/tap
+
+Homebrew is currently ignoring formulae, casks and commands
+from these taps because tap trust is required.
+Prefer trusting only the specific formulae, casks or commands you need.
+Trust installed formulae from these taps with:
+  brew trust --formula powershell/tap/powershell
+Trust other specific casks and commands with:
+  brew trust --cask <user>/<tap>/<cask>
+  brew trust --command <user>/<tap>/<command>
+Whole-tap trust is broader and includes all current and future formulae,
+casks and commands from the listed taps. Trust whole taps with:
+  brew trust mongodb/brew powershell/tap
+Untap them with:
+  brew untap mongodb/brew powershell/tap
+For more information, see:
+  https://docs.brew.sh/Tap-Trust
+==> Downloading bottle manifests
+✔︎ Bottle Manifest ollama (0.40.4)                                                                              Downloaded   50.5KB/ 50.5KB
+==> Would install 1 formula:
+ollama 0.40.4
+==> Would install 4 dependencies for ollama:
+openssl@4
+python@3.15
+mlx
+mlx-c
+==> Would upgrade 3 dependencies for ollama:
+ca-certificates
+readline
+sqlite
+==> Do you want to proceed with the installation? [y/n]
+==> Fetching downloads for: ollama
+✔︎ Bottle Manifest ca-certificates (2026-09-25)                                                                 Downloaded    8.1KB/  8.1KB
+✔︎ Bottle Manifest openssl@4 (4.0.3)                                                                            Downloaded   19.5KB/ 19.5KB
+✔︎ Bottle Manifest readline (8.3.6)                                                                             Downloaded   15.3KB/ 15.3KB
+✔︎ Bottle Manifest sqlite (3.54.0)                                                                              Downloaded   22.6KB/ 22.6KB
+✔︎ Bottle Manifest mlx-c (0.7.0_1)                                                                              Downloaded   38.9KB/ 38.9KB
+✔︎ Bottle Manifest mlx (0.32.4)                                                                                 Downloaded   36.4KB/ 36.4KB
+✔︎ Bottle Manifest python@3.15 (3.15.0)                                                                         Downloaded  108.8KB/108.8KB
+✔︎ Bottle ca-certificates (2026-09-25)                                                                          Downloaded  112.2KB/112.2KB
+✔︎ Bottle readline (8.3.6)                                                                                      Downloaded  757.0KB/757.0KB
+✔︎ Bottle mlx-c (0.7.0_1)                                                                                       Downloaded  224.9KB/224.9KB
+✔︎ Bottle sqlite (3.54.0)                                                                                       Downloaded    2.5MB/  2.5MB
+✔︎ Bottle openssl@4 (4.0.3)                                                                                     Downloaded   11.2MB/ 11.2MB
+✔︎ Bottle ollama (0.40.4)                                                                                       Downloaded   17.4MB/ 17.4MB
+✔︎ Bottle python@3.15 (3.15.0)                                                                                  Downloaded   20.2MB/ 20.2MB
+✔︎ Bottle mlx (0.32.4)                                                                                          Downloaded   42.8MB/ 42.8MB
+==> Installing dependencies for ollama: ca-certificates ↑, openssl@4, readline ↑, sqlite ↑, python@3.15, mlx and mlx-c
+==> Upgrading ollama dependency: ca-certificates (2026-08-13 -> 2026-09-25)
+==> Pouring ca-certificates--2026-09-25.all.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/ca-certificates/2026-09-25: 5 files, 204.4KB
+==> Installing ollama dependency: openssl@4 (4.0.3)
+==> Pouring openssl@4--4.0.3.arm64_tahoe.bottle.tar.gz
+Unlinking /opt/homebrew/Cellar/openssl@3/3.6.4... 6570 symlinks removed.
+🍺  /opt/homebrew/Cellar/openssl@4/4.0.3: 6,820 files, 23.8MB
+==> Upgrading ollama dependency: readline (8.3.3 -> 8.3.6)
+==> Pouring readline--8.3.6.arm64_tahoe.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/readline/8.3.6: 56 files, 2.6MB
+==> Upgrading ollama dependency: sqlite (3.53.4 -> 3.54.0)
+==> Pouring sqlite--3.54.0.arm64_tahoe.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/sqlite/3.54.0: 13 files, 5.4MB
+==> Installing ollama dependency: python@3.15 (3.15.0)
+==> Pouring python@3.15--3.15.0.arm64_tahoe.bottle.tar.gz
+Warning: These files were overwritten during the `brew link` step:
+/opt/homebrew/bin/idle3
+/opt/homebrew/bin/pip3
+/opt/homebrew/bin/pydoc3
+/opt/homebrew/bin/python3
+/opt/homebrew/bin/python3-config
+/opt/homebrew/share/man/man1/python3.1
+/opt/homebrew/lib/pkgconfig/python3-embed.pc
+/opt/homebrew/lib/pkgconfig/python3.pc
+/opt/homebrew/Frameworks/Python.framework/Headers
+/opt/homebrew/Frameworks/Python.framework/Python
+/opt/homebrew/Frameworks/Python.framework/Resources
+/opt/homebrew/Frameworks/Python.framework/Versions/Current
+
+They have been backed up to: /Users/advikdivekar/Library/Caches/Homebrew/Backup
+==> Summary
+🍺  /opt/homebrew/Cellar/python@3.15/3.15.0: 3,983 files, 79MB
+==> Installing ollama dependency: mlx (0.32.4)
+==> Pouring mlx--0.32.4.arm64_tahoe.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/mlx/0.32.4: 466 files, 171.4MB
+==> Installing ollama dependency: mlx-c (0.7.0_1)
+==> Pouring mlx-c--0.7.0_1.arm64_tahoe.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/mlx-c/0.7.0_1: 40 files, 1MB
+==> Installing ollama
+==> Pouring ollama--0.40.4.arm64_tahoe.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/ollama/0.40.4: 15 files, 53.2MB
+==> Caveats
+==> ollama
+To start ollama now and restart at login:
+  brew services start ollama
+Or, if you don't want/need a background service you can just run:
+  OLLAMA_FLASH_ATTENTION="1" OLLAMA_KV_CACHE_TYPE="q8_0" /opt/homebrew/opt/ollama/bin/ollama serve
+==> Successfully started `ollama` (label: sh.brew.ollama)
+pulling manifest 
+pulling f06e91e18fc7: 100% ▕█████████████████████████████████████████████████████████████████████████████▏ 2.5 GB                         
+pulling 7a50f9607a47: 100% ▕█████████████████████████████████████████████████████████████████████████████▏ 851 MB                         
+pulling 4bf7b0a45f1a: 100% ▕█████████████████████████████████████████████████████████████████████████████▏  144 B                         
+verifying sha256 digest 
+writing manifest 
+success 
+NAME         ID              SIZE      MODIFIED               
+gemma3:4b    68ceab7e468a    3.4 GB    Less than a second ago    
+Service `ollama` already started, use `brew services restart ollama` to restart.
+(base) advikdivekar@Adviks-MacBook-Pro ~ % 
+</pasted_content id="9303">
+
+ what to do next, give me the commands to test the app on mac, let's sentry once we are done with this
