@@ -149,151 +149,68 @@ Backend: FastAPI, SQLite, Pydantic. Frontend: Next.js 16 and React 19. 135 backe
 
 ## How I Built It
 
-### The big picture
+**Two lanes run at the same time**: one for visuals and one for language. They meet at the deck and the video, which need the finished copy. The page polls the job every 1.5 seconds and shows real progress and partial copy as it arrives.
 
-A request makes two lanes run **at the same time**: one for visuals and one for language. They meet at the deck and the video, which need the finished copy.
+![System architecture](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/system.png)
 
-![System architecture](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/system.png)
+**Every model has one job and one strict contract.**
 
-The page polls the job every 1.5 seconds and shows real progress and partial copy as it arrives. Nothing is faked.
+![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/models.png)
 
-### Which model does which job
+Two choices worth explaining:
 
-Every model has **one job and one strict contract**.
+- **The video is not AI-generated.** It's image processing plus FFmpeg, so the product in the video is *your* product, pixel for pixel. Generative video tends to repaint the product.
+- **The checker is plain code, not a second model.** A model can talk itself into anything. A word list and a number check can't.
 
-![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)
+**The copy** is split into parallel parts (four core parts plus one per platform), each forced into a JSON schema. A bad call is retried once, and plain code then checks for forbidden words, invented numbers and unsupported claims.
 
-| Model or tool | Job |
-|---|---|
-| **Gemma 3 4B** (Ollama) | Fast copy (the default), reading photos |
-| **Gemma 3 12B** (Ollama) | Best-quality copy, and the independent judge in my evaluation |
-| **rembg** (U2-Net) | Cuts the product out of its background |
-| **OpenCV, NumPy, Pillow** | Measure, denoise, 2x upscale, fix tone, build the deck. Deterministic. |
-| **FFmpeg** | The video. Camera moves, crossfades, text cards. **Not** generative video. |
-| **Qwen3.5-4B + LoRA** (Tinker) | My fine-tuned copy writer |
-| **A plain-code checker** | Scores and flags the copy |
+![Copy pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/copy.png)
 
-Two choices worth explaining.
+**Photos are read, never trusted.** Up to 5 photos are shrunk to 768 px and read under strict rules. What comes back is only a suggestion, marked "From photo, check it".
 
-**The video is not AI-generated.** It's image processing plus FFmpeg. That means the product in the video is *your* product, pixel for pixel. Generative video tends to repaint the product, and a seller can't sell a product that looks different from the real one.
+![Photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/photo-reading.png)
 
-**The checker is plain code, not a second model.** A model can talk itself into anything. A word list and a number check can't.
+**Studio shots:** measure, cut out, refine the product's pixels, fix the tone, pick a backdrop from what the photo shows, compose. If the cutout looks wrong, it falls back to a framed photo instead of a bad cutout.
 
-### What happens, in order
+![Studio imagery pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/studio.png)
 
-From the moment you tap Generate to the moment you export.
+**The video:** at least 4 shots rendered with FFmpeg (up to 3 at once), 0.4 s crossfades, text cards from your edited copy, checked to be 10 seconds at 1080x1920. Edit the copy and only the text layer re-renders.
 
-![Request lifecycle](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/sequence.png)
+![Video pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/video.png)
 
-### The copy pipeline
+**Why it's fast.** My first version took 90 to 145 seconds for one big generation on a laptop.
 
-![Copy pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)
-
-The kit is split into small parts that run in parallel: four core parts plus one per platform. Each part's output is forced into a JSON schema. A bad call is retried once, and only the missing parts are redone. Then plain code checks for forbidden words, invented numbers and unsupported claims, and anything it finds is shown to the seller.
-
-### Reading your photos
-
-![Photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)
-
-Up to 5 photos go in. Each one is shrunk to 768 px and read under strict rules. What comes back is only ever a **suggestion**, marked "From photo, check it". It never goes straight into your copy.
-
-### Photos to studio shots
-
-![Studio imagery pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/studio.png)
-
-Measure the photo, cut out the product, clean the product's pixels, fix the tone, choose a backdrop that suits what the photo shows, then compose. If the cutout looks wrong (too little or too much of the frame), it falls back to a framed photo instead of a bad cutout.
-
-### The video
-
-![Video pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/video.png)
-
-The plan has at least 4 shots. Each is rendered with FFmpeg, up to 3 at once, then joined with 0.4 s crossfades. Text cards come from your edited copy. The result is checked to be 10 seconds (plus or minus 0.5) and 1080x1920. If you edit the copy, only the text layer is re-rendered, not the whole video.
-
-### Why it's fast
-
-My first version was far too slow. One big generation on a laptop took 90 to 145 seconds.
-
-![Timing: why the wait is short](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/pipeline.png)
-
-![Optimisations, before and after](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/optimisations.png)
-
-Three changes fixed most of it:
+![Before and after: what the Fast default and parallel parts bought](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/speed.png)
 
 | Change | Before | After |
 |---|---|---|
 | Fast mode (Gemma 4B) as the default | copy 53 s | copy 14 s |
 | Split the kit into parallel parts | one 12B call, 90 to 145 s | 45 to 60 s |
-| Run the visual and language lanes together | the sum of both | the slower lane, plus a few seconds |
+| Run both lanes together | the sum of both | the slower lane, plus a few seconds |
 
-A four-photo kit went from about **100 s to about 18 s** in Fast mode. Best quality (Gemma 12B) takes about 57 s.
+A four-photo kit went from about **100 s to about 18 s** in Fast mode. The trade-off: the 4B model gets more claims flagged than the 12B, the post-check still catches them, and Best quality (about 57 s) is one switch away.
 
-The trade-off is real. The 4B model gets more claims flagged than the 12B. The post-check still catches them, and Best quality is one switch away.
-
-### Training a small model to follow the rules
-
-This is the part I'm proudest of.
-
-![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
-
-The idea: a big teacher model writes marketing kits, code and an independent judge reject any kit that breaks the rules, and only the **clean** kits are used to train a small student.
-
-### Did it work?
-
-Tested on 60 held-out synthetic products the training code refuses to read.
-
-![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
-
-The full table and what it does and doesn't prove are in the Tinker section below.
-
-### What Sentry sees
-
-Every model call is traced, and nothing a seller typed ever leaves the machine.
-
-![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
-
-### Privacy by design
-
-*Where your data can and can't go.*
-
-![What stays local and what can leave](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/trust.png)
-
-Your product facts stay on your computer. The only things that can ever leave are a Shopify draft you tap, and scrubbed Sentry metadata. Both are covered in the sections below.
+The fine-tune, the evaluation and the Sentry setup each have their own section under Prize Categories.
 
 ## Why Does Open Innovation Matter?
 
 Go back to my two stories. In both, the real cost was not money alone. It was **control**.
 
-**1. Your product details are your business.**
-Pricing, ingredients, launch plans, the way you describe your product. With open models running locally, all of it stays on your machine. There is no "we don't train on your data" to trust. The data never leaves.
+**1. Your product details stay yours.** Pricing, ingredients, launch plans. With open models running locally, the data never leaves your machine. There's no "we don't train on your data" to trust.
 
-**2. A fixed price of zero, per kit.**
-On your own computer, every kit costs electricity. A seller can run it five times on one product, try three tones, and never wonder if it is "worth" the credits. In a business where cashflow is tight, that matters.
+**2. No per-kit fee.** Every kit costs electricity. A seller can run it five times, try three tones, and never wonder if it's "worth" the credits. When cashflow is tight, that matters.
 
-**3. I could change the model, not just the prompt.**
-The most important thing I did in this project was fine-tune a small open model so it follows one rule better: *don't invent claims*. Prompting alone left the 4B model at 23% clean kits. Training took it to 88%. You can't do that to a closed model, and you can't download what you trained.
+**3. I could change the model, not just the prompt.** I fine-tuned a small open model to follow one rule: *don't invent claims*. Prompting alone left the 4B model at 23% clean kits. Training took it to 88%. You can't do that to a closed model, or download what you trained.
 
-**4. I could look inside and measure.**
-I tested the fine-tune against a second, independent model as a judge, not just my own checker. With a closed API I'd have had one number and no way to question it.
+**4. I could look inside and measure.** I tested the fine-tune against an independent judge model, not just my own checker. With a closed API I'd have one number and no way to question it.
 
-**5. One setting swaps the model.**
-Fast or Best quality is a single setting, and both are open Gemma models. The next Gemma release is a one-line change.
+**5. One setting swaps the model.** Fast or Best quality is a single switch between two open Gemma models. The next Gemma release is a one-line change.
 
-The honest limit: open models on your own computer need a computer that can run them. I wrote the local setup into the README.
+The honest limit: open models need a computer that can run them. I wrote the local setup into the README.
 
 ## My Agent Session
 
-I built Mochi with Claude Code, and every session is recorded with **Entire**. Each commit carries the checkpoint of the conversation that produced it.
-
-- [`docs/DECISIONS.md`](https://github.com/advikdivekar/sellcraft/blob/main/docs/DECISIONS.md) lists **19 decisions**, each with its reason, its commit and its Entire checkpoint ID
-- About **113 checkpoints** are pushed to the repo
-- To read one: `entire checkpoint explain <id>` in a clone of the repo
-
-Two of the decisions the record shows, in my own words:
-
-- **#10: a regulated-claims check for cosmetics.** A skincare seller can't say "reduces wrinkles". It's a legal claim, not a style choice.
-- **#16: making Fast the default.** Stage timings showed copy was the slowest part, so the default became the smaller model.
-
-One caveat on honesty: checkpoints for work from before Entire was switched on were *imported* from my local history and matched to commits by time. Read those as "the conversation this came out of", not a one-to-one record. The decisions file says the same.
+I built Mochi with Claude Code, and every session is recorded with **Entire**. [`docs/DECISIONS.md`](https://github.com/advikdivekar/sellcraft/blob/main/docs/DECISIONS.md) lists 19 decisions, each with its reason, its commit and its Entire checkpoint, so you can read the conversation behind any choice. More in the Entire section below.
 
 ## My First User
 
@@ -334,34 +251,21 @@ I'm entering **Tinker, Gemma, Sentry Agent Tracing and Entire**. Each section co
 **How it worked.**
 
 1. A big teacher model, **Qwen3.5-397B-A17B**, writes and revises kits on Tinker
-2. My checker and an independent judge reject any kit with an invented claim, number or forbidden word
+2. My checker and an independent judge (Gemma 12B, a different model family) reject any kit with an invented claim, number or forbidden word
 3. The teacher revises with the checker's findings, at most 2 rounds
-4. Only kits with **zero** hard violations become training data
+4. Only kits that pass **both** the checker and the judge become training data (zero hard violations)
 5. A small student is trained on those: rank 32, 3 epochs, 319 examples, learning rate 2e-4
 6. A held-out set of 60 products, which the training code refuses to read, tests it
 
 The whole thing cost **$5.41 of the $10 credit**.
 
-The training pipeline:
-
-![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
+![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/finetune.png)
 
 **Results** (60 held-out synthetic products, one checker):
 
-The evaluation:
-
-![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
-
-| Model | Clean kits | 95% CI |
-|---|---|---|
-| Qwen3.5-4B, untuned | 18% | 10 to 28% |
-| Gemma 3 4B | 23% | 13 to 35% |
-| Gemma 3 12B | 45% | 33 to 57% |
-| **Fine-tune v2** | **88%** | **78 to 95%** |
+![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/evaluation.png)
 
 That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many clean kits, and about 10 times faster (4.9 s against 48.7 s per kit, though v2 runs on Tinker's cloud and Gemma on my laptop).
-
-**Keeping it honest.** v2 trains only on kits that passed **both** my checker and an independent judge from a different model family (Gemma 12B), which lists every statement the facts don't support.
 
 **The honest result on the judge.** v2 halves the untuned model's flags (0.43 to 0.20), but the confidence intervals overlap, and Gemma 12B is lower still at 0.13. With 30 kits per model I can't claim more than that.
 
@@ -381,13 +285,7 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 2. **The photo reader.** It reads up to 5 photos and returns suggested facts, each tagged "From photo, check it"
 3. **The independent judge.** Gemma 3 12B, a different family from the Qwen teacher, reviews kits in my evaluation
 
-Which model does which job:
-
-![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)
-
-How Gemma reads photos. It only ever suggests; you confirm:
-
-![Photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)
+![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/models.png)
 
 **Why Gemma.** It's open-weight, it runs on one machine, and it can be held to a JSON schema. That matters here: the seller's facts shouldn't leave their computer, and every part of a kit must come back as strict, checkable JSON.
 
@@ -399,10 +297,6 @@ How Gemma reads photos. It only ever suggests; you confirm:
 - Speed is the trade-off. Fast (4B) builds a four-photo kit in about **18 s**, Best quality (12B) in about **57 s**
 - As the judge, Gemma 12B had the fewest flags of any model I tested (0.13 per kit)
 
-What the Fast default bought:
-
-![Optimisations, before and after](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/optimisations.png)
-
 **What I learned.** Two things. First, the model size is a user choice, not a technical one, so I made it a switch on the form. Second, the judge is Gemma, so it may be lenient toward Gemma's own writing. That bias favours the Gemma rows and works *against* my fine-tune's claim, so it can't be inflating my result.
 
 ### Best Use of Sentry Agent Tracing
@@ -411,26 +305,18 @@ What the Fast default bought:
 
 **Why this was the hard part.** A marketing tool handles a seller's most private material: product details, prices, plans. Sending prompts to a tracing service would break the promise the whole product makes. So the question was not "can I trace this", it was "can I trace this and prove nothing private leaks".
 
-**What Sentry sees.**
-
-What Sentry sees and what it never sees:
-
-![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
+![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/observability.png)
 
 - Each model call is a **`gen_ai.chat` span**, with the model, token counts and latency
 - Each generation job is a transaction
 - Each flagged claim is an issue (which rule fired, and how many)
 - Each seller report is an event. The report button sends a section name and a fixed reason code, **never free text**
 
-The flagged claims come from the copy pipeline's post-check, so each issue is a rule the code caught, not a model's opinion:
-
-![Copy pipeline and its post-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)
+The flagged claims come from the copy post-check, so each issue is a rule the code caught, not a model's opinion.
 
 **What it never sees.** An allow-list scrubber removes everything that is not on the list of allowed metadata. Product facts, copy, photos and prompts can't pass it.
 
-The trust boundary:
-
-![What stays local and what can leave](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/trust.png)
+![What stays local and what can leave](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/trust.png)
 
 **How I know it works.** A canary test pushes a unique fake product through every input path of the real app, then fails if that marker shows up in *any* outgoing Sentry payload. It's in `tests/test_tracing.py`.
 
