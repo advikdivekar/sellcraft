@@ -1,0 +1,15 @@
+<pasted_content id="b453">
+  Selected agents: Claude Code
+  ✓ Installed hooks
+  ✓ Configured project
+    .entire/settings.json
+┃ Import existing Claude Code sessions into Entire? (optional)
+┃ 2 sessions from the last 30 days. Enter to confirm.
+┃
+┃                       Import     Skip  
+
+←/→ toggle • enter submit • y Import • n Skip
+
+</pasted_content id="b453">
+
+ check what to do?
