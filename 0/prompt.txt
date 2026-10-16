@@ -1,0 +1,449 @@
+<pasted_content id="b453">
+
+# SellCraft AI — Premium Web App + Mobile App Design System
+
+Act as a world-class product designer, creative director, and senior frontend engineer. Design and implement a visually exceptional, production-quality experience for **SellCraft AI**, an AI-powered product content and video creation platform for online sellers, small businesses, Instagram stores, Etsy shops, handmade-product brands, and independent entrepreneurs.
+
+The product should feel like a combination of a premium YC-backed startup, a sophisticated creative studio, and an innovative AI-native product. It must be visually memorable, polished, intuitive, and commercially credible.
+
+Design both a **responsive web application and a mobile application** using the same unified visual identity and design system.
+
+Do not create a generic SaaS template. Every design decision should feel intentional and specific to SellCraft AI.
+
+## 1. Product overview
+
+SellCraft AI transforms a product photo and a few product details into a complete set of marketing assets.
+
+A user should be able to:
+
+1. Upload a product photograph.
+2. Enter product information, such as the name, features, price, target audience, and selling points.
+3. Select a publishing platform: Instagram, Facebook, Pinterest, Etsy, Shopify, or other supported channels.
+4. Select a tone: persuasive, emotional, minimal, luxurious, playful, professional, or storytelling.
+5. Generate product titles, descriptions, SEO tags, captions, calls to action, and relevant hashtags where appropriate.
+6. Generate an approximately 10-second video advertisement from the product image, using the capabilities available in the configured video-generation system.
+7. Optionally generate voiceovers, with integration for a provider such as ElevenLabs when configured.
+8. Preview, edit, regenerate, and export the results.
+
+The experience should make the user feel that they have a personal AI creative studio, rather than a complicated collection of AI tools.
+
+## 2. Core visual identity
+
+Use the following exact color palette throughout the application.
+
+- Deep Ocean: #003135
+- Ocean Teal: #024950
+- Burnt Terracotta: #964734
+- Electric Turquoise: #0FA4AF
+- Ice Blue: #AFDDE5
+- White: #FFFFFF
+- Soft neutral background: #F5F8F8
+- Primary dark text: #082F33
+- Secondary text: #60777A
+
+### Color usage rules
+
+**Deep Ocean — #003135**
+
+Use for dark hero sections, premium navigation areas, onboarding screens, dark mode foundations, and high-impact visual sections.
+
+**Ocean Teal — #024950**
+
+Use for secondary dark surfaces, sidebars, dark cards, selected dashboard panels, and layered gradients.
+
+**Burnt Terracotta — #964734**
+
+Use sparingly for distinctive accents, campaign highlights, selected decorative elements, and occasional visual contrasts. Never allow it to dominate the interface.
+
+**Electric Turquoise — #0FA4AF**
+
+Use for primary calls to action, active navigation states, selected controls, AI generation indicators, progress states, and interactive highlights.
+
+**Ice Blue — #AFDDE5**
+
+Use for subtle backgrounds, light gradient transitions, empty states, understated illustrations, and visual accents surrounding product previews.
+
+### Signature gradient
+
+Create a recognizable SellCraft AI gradient using:
+
+Deep Ocean → Ocean Teal → Electric Turquoise.
+
+A secondary light gradient may transition from Ice Blue into White.
+
+Keep gradients sophisticated and controlled. Do not use random multicolor gradients, excessive glowing effects, or overly saturated backgrounds.
+
+Maintain accessible text contrast. Use white text on sufficiently dark surfaces and dark text on light surfaces. Do not assume every palette color is suitable for every text/background pairing.
+
+## 3. Design direction
+
+The design should feel:
+
+- Premium and meticulously crafted.
+- Modern, futuristic, and AI-native.
+- Minimal without being empty or boring.
+- Cinematic in marketing and generation experiences.
+- Clear and approachable for nontechnical small-business owners.
+- Confident and editorial, with strong typography and generous spacing.
+- Fast, responsive, and suitable for daily professional use.
+
+Use a combination of oversized editorial headlines, crisp sans-serif typography, carefully composed product photography, refined UI surfaces, and subtle visual depth.
+
+Typography should use a modern family such as Inter, Geist, or Manrope. Establish a clear hierarchy for headings, body text, labels, prices, and metadata.
+
+Use rounded corners consistently, approximately 12–20px for cards and 10–14px for controls. Reserve larger rounded surfaces for hero sections and major containers.
+
+Avoid excessive pill-shaped elements, excessive glassmorphism, generic purple AI styling, unnecessary borders, and layouts that look like a premade admin template.
+
+## 4. Marketing website
+
+Build a premium public-facing website that communicates the product immediately and encourages visitors to try it.
+
+### Hero section
+
+Create a visually striking hero with a deep ocean background and a sophisticated teal gradient.
+
+Suggested headline:
+
+**Your product. Your story. Ready to sell.**
+
+Supporting text:
+
+"Turn a single product photo into compelling listings, on-brand captions, and scroll-stopping video ads."
+
+Primary CTA: "Create your first campaign"
+
+Secondary CTA: "Explore the studio"
+
+Add a small, understated AI-powered indicator near the headline.
+
+The hero must visually demonstrate the actual product outcome. Show an uploaded product photo transforming into a polished product listing and an animated vertical video-ad preview.
+
+Use layered product mockups, floating content previews, and carefully controlled motion to make the transformation feel tangible.
+
+The page must look beautiful even before any animations start loading.
+
+### Interactive visual demo
+
+Create an interactive before-and-after experience.
+
+On one side, display an ordinary product photo and a few basic product facts.
+
+On the other side, reveal a generated product title, a refined description, social captions, and a vertical video preview.
+
+Use elegant transitions to communicate the transformation from raw product information to publishable marketing assets.
+
+The demo should feel premium and believable, not like an exaggerated science-fiction interface.
+
+### Additional website sections
+
+Include:
+
+- A platform compatibility section.
+- A visual breakdown of how SellCraft AI works.
+- A featured AI creative studio preview.
+- Product listing and copy-generation examples.
+- Video advertisement generation examples.
+- A voiceover feature section.
+- A section explaining who the product is for.
+- Pricing or plan information only if real plan details exist.
+- Frequently asked questions.
+- A strong final call to action.
+- A refined footer.
+
+Use large images, clean composition, deliberate whitespace, and varied section layouts instead of repeating identical cards throughout the entire site.
+
+## 5. Main web application
+
+After sign-in, the user should enter a polished creative workspace.
+
+Use a desktop-first dashboard that also adapts naturally to tablets and smaller screens.
+
+### Dashboard
+
+Display a compact sidebar containing:
+
+- Overview
+- Create Campaign
+- My Creations
+- Templates
+- Brand Voice
+- Settings
+
+Use simple, consistent line icons.
+
+Place the SellCraft AI brand at the top. The selected navigation item should use turquoise accents against the deep teal sidebar.
+
+The main content area should have a light background for readability, with dark teal reserved for selected premium surfaces and high-impact elements.
+
+The dashboard should include a strong welcome heading, a prominent "Create New Campaign" action, recent creations, and a visually engaging campaign gallery.
+
+Avoid cluttering the dashboard with unnecessary metrics or statistics that do not directly help users create content.
+
+### Campaign creation studio
+
+This is the most important screen.
+
+Design a focused, high-quality creation workflow with a clear progression:
+
+**Product → Style → Generate → Review → Export**
+
+Use a structured two-column layout on desktop.
+
+The left column contains the product inputs and creative settings. The right column shows a live preview of the selected or generated assets.
+
+Product input area:
+
+- Drag-and-drop image upload.
+- Image preview with replace and remove actions.
+- Product name.
+- Product description and features.
+- Price, optional.
+- Target audience.
+- Key selling points.
+
+Creative settings:
+
+- Publishing platform selector.
+- Content format selector.
+- Tone selector.
+- Language selector.
+- Optional brand voice settings.
+- Optional call-to-action preference.
+
+Use clearly labelled controls, concise helper text, and sensible defaults.
+
+Do not place every option on screen at once. Advanced options can be grouped into expandable sections.
+
+The primary action should be visually prominent:
+
+**Generate My Content**
+
+Use a turquoise accent and a subtle hover animation.
+
+### Generated results workspace
+
+Present outputs in a polished, easy-to-navigate results area.
+
+Use tabs or a segmented navigation control for:
+
+- Product Listing
+- Social Captions
+- SEO Tags
+- Video Ad
+- Voiceover
+
+For the listing and caption views, provide clean editable text areas, character counts where relevant, copy actions, and regeneration controls.
+
+For platform-specific outputs, display the selected platform clearly and apply its actual configured content constraints.
+
+For the video-ad view, use a vertical 9:16 preview with playback controls, a timeline or scene breakdown where supported, generation status, and export controls.
+
+Allow users to revise results without losing their original inputs.
+
+Provide clear loading, success, empty, error, and retry states. Never present a fake progress indicator as proof that a real AI task has completed.
+
+### My creations
+
+Display previously generated campaigns in a sophisticated gallery.
+
+Each item should have:
+
+- A product thumbnail.
+- Campaign title.
+- Creation date.
+- Asset types generated.
+- Relevant status.
+- Open and duplicate actions.
+
+Include practical filtering and searching where backed by real data.
+
+### Brand voice
+
+Create a dedicated area where users can define their brand personality, preferred vocabulary, writing style, audience, and prohibited phrases.
+
+Show a preview of how the brand voice changes generated content.
+
+Only display saved brand settings when persistence is implemented.
+
+## 6. Mobile application
+
+The mobile app must be designed as a true mobile experience, not simply a desktop dashboard squeezed into a narrow screen.
+
+Use the same five-color visual identity, typography, component styles, and visual personality as the web application.
+
+Prioritize single-column layouts, touch-friendly interactions, clear navigation, accessible typography, and one-handed usability.
+
+### Mobile home screen
+
+Display:
+
+- A compact SellCraft AI brand header.
+- A prominent creation button.
+- Recently generated campaigns.
+- Quick-start actions for listing creation and video ads.
+- A small, useful overview of recent work.
+
+Use a bottom navigation bar with approximately four primary destinations, such as Home, Create, Creations, and Profile. Treat Create as the main action without making navigation visually crowded.
+
+### Mobile creation workflow
+
+Break creation into digestible steps instead of displaying a long desktop-style form.
+
+Step 1: Add a product image using the camera, photo library, or supported upload mechanism.
+
+Step 2: Enter product details.
+
+Step 3: Select platform and tone.
+
+Step 4: Review the generation settings.
+
+Step 5: Generate and review the results.
+
+Show progress clearly and allow the user to return to previous steps without losing entered information.
+
+### Mobile results screen
+
+Use a clean vertically scrolling interface.
+
+Display the product preview first, followed by a content-type selector and the generated content.
+
+Provide easy-to-reach actions for copying text, editing, regenerating, sharing, and exporting when those actions are supported.
+
+Use a prominent vertical video preview, comfortable touch targets, and a clear way to switch between the video and copywriting results.
+
+The mobile UI should feel like a portable AI content studio: lightweight, fast, polished, and convenient for someone running an online business from their phone.
+
+### Mobile-specific visual behavior
+
+- Use bottom sheets for secondary settings when appropriate.
+- Use native-feeling selection controls.
+- Keep important buttons away from device safe-area edges.
+- Respect keyboard visibility when editing text.
+- Avoid hover-only interactions.
+- Preserve the visual hierarchy on narrow screens.
+- Use subtle haptic feedback only when the implementation platform supports it.
+
+## 7. Motion and interaction design
+
+Motion is an important part of the visual identity, but it must support usability.
+
+Implement tasteful motion such as:
+
+- A subtle background gradient that shifts slowly in the website hero.
+- Product preview cards that enter with small staggered transitions.
+- Smooth transitions between creation steps.
+- Image previews that fade into place after upload.
+- Turquoise progress accents during real generation tasks.
+- Refined hover, focus, and press states.
+- Small changes in scale or elevation when users interact with cards.
+- Soft reveal transitions as sections enter the viewport.
+- Smooth transitions between product assets in the result preview.
+
+For the website hero, create an elegant sense of depth using layered surfaces, cropping, and carefully controlled parallax where appropriate.
+
+For desktop interactions, subtle zoom and depth effects are welcome. For mobile, prioritize responsiveness and touch feedback over elaborate parallax.
+
+Honor reduced-motion preferences. Do not make essential content dependent on animation.
+
+Avoid constant floating objects, excessive particles, distracting cursors, huge animations, or scroll hijacking.
+
+## 8. Reusable component system
+
+Create reusable components for:
+
+- Buttons and button variants.
+- Inputs and text areas.
+- Selectors and segmented controls.
+- Upload surfaces.
+- Product preview cards.
+- Campaign cards.
+- Platform selectors.
+- Tone selectors.
+- Tabs.
+- Modals and bottom sheets.
+- Toast notifications.
+- Loading skeletons.
+- Empty states.
+- Error messages.
+- Video previews.
+- Navigation and responsive layouts.
+
+Centralize the palette in theme tokens or CSS custom properties so the same design language can be applied across the website, web app, and mobile app.
+
+Define consistent spacing, typography scales, border radii, shadows, focus states, and interaction transitions.
+
+Ensure that dark teal text on ice-blue surfaces and white text on dark-teal surfaces remain comfortably readable.
+
+## 9. Technical and implementation requirements
+
+First inspect the existing repository, framework, routing, installed dependencies, and current application functionality.
+
+Preserve the existing technology stack and working features whenever possible. Do not rewrite the project unnecessarily.
+
+If web and mobile projects already exist, adapt each one to the shared design system. If only a web project exists, establish a separate mobile app only when the repository or requested architecture supports it; otherwise, build the responsive web experience without falsely describing it as a native app.
+
+Use reusable components, maintainable code, and consistent styling.
+
+Ensure all layouts work on desktop, tablet, and mobile screen sizes.
+
+Implement real navigation, functioning forms, validation, upload handling, and user feedback.
+
+Connect AI generation, video creation, file storage, authentication, billing, or voiceover features only through the configured services. Do not fabricate successful generation results or implement buttons that do nothing.
+
+If a service is not configured, create a clear integration boundary and a well-designed setup or unavailable state rather than pretending the capability is functional.
+
+Use appropriate loading states for expensive AI operations and provide helpful error messages when tasks fail.
+
+Ensure keyboard accessibility, visible focus states, semantic structure, and reduced-motion support.
+
+Optimize image sizes, lazy-load appropriate content, and avoid unnecessary dependencies.
+
+## 10. Final quality bar
+
+The finished design must look like a premium AI startup that could credibly launch to paying customers.
+
+The five-color palette must feel integrated into the brand rather than mechanically applied to every surface.
+
+The website should be visually striking and make people want to try the product.
+
+The web dashboard should be professional, easy to navigate, and efficient for repeated use.
+
+The mobile app should feel intentionally designed for people creating and publishing marketing content on the go.
+
+Do not stop after making a static mockup. Implement the actual screens and interactions that the current project architecture supports.
+
+Before finishing, review the work at desktop, tablet, and mobile widths. Fix overflow, inconsistent spacing, illegible text, broken navigation, inaccessible controls, and unfinished states.
+
+**The final result should feel like SellCraft AI owns this visual identity: deep ocean tones, electric turquoise, icy light surfaces, restrained terracotta, premium typography, and beautifully executed product-first interactions.**
+</pasted_content id="b453">
+
+ '/Users/advikdivekar/Desktop/sellcraft/Screenshot 2026-10-16 at 11.54.15 AM.jpg' make our UI UX this themed and also must look like this with proper logo and name, rename it from sellcraft to anything else Mochi and use that logo
+
+---
+
+give me the web apps link to check the page and the qr to check on mobile app
+
+---
+
+Instead of that candle use some other prop and also make the alignment and the design properly this feels a bit ew that animation and that candle prop
+
+---
+
+'/Users/advikdivekar/Desktop/sellcraft/docs/Screenshot 2026-10-16 at 12.25.08 PM.jpg'there is an overlap here and dont use gimmick product designs use something absteact or anything elsenot like these cartoonish things, it defrades the experience
+
+---
+
+give me the qr and the link through which i can use the web app with full permission no need for that access codes and all give both, ill screenrecord now.
+
+---
+
+'/Users/advikdivekar/Desktop/sellcraft/Screen Recording 2026-10-16 at 12.49.39 PM.mov' and '/Users/advikdivekar/Desktop/sellcraft/ScreenRecording_10-16-2026 12-44-02_1.MP4' and '/Users/advikdivekar/Desktop/sellcraft/Product Images' look at the screen recordings (phone and desktop), along with the images I used now tell me, if download hyperframe in this terminal session can we create product professional videos tutorial/demo ones of like 25 secs long?
+
+---
+
+'/Users/advikdivekar/Desktop/sellcraft/Screen Recording 2026-10-16 at 12.49.39 PM.mov' and '/Users/advikdivekar/Desktop/sellcraft/ScreenRecording_10-16-2026 12-44-02_1.MP4' and '/Users/advikdivekar/Desktop/sellcraft/Product Images' look at the screen recordings (phone and desktop), along with the images I used now tell me, if download hyperframe in this terminal session can we create product professional videos tutorial/demo ones of like 25 secs long? like u screenshot from the recordings the best frames and then we use hyperframes and motions to make the videos?
+
+---
+
+use this as the video only but make sure to hide or not include sensitive info in the video at the first place and before we make the video what all things are we left to do with? let's finish thatt and then work on the video, also for the video add info like about our results, usage of LLM. highlighting the features, benefits, cool features, factors properly.
