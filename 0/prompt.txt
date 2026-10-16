@@ -1,0 +1,1 @@
+so before we do it, can we actually improve and what method will we be using or like algortihm like what is LoRA in this case? and can we even improve anything out of our current bottlenecks?
