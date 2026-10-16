@@ -1,7 +1,7 @@
 # Public demo of the SellCraft landing page (no backend, no model). The full app runs locally; see the README.
 services:
   - type: web
-    name: sellcraft-landing
+    name: mochi-demo
     runtime: node
     plan: free
     rootDir: frontend
@@ -13,3 +13,5 @@ services:
         value: "1"
       - key: NODE_VERSION
         value: "22"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=460"  # the free plan has 512 MB; keeps the Next.js build from running out of memory
