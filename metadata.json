@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.11.5",
+  "checkpoint_id": "01M52TX22VT05W1G56BYN1Z3WM",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/WRITEUP.md",
+    "docs/images/web/01-landing.jpg",
+    "docs/images/web/landing/01-hero.jpg",
+    "docs/images/web/landing/02-photo.jpg",
+    "docs/images/web/landing/03-listing.jpg",
+    "docs/images/web/landing/04-deliverables.jpg",
+    "docs/images/web/landing/05-studio.jpg",
+    "docs/images/web/landing/06-channels.jpg",
+    "docs/images/web/landing/07-video.jpg",
+    "docs/images/web/landing/08-upload-once.jpg",
+    "docs/images/web/landing/09-voice.jpg",
+    "docs/images/web/landing/10-steps.jpg",
+    "docs/images/web/landing/11-cta.jpg"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 24,
+    "cache_creation_tokens": 23666,
+    "cache_read_tokens": 923035,
+    "output_tokens": 6725,
+    "api_call_count": 12
+  }
+}

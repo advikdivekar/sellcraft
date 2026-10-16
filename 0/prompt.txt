@@ -1,0 +1,1 @@
+make sure the animation based components are shown after animation is done or else it will feel empty and push it to the writeup.md
