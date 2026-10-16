@@ -148,18 +148,6 @@ Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **
 
 ![Landing: hero](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/01-hero.jpg)
 
-**Landing: start with the photo you already have**
-
-![Landing: start with the photo you already have](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/02-photo.jpg)
-
-**Landing: facts become a listing, written for the platform**
-
-![Landing: facts become a listing, written for the platform](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/03-listing.jpg)
-
-**Landing: one input, every deliverable**
-
-![Landing: one input, every deliverable](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/04-deliverables.jpg)
-
 **Landing: the interactive studio**
 
 ![Landing: the interactive studio](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/landing/05-studio.jpg)
