@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>beufuj2fw</task-id>
+<tool-use-id>toolu_016ywYtxmxoGoZXw4oAJ1nXn</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-advikdivekar-Desktop-sellcraft/d1a90136-ab51-4450-87af-371f07f2f333/tasks/beufuj2fw.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait in the background for the independent judge to finish" completed (exit code 0)</summary>
+</task-notification>
