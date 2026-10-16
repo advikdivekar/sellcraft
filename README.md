@@ -38,6 +38,9 @@ The refined product feeds everything: the video, the studio photos, a white-back
 
 Gemma is the product's default brain and also its referee. The fine-tune is measured against Gemma on the same 60 held-out kits.
 
+## Architecture
+15 diagrams (system, models, request lifecycle, copy, photo reading, studio imagery, video, timing, optimisations, fine-tuning, evaluation, observability, data and API, deployment, trust boundary) with a written walkthrough: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), all on one page in [`docs/architecture.html`](docs/architecture.html). Regenerate with `python3 docs/build_diagrams.py`.
+
 ## Measured results
 On 60 held-out synthetic fact sets, under one deterministic checker: the fine-tune (Qwen3.5-4B + LoRA, trained on Tinker) writes a kit with no hard violation **88%** of the time (95% CI 78-95%), against 45% for Gemma 3 12B, 23% for Gemma 3 4B and 18% for the untuned Qwen base. An independent Gemma judge (n=30) is more modest: the fine-tune halves the base model's unsupported statements per kit (0.43 to 0.20) and is level with Gemma 4B, but the intervals overlap. Full tables, caveats, cost per 1,000 kits and reproduce commands: [`docs/RESULTS.md`](docs/RESULTS.md).
 

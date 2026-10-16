@@ -1,5 +1,5 @@
 "use client";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, ChevronDown, Loader2, ScanSearch, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -45,7 +45,6 @@ export default function CreatePage() {
 
 function Wizard() {
   const router = useRouter();
-  const status = useQuery({ queryKey: ["status"], queryFn: api.status });
   const [draft] = useState<Draft | null>(readDraft);
 
   const [step, setStep] = useState(0);
@@ -61,7 +60,7 @@ function Wizard() {
   const [tone, setTone] = useState<Tone>(draft?.tone ?? "friendly");
   const [style, setStyle] = useState<VisualStyle>(draft?.style ?? "premium_studio");
   const [objective, setObjective] = useState<Objective>(draft?.objective ?? "sales");
-  const [voiceover, setVoiceover] = useState(draft?.voiceover ?? false);
+  const voiceover = false;  // voiceover is not built; the setting stays in the API shape
   const [quality, setQuality] = useState<Quality>(draft?.quality ?? "fast");
   const [scan, setScan] = useState<{ state: "idle" | "running" | "done" | "error"; message?: string; visible: string[] }>({ state: "idle", visible: [] });
   const f = form.v;
@@ -140,7 +139,6 @@ function Wizard() {
 
   const allSelected = platforms.length === PLATFORMS.length;
   const togglePlatform = (p: Platform) => setPlatforms((cur) => (cur.includes(p) ? (cur.length > 1 ? cur.filter((x) => x !== p) : cur) : [...cur, p]));
-  const canVoice = status.data?.voiceover.configured;
 
   return (
     <>
@@ -226,13 +224,6 @@ function Wizard() {
                     </button>
                   ))}
                 </div>
-              </Card>
-              <Card>
-                <label className={cx("flex min-h-11 items-start gap-3", !canVoice && "opacity-60")}>
-                  <input type="checkbox" className="mt-1 size-5 accent-[var(--accent)]" checked={voiceover && !!canVoice} disabled={!canVoice} onChange={(e) => setVoiceover(e.target.checked)} />
-                  <span><span className="block text-sm font-medium">Add AI voiceover</span>
-                    <span className="block text-xs text-muted">{canVoice ? "Uses ElevenLabs. Your script is sent to their service." : "Coming soon: needs an ElevenLabs key. The script is still written for you."}</span></span>
-                </label>
               </Card>
             </>
           )}

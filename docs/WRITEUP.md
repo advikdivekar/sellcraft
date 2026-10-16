@@ -143,10 +143,6 @@ Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **
 
 **Video:** **[TODO: paste the YouTube link here as `{% embed https://youtu.be/YOUR_ID %}`]**
 
-**Try the demo studio:** [mochi-demo.onrender.com](https://mochi-demo.onrender.com)
-
-*The demo runs in your browser. The full app runs on your own computer: see the code below.*
-
 ## Code
 
 {% embed https://github.com/advikdivekar/sellcraft %}
@@ -292,7 +288,7 @@ I tested the fine-tune against a second, independent model as a judge, not just 
 **5. One setting swaps the model.**
 Fast or Best quality is a single setting, and both are open Gemma models. The next Gemma release is a one-line change.
 
-The honest limit: open models on your own computer need a computer that can run them. That is why the public demo is a browser demo, and why I wrote the local setup into the README.
+The honest limit: open models on your own computer need a computer that can run them. I wrote the local setup into the README.
 
 ## My Agent Session
 
@@ -333,7 +329,7 @@ The kit was five slides, nine studio photos, a 10-second video, and copy for one
 
 ## Prize Categories
 
-I'm entering **Tinker, Gemma, Sentry Agent Tracing and Entire**, and I'm mentioning Render for the demo. Each section covers what I used, why, what it was meant to fix, and what I found.
+I'm entering **Tinker, Gemma, Sentry Agent Tracing and Entire**. Each section covers what I used, why, what it was meant to fix, and what I found.
 
 ### Best Use of Tinker
 
@@ -352,9 +348,15 @@ I'm entering **Tinker, Gemma, Sentry Agent Tracing and Entire**, and I'm mention
 
 The whole thing cost **$5.41 of the $10 credit**.
 
+*Diagram 10, the training pipeline:*
+
+![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
+
 **Results** (60 held-out synthetic products, one checker):
 
-*(The evaluation diagram is in How I Built It, above.)*
+*Diagram 11, the evaluation:*
+
+![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
 
 | Model | Clean kits | 95% CI |
 |---|---|---|
@@ -385,6 +387,14 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 2. **The photo reader.** It reads up to 5 photos and returns suggested facts, each tagged "From photo, check it"
 3. **The independent judge.** Gemma 3 12B, a different family from the Qwen teacher, reviews kits in my evaluation
 
+*Diagram 2, which model does which job:*
+
+![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)
+
+*Diagram 5, how Gemma reads photos. It only ever suggests; you confirm:*
+
+![Photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)
+
 **Why Gemma.** It's open-weight, it runs on one machine, and it can be held to a JSON schema. That matters here: the seller's facts shouldn't leave their computer, and every part of a kit must come back as strict, checkable JSON.
 
 **What it was meant to fix.** The cost and privacy problems from my ecommerce days: no per-kit fee, and nothing sent to anyone else's server.
@@ -394,6 +404,10 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 - Both sizes run the same prompt and the same checker, so I could compare them fairly: **23% clean kits on 4B and 45% on 12B**
 - Speed is the trade-off. Fast (4B) builds a four-photo kit in about **18 s**, Best quality (12B) in about **57 s**
 - As the judge, Gemma 12B had the fewest flags of any model I tested (0.13 per kit)
+
+*Diagram 9, what the Fast default bought:*
+
+![Optimisations, before and after](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/optimisations.png)
 
 **What I learned.** Two things. First, the model size is a user choice, not a technical one, so I made it a switch on the form. Second, the judge is Gemma, so it may be lenient toward Gemma's own writing. That bias favours the Gemma rows and works *against* my fine-tune's claim, so it can't be inflating my result.
 
@@ -405,14 +419,24 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 
 **What Sentry sees.**
 
-*(The diagram is in How I Built It, above.)*
+*Diagram 12, what Sentry sees and what it never sees:*
+
+![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
 
 - Each model call is a **`gen_ai.chat` span**, with the model, token counts and latency
 - Each generation job is a transaction
 - Each flagged claim is an issue (which rule fired, and how many)
 - Each seller report is an event. The report button sends a section name and a fixed reason code, **never free text**
 
+The flagged claims come from the copy pipeline's post-check (*Diagram 4*), so each issue is a rule the code caught, not a model's opinion:
+
+![Copy pipeline and its post-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)
+
 **What it never sees.** An allow-list scrubber removes everything that is not on the list of allowed metadata. Product facts, copy, photos and prompts can't pass it.
+
+*Diagram 15, the trust boundary:*
+
+![What stays local and what can leave](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/trust.png)
 
 **How I know it works.** A canary test pushes a unique fake product through every input path of the real app, then fails if that marker shows up in *any* outgoing Sentry payload. It's in `tests/test_tracing.py`.
 
@@ -435,12 +459,6 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 **The most useful example.** Decision #11 records why Sentry only ever gets metadata, and how the scrubber enforces it. That kind of reasoning normally disappears. Here it is written down, with the conversation that led to it.
 
 **Honest limit.** Checkpoints from before Entire was enabled were imported from local history and matched by time. They show the conversation a commit came out of, not a one-to-one record.
-
-### Render (mentioned, with limits)
-
-The public demo at [mochi-demo.onrender.com](https://mochi-demo.onrender.com) is deployed on Render from a `render.yaml` Blueprint, on the free plan.
-
-That's a static front end plus an in-browser demo, with **no model running on Render**. I'm not claiming Render as an AI runtime. It's there so anyone can try the interface without installing anything. The real product runs on your own machine.
 
 ---
 
