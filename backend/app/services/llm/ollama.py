@@ -4,6 +4,7 @@ import time
 
 import httpx
 
+from ... import tracing
 from ...config import get_settings
 from ...errors import AppError
 from .base import LLMProvider, LLMResult
@@ -34,6 +35,16 @@ class OllamaProvider(LLMProvider):
         return out
 
     def generate_json(self, system, user, schema, *, temperature=0.4, images=None) -> LLMResult:
+        # One gen_ai span per model call: model name, token counts, latency. Never the prompt or the reply (it holds product facts).
+        with tracing.span("gen_ai.chat", f"chat {self.model}", **{"gen_ai.request.model": self.model, "gen_ai.system": "ollama"}) as sp:
+            res = self._generate_json(system, user, schema, temperature=temperature, images=images)
+            if sp is not None:
+                sp.set_data("gen_ai.usage.input_tokens", res.usage.get("prompt_tokens"))
+                sp.set_data("gen_ai.usage.output_tokens", res.usage.get("completion_tokens"))
+                sp.set_data("latency_ms", res.latency_ms)
+            return res
+
+    def _generate_json(self, system, user, schema, *, temperature=0.4, images=None) -> LLMResult:
         payload = {
             "model": self.model,
             "stream": False,

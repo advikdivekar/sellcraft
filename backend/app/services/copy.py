@@ -10,6 +10,7 @@ from ..config import get_settings
 from ..errors import AppError
 from ..schemas import CopyOutput, CreativeSettings, Platform, ProductInput, Tone
 from . import prompts
+from .. import tracing
 from .llm.base import LLMProvider
 from .llm.demo import demo_copy, demo_section
 from .llm.ollama import OllamaProvider
@@ -298,4 +299,10 @@ class CopyService:
         flagged += [f"Not in your facts: \"{w}\". Remove it unless it's true." for w in risky_terms(copy, product)]
         flagged += [f"Regulated claim not in your facts: \"{w}\". Medical and cosmetic claims can create legal problems; remove it or check the rules that apply to you."
                     for w in regulated_terms(copy, product)]
+        for w in hits:
+            tracing.flag("forbidden", w)
+        for w in risky_terms(copy, product):
+            tracing.flag("risky", w)
+        for w in regulated_terms(copy, product):
+            tracing.flag("regulated", w)
         return copy.model_copy(update={"claims_requiring_review": flagged})
