@@ -17,12 +17,27 @@ Tags (max 4): devchallenge, hf26challenge, opensource, ai
 
 **What if your whole marketing team fit on a laptop, and finished in 55 seconds?**
 
-Here's the proof. A skincare brand, Velora, dropped **three photos of a face cleanser** into Mochi. Fifty-five seconds later it had:
+Here's the proof. A skincare brand, Velora, dropped **three photos of a face cleanser** into Mochi. This is the screen when it finished:
 
-- **9 studio photos** on a designed backdrop
-- **A 5-slide image deck**
-- **A 10-second vertical video ad**
-- **Listing copy, tags and an SEO title**
+![The kit is ready, built in 55 seconds](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-05-ready-55s.png)
+
+**Fifty-five seconds.** And this is what it had made.
+
+**9 studio photos** on a designed backdrop:
+
+![Studio photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
+
+**A 5-slide image deck** (this is slide 3 of 5):
+
+![Image deck](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-10-deck.png)
+
+**A 10-second vertical video ad**, with text cards built from the copy:
+
+![Video ad](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-07-video-ad.png)
+
+**Listing copy, tags and an SEO title**, each one editable:
+
+![Keywords, tags and SEO title](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
 
 No agency. No stack of subscriptions. No uploading your product to someone else's server. Just open models running on one computer.
 
@@ -127,7 +142,7 @@ Your kit has four tabs:
 
 ![Step 5: the four tabs, shown on a sample product](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/app-results-mobile.png)
 
-The full result of a real run, step by step, is in **My First User** below.
+The finished result of a real run is at the top of this post.
 
 Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **draft**, and only when you tap it.
 
@@ -307,31 +322,17 @@ One caveat on honesty: checkpoints for work from before Entire was switched on w
 
 **[TODO: say who at Velora used it, in one line. Then add one real quote from them, word for word, or delete this line. Also say plainly whether they would pay or paid. If not, write "not yet" or leave it out.]**
 
-They followed the five steps above (the screenshots for steps 1 to 4 are from their session): three photos of the bottle, the label read off it, a persuasive tone, Best quality writing, Pinterest as the platform, and the warm and cozy backdrop. Here is what came out, in the order it appeared.
+They followed the five steps above (the screenshots for steps 1 to 4 are from their session): three photos of the bottle, the label read off it, a persuasive tone, Best quality writing, Pinterest as the platform, and the warm and cozy backdrop.
 
-**1. It was ready in 55 seconds.** On Best quality, with three photos, running on a Gemma 3 12B model on my own computer.
+**What came out** is shown at the top of this post: the finished kit in 55 seconds, the studio photos, the deck, the video and the copy. It was built on Best quality, with three photos, by a Gemma 3 12B model running on my own computer.
 
-![Kit ready, built in 55 seconds](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-05-ready-55s.png)
-
-**2. And here is the part I care about most.** Mochi told them what it *wouldn't* make up:
+**The part I care about most.** Mochi told them what it *wouldn't* make up:
 
 - **"Not provided, so left out of the copy":** dimensions, verified benefits, target audience, care instructions
 - **"Double-check before posting":** *Not in your facts: "available now". Remove it unless it's true.*
 - **"About your photos":** it skipped the close-up slide because the photo didn't have enough pixels on the product
 
 ![Mochi lists what it left out and what to double-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-06-double-check.png)
-
-**3. The video ad, with Velora's own bottle in it.**
-
-![The 10-second video ad](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-07-video-ad.png)
-
-**4. The copy.** Keywords, tags and an SEO title ("Velora Sensicontrol Face Cleanser - 15 USD"), each one editable.
-
-![Keywords, tags and SEO title](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
-
-**5. The studio photos.** The bottle on a designed backdrop, in the 4:5 feed shape.
-
-![Studio photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
 
 The kit was five slides, nine studio photos, a 10-second video, and copy for one platform.
 
