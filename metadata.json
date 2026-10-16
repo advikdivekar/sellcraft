@@ -1,0 +1,50 @@
+{
+  "cli_version": "0.11.5",
+  "checkpoint_id": "01M52FPX522CRKTPSFMTHJ94EN",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "docs/WRITEUP.md",
+    "docs/build_post_diagrams.py",
+    "docs/images/post/copy.png",
+    "docs/images/post/copy.svg",
+    "docs/images/post/evaluation.png",
+    "docs/images/post/evaluation.svg",
+    "docs/images/post/finetune.png",
+    "docs/images/post/finetune.svg",
+    "docs/images/post/models.png",
+    "docs/images/post/models.svg",
+    "docs/images/post/observability.png",
+    "docs/images/post/observability.svg",
+    "docs/images/post/photo-reading.png",
+    "docs/images/post/photo-reading.svg",
+    "docs/images/post/speed.png",
+    "docs/images/post/speed.svg",
+    "docs/images/post/studio.png",
+    "docs/images/post/studio.svg",
+    "docs/images/post/system.png",
+    "docs/images/post/system.svg",
+    "docs/images/post/trust.png",
+    "docs/images/post/trust.svg",
+    "docs/images/post/video.png",
+    "docs/images/post/video.svg",
+    "docs/render_post_diagrams.mjs"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 38,
+    "cache_creation_tokens": 47370,
+    "cache_read_tokens": 4932407,
+    "output_tokens": 27536,
+    "api_call_count": 19
+  }
+}
