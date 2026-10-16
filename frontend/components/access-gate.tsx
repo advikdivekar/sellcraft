@@ -39,7 +39,7 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
         <Card>
           <form onSubmit={submit} className="space-y-4">
             <h1 className="text-xl font-semibold">Enter access code</h1>
-            <p className="text-sm text-muted">This SellCraft is shared over the internet, so it needs the code shown where it was started (or scan its QR code).</p>
+            <p className="text-sm text-muted">This Mochi is shared over the internet, so it needs the code shown where it was started (or scan its QR code).</p>
             <input className={inputCls} value={code} onChange={(e) => setCode(e.target.value)} autoComplete="off" autoCapitalize="off" aria-label="Access code" />
             {error && <p role="alert" className="text-sm text-danger">{error}</p>}
             <Button type="submit" className="w-full">Continue</Button>

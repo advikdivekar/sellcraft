@@ -55,13 +55,13 @@ export function Studio() {
       <div className="wrap">
         <p className="label tick reveal">Interactive studio</p>
         <h2 id="studio-h" className="h2 reveal mt-3 max-w-3xl">One product. Every channel. <span className="serif">Ready to sell.</span></h2>
-        <p className="lede reveal mt-4 max-w-2xl muted">Try it with the sample, or add your own photo and facts. This page runs in <strong className="text-[var(--ink)]">demo mode</strong>: copy is assembled in your browser from the facts you type, and anything you don&apos;t give it is listed as missing, never invented.</p>
+        <p className="lede reveal mt-4 max-w-2xl muted">Try it with the sample, or add your own photo and facts. This page runs in <strong className="text-[var(--text-l)]">demo mode</strong>: copy is assembled in your browser from the facts you type, and anything you don&apos;t give it is listed as missing, never invented.</p>
 
         <div className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,.95fr)_minmax(0,1.05fr)]">
           <form onSubmit={run} className="panel-l space-y-5 p-4 sm:p-6" aria-label="Product details">
             <div>
               <p className="label muted">1 · Photo</p>
-              <div className={`mt-2 grid gap-3 rounded-2xl border border-dashed p-3 transition sm:grid-cols-[8.5rem_1fr] ${drag ? "border-[#4a6100] bg-[#f2f9d8]" : "border-black/20"}`}
+              <div className={`mt-2 grid gap-3 rounded-2xl border border-dashed p-3 transition sm:grid-cols-[8.5rem_1fr] ${drag ? "border-[#037A84] bg-[#E1F3F5]" : "border-black/20"}`}
                 onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); take(e.dataTransfer.files?.[0]); }}>
                 <div className="relative mx-auto aspect-[4/5] w-32 overflow-hidden rounded-xl bg-[var(--paper-2)] sm:w-full">
                   {photo ? // eslint-disable-next-line @next/next/no-img-element
@@ -101,9 +101,9 @@ export function Studio() {
               {tab === "Title" && <p className="text-xl font-medium leading-snug sm:text-2xl">{kit.title}</p>}
               {tab === "Description" && <p className="leading-relaxed">{kit.description}</p>}
               {tab === "Tags" && <div className="flex flex-wrap gap-2">{kit.tags.length ? kit.tags.map((t) => <span key={t} className="chip">{t}</span>) : <p className="text-sm muted">Add a few facts to get tags.</p>}</div>}
-              {tab === "Caption" && <div><p className="leading-relaxed">{kit.caption}</p><p className="mt-3 text-sm font-medium text-[#4a6100]">{kit.hashtags.join(" ")}</p><p className="mt-3 text-sm muted">Call to action: {kit.cta}</p></div>}
+              {tab === "Caption" && <div><p className="leading-relaxed">{kit.caption}</p><p className="mt-3 text-sm font-medium text-[#037A84]">{kit.hashtags.join(" ")}</p><p className="mt-3 text-sm muted">Call to action: {kit.cta}</p></div>}
               {tab === "Video" && <ol className="space-y-2.5">{kit.beats.map((b) => <li key={b.label} className="flex gap-3"><span className="mono w-14 shrink-0 text-xs muted">{b.t}</span><span><span className="label muted">{b.label}</span><br /><span className="font-medium">{b.text}</span></span></li>)}</ol>}
-              {kit.missing.length > 0 && <p className="mt-5 border-t border-black/10 pt-3 text-[13px] muted">Not provided, so left out: <strong className="text-[var(--ink)]">{kit.missing.join(", ")}</strong>.</p>}
+              {kit.missing.length > 0 && <p className="mt-5 border-t border-black/10 pt-3 text-[13px] muted">Not provided, so left out: <strong className="text-[var(--text-l)]">{kit.missing.join(", ")}</strong>.</p>}
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
               <CopyButton id={tab.toLowerCase()} text={text[tab]} done={done} onCopy={copy} light label={`Copy ${tab.toLowerCase()}`} />

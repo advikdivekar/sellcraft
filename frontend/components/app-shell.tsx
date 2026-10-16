@@ -1,7 +1,8 @@
 "use client";
-import { Home, Layers, Plus, Store } from "lucide-react";
+import { Home, Plus, Store } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Logo } from "./logo";
 import { cx } from "./ui";
 
 const DESKTOP_NAV = [{ href: "/create", label: "Create" }, { href: "/connections", label: "Stores" }];
@@ -14,10 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <>
       <header className="pt-safe sticky top-0 z-30 border-b border-border/70 bg-glass backdrop-blur-xl backdrop-saturate-150">
         <div className="mx-auto flex h-13 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex min-h-11 items-center gap-2 font-semibold tracking-tight" aria-label="SellCraft home">
-            <span className="grid size-7 place-items-center rounded-[8px] bg-accent text-accent-fg"><Layers className="size-4" aria-hidden /></span>
-            <span className="text-[15px]">SellCraft<span className="serif-it text-accent-text"> AI</span></span>
-          </Link>
+          <Link href="/" className="flex min-h-11 items-center" aria-label="Mochi home"><Logo size={30} /></Link>
           <nav aria-label="Main" className="hidden items-center gap-1 sm:flex">
             {DESKTOP_NAV.map(({ href, label }) => (
               <Link key={href} href={href} aria-current={path.startsWith(href) ? "page" : undefined}

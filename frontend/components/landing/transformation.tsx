@@ -18,7 +18,7 @@ export function Transformation() {
 
   const ref = useScrollProgress<HTMLElement>((p, el) => {
     const set = (k: string, v: number) => el.style.setProperty(k, v.toFixed(4));
-    set("--wa", ease(seg(p, 0.02, 0.26))); set("--wb", ease(seg(p, 0.28, 0.4))); set("--wc", ease(seg(p, 0.64, 0.88))); set("--wd", ease(seg(p, 0.92, 1)));
+    set("--wa", ease(seg(p, 0.02, 0.26))); set("--wb", ease(seg(p, 0.28, 0.4))); set("--wc", ease(seg(p, 0.64, 0.88))); set("--wd", ease(seg(p, 0.92, 1))); set("--wp", ease(seg(p, 0.62, 0.74)));
     const b = seg(p, 0.36, 0.6);
     set("--k-title", seg(b, 0, 0.28)); set("--k-1", seg(b, 0.25, 0.5)); set("--k-2", seg(b, 0.45, 0.7)); set("--k-3", seg(b, 0.65, 0.9)); set("--k-tags", seg(b, 0.8, 1));
     const stage = el.querySelector<HTMLElement>(".tf-stage");

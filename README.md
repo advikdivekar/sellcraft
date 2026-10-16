@@ -1,6 +1,6 @@
-# SellCraft AI
+# Mochi
 
-*One product photo. A few facts. A complete marketing kit.*
+*Your product. Your story. Ready to sell.*
 
 Small-seller marketing studio: upload a product photo, enter a few verified facts, pick a platform / tone / style / goal, and get platform-specific listing copy plus a video-ad brief. Copy is written by an **open-weight model (Gemma) running locally through Ollama**, so product data never leaves your machine. See [`plan.md`](plan.md) for the full design.
 
@@ -102,9 +102,10 @@ It starts the backend, the frontend and a Cloudflare quick tunnel, then prints a
 The landing page and its in-browser studio can be deployed on their own: no backend, no model, nothing leaves the visitor's browser. `render.yaml` does it for Render (`NEXT_PUBLIC_DEMO_ONLY=1`; the app routes then redirect home). The full app, which needs Ollama on your computer, is not part of that deploy.
 
 ## Screenshots and demo
-`docs/images/` has landing and app screenshots (mobile and desktop); `docs/demo/sellcraft-demo-mobile.mp4` is a 70-second phone walkthrough from the landing page to a finished kit built from the sample product.
+`docs/images/` has landing and app screenshots (mobile and desktop); `docs/demo/mochi-demo-mobile.mp4` is a 70-second phone walkthrough from the landing page to a finished kit built from the sample product.
 
 ## Tests
+`cd frontend && node e2e/mobile-flow.mjs <url>` walks the whole phone flow in a real browser; `node e2e/layout-overlap.mjs <url>` checks the scroll scene for overlaps at 11 screen sizes.
 `cd backend && .venv/bin/python -m pytest` (mocked LLM, no live services needed).
 
 ## Layout

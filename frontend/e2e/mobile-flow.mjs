@@ -22,8 +22,8 @@ const fail = async (m) => { console.error("FAIL:", m); await page.screenshot({ p
 await page.goto(`${base}/${accessCode ? `#k=${accessCode}` : ""}`, { waitUntil: "load" });
 step("landing page: hero, then into the app");
 await page.getByRole("heading", { level: 1 }).waitFor({ timeout: 20000 });
-if (!(await page.getByText(/ready-to-sell/).first().isVisible())) await fail("landing headline missing");
-await page.getByRole("link", { name: /Create your first listing/ }).first().click();
+if (!(await page.getByText(/Ready to sell/).first().isVisible())) await fail("landing headline missing");
+await page.getByRole("link", { name: /Create your first campaign/ }).first().click();
 await page.getByRole("heading", { name: "Create a marketing kit" }).waitFor({ timeout: 20000 });
 
 step("photos step: upload two photos");

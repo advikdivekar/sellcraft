@@ -18,7 +18,7 @@ export function CaptionPanel({ kit }: { kit: Kit }) {
     <div className="panel p-3.5 text-left">
       <p className="label muted">Instagram caption</p>
       <p className="mt-1.5 line-clamp-3 text-[.9em] leading-snug">{kit.caption}</p>
-      <p className="desc mt-1.5 text-[.78em] text-[var(--lime)]">{kit.hashtags.slice(0, 3).join(" ")}</p>
+      <p className="desc mt-1.5 text-[.78em] text-[var(--turq)]">{kit.hashtags.slice(0, 3).join(" ")}</p>
     </div>
   );
 }
@@ -34,7 +34,7 @@ export function StoryboardPanel({ kit }: { kit: Kit }) {
   return (
     <div className="panel p-3.5 text-left">
       <p className="label muted">Video ad · 10 s concept</p>
-      <div className="mt-2 flex gap-1" aria-hidden>{kit.beats.map((b, i) => <span key={b.label} className={`h-1.5 rounded-full ${i === 3 ? "bg-[var(--lime)]" : "bg-white/35"}`} style={{ flex: [2, 3, 3, 2][i] }} />)}</div>
+      <div className="mt-2 flex gap-1" aria-hidden>{kit.beats.map((b, i) => <span key={b.label} className={`h-1.5 rounded-full ${i === 3 ? "bg-[var(--turq)]" : "bg-white/35"}`} style={{ flex: [2, 3, 3, 2][i] }} />)}</div>
       <p className="mt-2 text-[.82em] leading-snug">{kit.beats.map((b) => b.label).join(" · ")}</p>
     </div>
   );
@@ -43,7 +43,7 @@ export function PinPanel({ kit }: { kit: Kit }) {
   return (
     <div className="panel flex gap-3 p-3 text-left">
       <div className="w-[34%] shrink-0 overflow-hidden rounded-lg"><SampleProduct id="pin" className="aspect-[3/4] w-full" /></div>
-      <div className="min-w-0"><p className="label muted">Pinterest pin</p><p className="mt-1 text-[.9em] font-medium leading-snug">{kit.title}</p><p className="mt-1 text-[.76em] text-[var(--lime)]">Save for later</p></div>
+      <div className="min-w-0"><p className="label muted">Pinterest pin</p><p className="mt-1 text-[.9em] font-medium leading-snug">{kit.title}</p><p className="mt-1 text-[.76em] text-[var(--turq)]">Save for later</p></div>
     </div>
   );
 }

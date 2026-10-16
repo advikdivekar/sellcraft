@@ -134,7 +134,7 @@ def system(bg):
     f.arrow([(1250, 140), (1290, 140), (1290, 765), (1336, 765)], None, dashed=True)
     f.text(1298, 404, "publish draft", size=11, opacity=0.9, halo=True)
     f.text(1298, 419, "(token from the vault)", size=11, opacity=0.7, halo=True)
-    return f.svg("SellCraft system architecture", "How a photo and a few facts become a kit: two lanes run in parallel inside the FastAPI backend and meet at the deck and final video")
+    return f.svg("Mochi system architecture", "How a photo and a few facts become a kit: two lanes run in parallel inside the FastAPI backend and meet at the deck and final video")
 
 
 def pipeline(bg):
@@ -247,13 +247,13 @@ if __name__ == "__main__":
         (here / f"architecture-{key}.svg").write_text(fn("#ffffff").replace("<svg ", '<svg style="color:#1b1815;background:#ffffff;max-width:100%;height:auto" ', 1).replace(' style="max-width:100%;height:auto"', "", 1))
         page.append(f'<figure><h2>{escape(title)}</h2>{fn("var(--bg)")}<figcaption>{escape(caption)}</figcaption></figure>')
     (here / "architecture.html").write_text(f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SellCraft architecture</title><style>
+<title>Mochi architecture</title><style>
 :root{{--bg:#fafaf9;--fg:#1b1815}}@media(prefers-color-scheme:dark){{:root{{--bg:#0b0b0c;--fg:#f4efe8}}}}
 body{{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 ui-sans-serif,-apple-system,Helvetica,Arial,sans-serif}}
 main{{max-width:1560px;margin:0 auto;padding:32px 24px 64px}}h1{{font-size:28px;letter-spacing:-.03em;margin:0 0 4px}}
 p.lede{{color:color-mix(in srgb,var(--fg) 65%,transparent);margin:0 0 32px;max-width:70ch}}
 figure{{margin:0 0 56px}}h2{{font-size:18px;margin:0 0 12px;letter-spacing:-.02em}}figcaption{{margin-top:10px;max-width:90ch;color:color-mix(in srgb,var(--fg) 70%,transparent)}}
 svg{{display:block;width:100%;height:auto;overflow:visible}}</style></head><body><main>
-<h1>SellCraft AI: how it works</h1><p class="lede">One product photo and a few facts become refined photos, an image deck, a 10-second video and platform copy. Open models run on the seller's own machine.</p>
+<h1>Mochi: how it works</h1><p class="lede">One product photo and a few facts become refined photos, an image deck, a 10-second video and platform copy. Open models run on the seller's own machine.</p>
 {''.join(page)}</main></body></html>""")
     print("wrote", [p.name for p in sorted(here.glob("architecture*"))])

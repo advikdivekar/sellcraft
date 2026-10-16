@@ -22,7 +22,7 @@ export function ImageDropzone({ value, update, onAdded }: {
   async function sample() {
     try {
       const blob = await (await fetch("/sample-product.png")).blob();
-      await handle([new File([blob], "sample-candle.png", { type: "image/png" })]);
+      await handle([new File([blob], "sample-product.png", { type: "image/png" })]);
     } catch { setError("Couldn't load the sample photo."); }
   }
   async function handle(files: FileList | File[] | null) {

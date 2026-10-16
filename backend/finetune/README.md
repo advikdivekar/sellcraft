@@ -1,6 +1,6 @@
 # Fine-tuning toolkit (teacher -> student)
 
-Goal: a small "SellCraft Copy" model that writes teacher-quality, rule-following copy, measured against Gemma baselines.
+Goal: a small "Mochi Copy" model that writes teacher-quality, rule-following copy, measured against Gemma baselines.
 Everything here is synthetic data and deterministic checks; no real seller data, no LLM judge.
 
 ```bash

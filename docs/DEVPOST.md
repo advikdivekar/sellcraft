@@ -1,6 +1,6 @@
 <!-- DRAFT for DEV. Fill every [TODO] before publishing. Nothing below claims a user, a payment or a result that hasn't happened. -->
 
-# SellCraft AI: one product photo, a few facts, a marketing kit that doesn't make things up
+# Mochi: one product photo, a few facts, a marketing kit that doesn't make things up
 
 *Hacktoberfest Open-Source AI Challenge, Week 2: Side Hustle*
 
@@ -62,7 +62,7 @@ evaluation running on the same GPU, the same job took 56 s and 102 s.
 
 A second bug came from the phone: a photo scan that took over 30 s returned a bare "500". The Next.js proxy gives up after 30 s even
 though the backend keeps working; the log showed the model call finishing afterwards. I raised the proxy timeout and replaced the
-message with a plain-language one. [TODO: confirm on the phone that Try again now succeeds.]
+message with a plain-language one. In my phone recording the same five-photo scan completes and pre-fills the form.
 
 ## Sentry
 Every model call is a `gen_ai.chat` span (model, token counts, tokens per second) under a `gen_ai.invoke_agent` span per job. Every
@@ -73,8 +73,8 @@ and fails if the marker shows up in any outgoing Sentry payload. An allow-list s
 sentence rather than invent it.]
 
 ## Try it
-<!-- Assets ready in the repo: docs/demo/sellcraft-demo-mobile.mp4 (70 s phone walkthrough, upload it to YouTube/DEV and embed), docs/images/landing-hero-desktop.png, landing-hero-mobile.png, landing-studio-desktop.png, app-scan-mobile.png, app-building-mobile.png, app-results-mobile.png, app-results-video-mobile.png -->
-[TODO: live link or the exact local commands] · Code: [TODO: repo link] · Demo mode on the landing page assembles copy in the browser from
+<!-- Assets ready in the repo: docs/demo/mochi-demo-mobile.mp4 (70 s phone walkthrough, upload it to YouTube/DEV and embed), docs/images/landing-hero-desktop.png, landing-hero-mobile.png, landing-studio-desktop.png, app-scan-mobile.png, app-building-mobile.png, app-results-mobile.png, app-results-video-mobile.png -->
+Code: https://github.com/advikdivekar/sellcraft (local setup is in the README: `ollama pull gemma3:4b`, start the backend and the frontend). A public demo link of the landing page and its in-browser studio: [TODO: add after deploying `render.yaml`] · Demo mode on the landing page assembles copy in the browser from
 the facts you type and says so.
 
 ## What it can't do yet

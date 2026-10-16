@@ -1,4 +1,4 @@
-# SellCraft AI — Project Plan
+# Mochi — Project Plan
 
 **Tagline:** One product photo. A few facts. A complete marketing kit.
 **Event:** Hacktoberfest Open-Source AI Challenge, Week 2 — *Side Hustle*. Submissions due **Oct 18, 2026**.
@@ -222,7 +222,7 @@ Only one win is possible, but we can enter several categories (confirm in the of
 ## 16. Tinker fine-tune plan (updated Oct 16)
 **Finding:** Tinker's supported-model table (checked Oct 16, 2026) has **no Gemma**. So the fine-tune is a *separate* small model; the product's default model stays Gemma via Ollama (Gemma prize unaffected). Tinker candidates: **Qwen3-8B** (dense, $0.44 / M training tokens, well supported by llama.cpp/Ollama), Qwen3.5-4B ($0.74), GPT-OSS-20B ($0.40). Recommended: **Qwen3-8B**.
 
-**Goal:** a "SellCraft Copy" model that follows the seller-safety rules better than the base model and ideally matches Gemma 12B quality at lower latency: valid JSON, no invented claims, flags missing facts, respects forbidden words, no placeholders.
+**Goal:** a "Mochi Copy" model that follows the seller-safety rules better than the base model and ideally matches Gemma 12B quality at lower latency: valid JSON, no invented claims, flags missing facts, respects forbidden words, no placeholders.
 
 **Steps (gate: only after the core demo is stable)**
 1. **Eval harness first** (`eval/`): ~60 fact sets (sparse, dense, typos, forbidden words, tempting claims), 20 held out. Metrics reuse code we already have: schema-valid rate, placeholder rate, forbidden-word violations, `risky_terms` per output, missing-info recall, tone check (optional judge), latency, tokens, cost.

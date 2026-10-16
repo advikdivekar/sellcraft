@@ -1,48 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f4ee;
-  --surface: #ffffff;
-  --surface-2: #efece3;
-  --foreground: #0b0b0a;
-  --muted: #67655d;
-  --border: #e4e0d4;
-  --border-strong: #d3cfc1;
-  --primary: #0b0b0a;
-  --primary-fg: #f6f4ee;
-  --accent: #c6f432;
-  --accent-text: #4a6100;
-  --accent-fg: #1b2300;
-  --accent-soft: #f1f8d4;
-  --ok: #15803d;
-  --warn: #a16207;
-  --danger: #b91c1c;
-  --shadow-sm: 0 1px 2px rgb(11 11 10 / 0.05);
-  --shadow-md: 0 12px 32px -14px rgb(11 11 10 / 0.22), 0 2px 6px -2px rgb(11 11 10 / 0.06);
-  --glass: rgb(246 244 238 / 0.93);
+  --background: #F5F8F8;
+  --surface: #FFFFFF;
+  --surface-2: #EAF1F2;
+  --foreground: #082F33;
+  --muted: #60777A;
+  --border: #DCE7E8;
+  --border-strong: #C3D4D6;
+  --primary: #003135;
+  --primary-fg: #FFFFFF;
+  --accent: #0FA4AF;
+  --accent-text: #037A84;
+  --accent-fg: #00282C;
+  --accent-soft: #E1F3F5;
+  --terra: #964734;
+  --ok: #157a57;
+  --warn: #964734;
+  --danger: #b3261e;
+  --shadow-sm: 0 1px 2px rgb(0 49 53 / 0.06);
+  --shadow-md: 0 14px 34px -16px rgb(0 49 53 / 0.28), 0 2px 6px -2px rgb(0 49 53 / 0.08);
+  --glass: rgb(245 248 248 / 0.92);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b0b0a;
-    --surface: #141412;
-    --surface-2: #1c1c19;
-    --foreground: #f3f0e8;
-    --muted: #9a9a90;
-    --border: #24241f;
-    --border-strong: #38382f;
-    --primary: #f3f0e8;
-    --primary-fg: #0b0b0a;
-    --accent: #c6f432;
-    --accent-text: #d4f65e;
-    --accent-fg: #1b2300;
-    --accent-soft: #1d2508;
-    --ok: #4ade80;
-    --warn: #facc15;
-    --danger: #f87171;
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
-    --shadow-md: 0 12px 32px -14px rgb(0 0 0 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.5);
-    --glass: rgb(11 11 10 / 0.9);
+    --background: #00282C;
+    --surface: #003135;
+    --surface-2: #03414A;
+    --foreground: #F5F8F8;
+    --muted: #8DB0B5;
+    --border: #0A4A51;
+    --border-strong: #14606A;
+    --primary: #F5F8F8;
+    --primary-fg: #003135;
+    --accent: #0FA4AF;
+    --accent-text: #6FD6DE;
+    --accent-fg: #00282C;
+    --accent-soft: #03414A;
+    --terra: #D98B76;
+    --ok: #5fd4a4;
+    --warn: #E39C86;
+    --danger: #ff8a80;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 14px 34px -16px rgb(0 0 0 / 0.6), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+    --glass: rgb(0 40 44 / 0.88);
   }
 }
 
@@ -64,9 +66,10 @@
   --color-warn: var(--warn);
   --color-danger: var(--danger);
   --color-glass: var(--glass);
+  --color-terra: var(--terra);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-serif: var(--font-serif), Georgia, serif;
+  --font-wordmark: var(--font-wordmark);
   --shadow-card: var(--shadow-sm);
   --shadow-float: var(--shadow-md);
 }
@@ -128,7 +131,8 @@ dialog[open].sheet { animation: sheet-up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) bo
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-.serif-it { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+.serif-it { font-weight: 300; letter-spacing: -0.02em; }
+.wordmark { font-family: var(--font-wordmark), var(--font-sans); font-weight: 700; letter-spacing: -0.03em; text-transform: lowercase; }
 @keyframes scan { 0% { transform: translateY(-10%); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(110%); opacity: 0; } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 @keyframes sweep { from { transform: translateX(-120%); } to { transform: translateX(120%); } }

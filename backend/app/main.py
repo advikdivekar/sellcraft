@@ -28,7 +28,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="SellCraft AI", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Mochi", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=get_settings().cors_origins.split(","),
                    allow_methods=["*"], allow_headers=["*"])
 app.include_router(router)

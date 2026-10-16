@@ -1,30 +1,32 @@
-/** An original illustration of the sample product (a candle jar), drawn in SVG. It stands in for a product photograph:
- *  there are no stock photos in this repo, and the page labels it as a sample. */
-export function SampleProduct({ className, tint = "amber", id = "sp" }: { className?: string; tint?: "amber" | "stone"; id?: string }) {
-  const glass = tint === "amber" ? ["#e0a14a", "#a96a1c", "#5d3510"] : ["#d8d4c8", "#a9a496", "#6f6b5f"];
+/** An abstract sample "product" (a matte ceramic sphere on a plinth with a terracotta band), drawn in SVG. It stands in for a product
+ *  photograph: there are no stock photos in this repo, and the page labels it as a sample. */
+export function SampleProduct({ className, id = "sp" }: { className?: string; tint?: "amber" | "stone"; id?: string }) {
+  const u = (n: string) => `${id}-${n}`;
   return (
-    <svg viewBox="0 0 400 500" role="img" aria-label="Sample product: an amber glass candle jar" className={className} preserveAspectRatio="xMidYMid slice">
+    <svg viewBox="0 0 400 500" role="img" aria-label="Sample product: a matte ceramic sphere on a plinth" className={className} preserveAspectRatio="xMidYMid slice">
       <defs>
-        <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ece6d8" /><stop offset="1" stopColor="#cfc6b2" /></linearGradient>
-        <linearGradient id={`${id}-glass`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={glass[2]} /><stop offset=".28" stopColor={glass[0]} /><stop offset=".6" stopColor={glass[1]} /><stop offset="1" stopColor={glass[2]} /></linearGradient>
-        <linearGradient id={`${id}-wax`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#d9cfb8" /><stop offset=".5" stopColor="#f3ecd9" /><stop offset="1" stopColor="#cbbfa2" /></linearGradient>
-        <radialGradient id={`${id}-glow`} cx=".5" cy=".4" r=".6"><stop offset="0" stopColor="#fff6d6" stopOpacity=".9" /><stop offset="1" stopColor="#fff6d6" stopOpacity="0" /></radialGradient>
-        <filter id={`${id}-blur`}><feGaussianBlur stdDeviation="9" /></filter>
+        <radialGradient id={u("bg")} cx=".5" cy=".42" r=".8"><stop offset="0" stopColor="#F2F9FA" /><stop offset=".7" stopColor="#CFE6EA" /><stop offset="1" stopColor="#A9CDD3" /></radialGradient>
+        <radialGradient id={u("sph")} cx=".34" cy=".28" r=".85"><stop offset="0" stopColor="#ffffff" /><stop offset=".22" stopColor="#e3f3f5" /><stop offset=".55" stopColor="#a7d3da" /><stop offset=".85" stopColor="#5b9ea9" /><stop offset="1" stopColor="#2e7580" /></radialGradient>
+        <radialGradient id={u("shade")} cx=".72" cy=".78" r=".7"><stop offset="0" stopColor="#003135" stopOpacity=".5" /><stop offset=".7" stopColor="#003135" stopOpacity="0" /></radialGradient>
+        <linearGradient id={u("rim")} x1="0" y1="0" x2="1" y2="0"><stop offset=".7" stopColor="#0FA4AF" stopOpacity="0" /><stop offset="1" stopColor="#0FA4AF" stopOpacity=".55" /></linearGradient>
+        <linearGradient id={u("plinth")} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#01363b" /><stop offset=".35" stopColor="#0b6a74" /><stop offset=".7" stopColor="#035560" /><stop offset="1" stopColor="#012a2e" /></linearGradient>
+        <linearGradient id={u("band")} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#6e3223" /><stop offset=".4" stopColor="#b55a43" /><stop offset=".75" stopColor="#964734" /><stop offset="1" stopColor="#5f2b1e" /></linearGradient>
+        <filter id={u("soft")}><feGaussianBlur stdDeviation="3" /></filter>
+        <filter id={u("blur")}><feGaussianBlur stdDeviation="9" /></filter>
       </defs>
-      <rect width="400" height="500" fill={`url(#${id}-bg)`} />
-      <ellipse cx="200" cy="418" rx="118" ry="16" fill="#000" opacity=".28" filter={`url(#${id}-blur)`} />
-      <rect x="0" y="410" width="400" height="90" fill="#bdb29a" opacity=".35" />
-      <path d="M96 190 Q96 178 108 178 H292 Q304 178 304 190 V396 Q304 416 284 416 H116 Q96 416 96 396 Z" fill={`url(#${id}-glass)`} />
-      <ellipse cx="200" cy="178" rx="104" ry="14" fill={`url(#${id}-wax)`} />
-      <ellipse cx="200" cy="180" rx="92" ry="9" fill="#efe7d0" />
-      <rect x="198" y="150" width="4" height="30" rx="2" fill="#2a2118" />
-      <ellipse cx="200" cy="136" rx="26" ry="34" fill={`url(#${id}-glow)`} />
-      <path d="M200 118 Q211 136 200 152 Q189 136 200 118 Z" fill="#ffb938" /><path d="M200 130 Q205 140 200 150 Q195 140 200 130 Z" fill="#fff4c9" />
-      <rect x="132" y="262" width="136" height="96" rx="6" fill="#f4efe2" opacity=".94" />
-      <text x="200" y="298" textAnchor="middle" fontFamily="Georgia, serif" fontStyle="italic" fontSize="22" fill="#2a2118">Cedar &amp; Fig</text>
-      <line x1="156" y1="312" x2="244" y2="312" stroke="#2a2118" strokeWidth="1" opacity=".5" />
-      <text x="200" y="334" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="9.5" letterSpacing="2.4" fill="#5b4f3d">SOY WAX CANDLE</text>
-      <rect x="112" y="196" width="14" height="196" rx="7" fill="#fff" opacity=".22" />
+      <rect width="400" height="500" fill={`url(#${u("bg")})`} />
+      <rect y="410" width="400" height="90" fill="#9CC4CB" opacity=".5" />
+      <ellipse cx="200" cy="416" rx="120" ry="12" fill="#003135" opacity=".3" filter={`url(#${u("blur")})`} />
+      <g transform="translate(32 -27) scale(1.4)">
+        <path d="M44 262 V300 Q44 313 120 313 Q196 313 196 300 V262 Z" fill={`url(#${u("plinth")})`} />
+        <path d="M44 289 V298 Q44 311 120 311 Q196 311 196 298 V289 Q196 300 120 300 Q44 300 44 289 Z" fill={`url(#${u("band")})`} />
+        <ellipse cx="120" cy="262" rx="76" ry="15" fill="#0b6a74" /><ellipse cx="120" cy="262" rx="76" ry="15" fill="none" stroke="#AFDDE5" strokeOpacity=".35" strokeWidth="1" />
+        <ellipse cx="124" cy="258" rx="46" ry="8" fill="#001d21" opacity=".55" filter={`url(#${u("soft")})`} />
+        <circle cx="120" cy="170" r="86" fill={`url(#${u("sph")})`} />
+        <circle cx="120" cy="170" r="86" fill={`url(#${u("shade")})`} />
+        <circle cx="120" cy="170" r="86" fill={`url(#${u("rim")})`} />
+        <ellipse cx="92" cy="122" rx="26" ry="15" fill="#fff" opacity=".7" transform="rotate(-32 92 122)" filter={`url(#${u("soft")})`} />
+      </g>
     </svg>
   );
 }

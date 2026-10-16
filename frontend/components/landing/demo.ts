@@ -13,8 +13,8 @@ export const TONES: { value: Tone; label: string }[] = [
 ];
 
 export const SAMPLE = {
-  name: "Cedar & Fig Candle",
-  details: "Hand-poured soy wax\n8 oz amber glass jar\nCedar and fig scent\nCotton wick",
+  name: "Orb Desk Object",
+  details: "Matte ceramic sphere\n9 cm diameter\nTerracotta band on the base\nSold as a single piece",
 };
 
 export interface Beat { t: string; label: string; text: string }

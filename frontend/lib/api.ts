@@ -11,7 +11,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     res = await fetch(path, init);
   } catch {
-    throw new ApiError("network", "Can't reach the SellCraft server. Check your connection and that the backend is running.", true);
+    throw new ApiError("network", "Can't reach the Mochi server. Check your connection and that the backend is running.", true);
   }
   if (!res.ok) {
     let body: { error?: { code: string; message: string; retryable?: boolean; fields?: { field: string; message: string }[] } } = {};

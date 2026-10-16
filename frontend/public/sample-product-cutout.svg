@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 70 240 244" width="480" height="488"><defs>
+<radialGradient id="o-sph" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#ffffff"/><stop offset=".22" stop-color="#e3f3f5"/><stop offset=".55" stop-color="#a7d3da"/><stop offset=".85" stop-color="#5b9ea9"/><stop offset="1" stop-color="#2e7580"/></radialGradient>
+<radialGradient id="o-shade" cx=".72" cy=".78" r=".7"><stop offset="0" stop-color="#003135" stop-opacity=".5"/><stop offset=".7" stop-color="#003135" stop-opacity="0"/></radialGradient>
+<linearGradient id="o-rim" x1="0" y1="0" x2="1" y2="0"><stop offset=".7" stop-color="#0FA4AF" stop-opacity="0"/><stop offset="1" stop-color="#0FA4AF" stop-opacity=".55"/></linearGradient>
+<linearGradient id="o-plinth" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#01363b"/><stop offset=".35" stop-color="#0b6a74"/><stop offset=".7" stop-color="#035560"/><stop offset="1" stop-color="#012a2e"/></linearGradient>
+<linearGradient id="o-band" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e3223"/><stop offset=".4" stop-color="#b55a43"/><stop offset=".75" stop-color="#964734"/><stop offset="1" stop-color="#5f2b1e"/></linearGradient>
+<filter id="o-soft"><feGaussianBlur stdDeviation="3"/></filter>
+</defs>
+<path d="M44 262 V300 Q44 313 120 313 Q196 313 196 300 V262 Z" fill="url(#o-plinth)"/>
+<path d="M44 289 V298 Q44 311 120 311 Q196 311 196 298 V289 Q196 300 120 300 Q44 300 44 289 Z" fill="url(#o-band)"/>
+<ellipse cx="120" cy="262" rx="76" ry="15" fill="#0b6a74"/><ellipse cx="120" cy="262" rx="76" ry="15" fill="none" stroke="#AFDDE5" stroke-opacity=".35" stroke-width="1"/>
+<ellipse cx="124" cy="258" rx="46" ry="8" fill="#001d21" opacity=".55" filter="url(#o-soft)"/>
+<circle cx="120" cy="170" r="86" fill="url(#o-sph)"/>
+<circle cx="120" cy="170" r="86" fill="url(#o-shade)"/>
+<circle cx="120" cy="170" r="86" fill="url(#o-rim)"/>
+<ellipse cx="92" cy="122" rx="26" ry="15" fill="#fff" opacity=".7" transform="rotate(-32 92 122)" filter="url(#o-soft)"/>
+</svg>

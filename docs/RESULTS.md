@@ -14,8 +14,8 @@ Every result file was **re-scored with the current checker** (`python -m finetun
 | Qwen3.5-4B base | 18% | 10–28% | 1.38 | 82% | 91% |
 | Gemma 3 4B | 23% | 13–35% | 1.03 | 75% | 77% |
 | Gemma 3 12B | 45% | 33–57% | 0.70 | 55% | 91% |
-| **SellCraft fine-tune v1** (Qwen3.5-4B + LoRA) | 65% | 53–77% | 0.43 | 33% | 100% |
-| **SellCraft fine-tune v2** (Qwen3.5-4B + LoRA) | **88%** | **78–95%** | **0.15** | **12%** | **100%** |
+| **Mochi fine-tune v1** (Qwen3.5-4B + LoRA) | 65% | 53–77% | 0.43 | 33% | 100% |
+| **Mochi fine-tune v2** (Qwen3.5-4B + LoRA) | **88%** | **78–95%** | **0.15** | **12%** | **100%** |
 
 v1 looked like 93% clean under the checker it was trained against. After the checker was tightened (number words, urgency,
 occasions) the same outputs score 65%. v2 was trained on kits that passed both the tighter checker and an independent judge.
