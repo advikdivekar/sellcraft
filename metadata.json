@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.11.5",
+  "checkpoint_id": "01M52CCG7243QPZN8FN3DK4TTY",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "README.md",
+    "docs/ARCHITECTURE.md",
+    "docs/WRITEUP.md",
+    "docs/architecture-copy.svg",
+    "docs/architecture-data-api.svg",
+    "docs/architecture-deploy.svg",
+    "docs/architecture-evaluation.svg",
+    "docs/architecture-finetune.svg",
+    "docs/architecture-models.svg",
+    "docs/architecture-observability.svg",
+    "docs/architecture-optimisations.svg",
+    "docs/architecture-photo-reading.svg",
+    "docs/architecture-pipeline.svg",
+    "docs/architecture-sequence.svg",
+    "docs/architecture-studio.svg",
+    "docs/architecture-system.svg",
+    "docs/architecture-trust.svg",
+    "docs/architecture-video.svg",
+    "docs/architecture.html",
+    "docs/build_diagrams.py",
+    "docs/images/diagrams/deploy.png",
+    "frontend/app/create/page.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 28,
+    "cache_creation_tokens": 15098,
+    "cache_read_tokens": 2991885,
+    "output_tokens": 8300,
+    "api_call_count": 14
+  }
+}
