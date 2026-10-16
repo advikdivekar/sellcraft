@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.11.5",
+  "checkpoint_id": "01M5295Z0F1K01A598PKMWP12T",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "docs/WRITEUP.md",
+    "docs/images/velora/velora-01-photos.png",
+    "docs/images/velora/velora-02-label-read.png",
+    "docs/images/velora/velora-03-style.png",
+    "docs/images/velora/velora-03b-backdrop.png",
+    "docs/images/velora/velora-04-building.png",
+    "docs/images/velora/velora-05-ready-55s.png",
+    "docs/images/velora/velora-06-double-check.png",
+    "docs/images/velora/velora-07-video-ad.png",
+    "docs/images/velora/velora-08-copy.png",
+    "docs/images/velora/velora-09-studio-photos.png"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 138533,
+    "cache_read_tokens": 10528084,
+    "output_tokens": 30243,
+    "api_call_count": 22
+  }
+}

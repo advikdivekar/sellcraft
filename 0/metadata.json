@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.11.5",
+  "checkpoint_id": "01M5295Z0F1K01A598PKMWP12T",
+  "session_id": "159a4645-4bae-4261-ac0b-464a7f4accd7",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-16T11:57:30.831824Z",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "save_step_count": 8,
+  "files_touched": [
+    "docs/WRITEUP.md",
+    "docs/images/velora/velora-01-photos.png",
+    "docs/images/velora/velora-02-label-read.png",
+    "docs/images/velora/velora-03-style.png",
+    "docs/images/velora/velora-03b-backdrop.png",
+    "docs/images/velora/velora-04-building.png",
+    "docs/images/velora/velora-05-ready-55s.png",
+    "docs/images/velora/velora-06-double-check.png",
+    "docs/images/velora/velora-07-video-ad.png",
+    "docs/images/velora/velora-08-copy.png",
+    "docs/images/velora/velora-09-studio-photos.png"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5-5",
+  "turn_id": "8611570c2bfd",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 138533,
+    "cache_read_tokens": 10528084,
+    "output_tokens": 30243,
+    "api_call_count": 22
+  },
+  "session_metrics": {
+    "turn_count": 25
+  }
+}
