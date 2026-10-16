@@ -1,0 +1,1 @@
+in the mean time, can you draw a proper system design architecutre for this project working model so far? '/Users/advikdivekar/Desktop/sellcraft/Screenshot 2026-10-16 at 4.01.00 AM.jpg' like any of these diagrams that I can use to visualise my entire AI working and like the entire process
