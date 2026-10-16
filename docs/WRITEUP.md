@@ -5,7 +5,7 @@ Title idea: "I watched my mom lose 4 hours to one Instagram post. So I built Moc
 Tags (max 4): devchallenge, hf26challenge, opensource, ai
 
 1. The images load from GitHub (raw links), so they only show once docs/images/ is pushed.
-2. Set a cover image (docs/images/landing-hero-desktop.png works).
+2. Cover image: upload docs/images/cover.png (2000x840, DEV's 1000x420 slot).
 3. Preview in DEV's editor before publishing.
 -->
 
@@ -261,9 +261,17 @@ The whole thing cost **$5.41 of the $10 credit**.
 
 ![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/finetune.png)
 
+*The full detailed version (tap to open it full size and zoom in):*
+
+[![Detailed fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
+
 **Results** (60 held-out synthetic products, one checker):
 
 ![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/evaluation.png)
+
+*The full detailed version (tap to open it full size and zoom in):*
+
+[![Detailed evaluation](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
 
 That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many clean kits, and about 10 times faster (4.9 s against 48.7 s per kit, though v2 runs on Tinker's cloud and Gemma on my laptop).
 
@@ -287,6 +295,14 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 
 ![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/models.png)
 
+*The full detailed version (tap to open it full size and zoom in):*
+
+[![Detailed models and jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)
+
+*The full detailed version (tap to open it full size and zoom in):*
+
+[![Detailed photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)
+
 **Why Gemma.** It's open-weight, it runs on one machine, and it can be held to a JSON schema. That matters here: the seller's facts shouldn't leave their computer, and every part of a kit must come back as strict, checkable JSON.
 
 **What it was meant to fix.** The cost and privacy problems from my ecommerce days: no per-kit fee, and nothing sent to anyone else's server.
@@ -307,12 +323,20 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 
 ![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/post/observability.png)
 
+*The full detailed version (tap to open it full size and zoom in):*
+
+[![Detailed observability](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
+
 - Each model call is a **`gen_ai.chat` span**, with the model, token counts and latency
 - Each generation job is a transaction
 - Each flagged claim is an issue (which rule fired, and how many)
 - Each seller report is an event. The report button sends a section name and a fixed reason code, **never free text**
 
 The flagged claims come from the copy post-check, so each issue is a rule the code caught, not a model's opinion.
+
+*The full detailed version (tap to open it full size and zoom in):*
+
+[![Detailed copy pipeline and post-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)
 
 **What it never sees.** An allow-list scrubber removes everything that is not on the list of allowed metadata. Product facts, copy, photos and prompts can't pass it.
 
