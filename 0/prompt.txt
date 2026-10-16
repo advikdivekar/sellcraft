@@ -1,0 +1,1 @@
+what if we provide the writing of a LLM that is insanely good at copywriting and feeds its output as input to the parent model and based on the response of parent model, student model will learn better response only that current state. check pls
