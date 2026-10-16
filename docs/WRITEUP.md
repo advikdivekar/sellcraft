@@ -141,63 +141,48 @@ Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **
 
 {% embed https://youtu.be/uvYCVlKRKbU %}
 
-### Every page, screenshot by screenshot
+
+### Every page of the web app
 
 **Landing page**
 
-![Landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-hero-desktop.png)
+![Landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/01-landing.jpg)
 
-**Landing page on a phone**
+**Create: start**
 
-![Landing page on a phone](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-hero-mobile.png)
+![Create: start](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/02-create-start.png)
 
-**Studio on the landing page**
+**Create step 1: photos, and the text Mochi read from them**
 
-![Studio on the landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-studio-desktop.png)
+![Create step 1: photos, and the text Mochi read from them](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/03-photos.png)
 
-**1. Add photos**
+**Create step 2: product facts**
 
-![1. Add photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-01-photos.png)
+![Create step 2: product facts](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/04-product-facts.png)
 
-**2. Text Mochi read from the label**
+**Create step 3: tone, goal, speed and visual style**
 
-![2. Text Mochi read from the label](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-02-label-read.png)
+![Create step 3: tone, goal, speed and visual style](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/05-style.png)
 
-**3. Tone, goal and writing speed**
+**Result: overview with video ad and image deck**
 
-![3. Tone, goal and writing speed](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03-style.png)
+![Result: overview with video ad and image deck](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/06-result-overview.jpg)
 
-**3. Choose a backdrop**
+**Result: copy for every channel**
 
-![3. Choose a backdrop](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03b-backdrop.png)
+![Result: copy for every channel](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/07-result-copy.png)
 
-**4. Building the kit**
+**Result: studio photos, white background and cut-outs**
 
-![4. Building the kit](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-04-building.png)
+![Result: studio photos, white background and cut-outs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/08-result-photos.jpg)
 
-**5. Kit ready in 55 seconds**
+**Result: share and export**
 
-![5. Kit ready in 55 seconds](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-05-ready-55s.png)
+![Result: share and export](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/09-result-share.png)
 
-**Studio photos**
+**Stores**
 
-![Studio photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
-
-**Image deck**
-
-![Image deck](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-10-deck.png)
-
-**Video ad**
-
-![Video ad](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-07-video-ad.png)
-
-**Keywords, tags and SEO title**
-
-![Keywords, tags and SEO title](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
-
-**What to double-check**
-
-![What to double-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-06-double-check.png)
+![Stores](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/web/10-stores.png)
 
 ## Code
 
