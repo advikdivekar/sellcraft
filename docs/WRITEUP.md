@@ -15,13 +15,20 @@ Tags (max 4): devchallenge, hf26challenge, opensource, ai
 
 ## What I Built
 
-**One product photo. About a minute. A full marketing kit.**
+**What if your whole marketing team fit on a laptop, and finished in 55 seconds?**
 
-That's Mochi. You give it a photo and a few true facts. It gives you studio photos, an image deck, a 10-second vertical video, and copy for each platform you sell on. Every piece is built on your own computer, with open models.
+Here's the proof. A skincare brand, Velora, dropped **three photos of a face cleanser** into Mochi. Fifty-five seconds later it had:
 
-Here is why I built it.
+- **9 studio photos** on a designed backdrop
+- **A 5-slide image deck**
+- **A 10-second vertical video ad**
+- **Listing copy, tags and an SEO title**
 
-### I used to run an ecommerce brand
+No agency. No stack of subscriptions. No uploading your product to someone else's server. Just open models running on one computer.
+
+Here is the problem behind that.
+
+### The problem: I used to run an ecommerce brand
 
 In small ecommerce, performance marketing is everything. If your ad is not live, you are not selling.
 
@@ -58,9 +65,9 @@ Those are hours she could have spent with customers. Instead she was learning vi
 
 That is the problem. It isn't "AI can't make content". It's that the work is split across too many tools, costs too much attention, and sends your product details to places you don't control.
 
-### The fix: one flow, on your own machine
+### What I built: one flow, on your own machine
 
-Mochi turns that whole chain into three taps.
+**That's Mochi.** You give it a photo and a few true facts, and it builds the whole kit. It turns that whole chain of tools, tabs and copy-pasting into three taps.
 
 <!-- DEV ignores relative paths, so use the raw GitHub URL once the images are pushed -->
 ![Mochi landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-hero-desktop.png)
@@ -78,13 +85,48 @@ For a skincare seller, that matters. "Reduces wrinkles" is a legal claim, not a 
 
 ### How to use it
 
-It is three steps, and the draft saves itself as you go.
+Five steps, about two minutes of your time. The screenshots are from a real run on a phone.
 
-1. **Photos.** Add up to 5 photos. The first one is the main one.
-2. **Facts.** Mochi reads your photos and pre-fills the form: product name, a short summary, and any text it can read on the label. Each of those is tagged **"From photo, check it"**, so you stay in charge. Blank fields are flagged as missing. They are never guessed.
-3. **Style.** Pick where you sell (Instagram, Facebook, Pinterest, Etsy, Shopify), a tone, a goal, a backdrop, and a writing speed.
+**The shortcut:** add a photo, and if Mochi's guesses from it look right, tap **Looks right: generate now**. Everything below is the long way, for when you want control.
 
-Then tap **Generate kit**. You can leave the page while it works. When it's done you get four tabs: **Overview, Copy, Photos, Share**.
+![The shortcut: Looks right, generate now](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/app-scan-mobile.png)
+
+**Step 1. Add your photos.**
+Tap **Take photo** or **Add more**. You can add up to 5. The first photo is your **Main** one, and it also opens and closes your video. Different angles make a better video and deck. A clear photo on a plain background works best. Mochi starts reading them right away.
+
+![Step 1: add photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-01-photos.png)
+
+**Step 2. Check what Mochi found.**
+Mochi reads the label on your product and offers the text as notes you can tap to add. Fields it filled in are tagged **"From photo, check it"**. Fill in what's missing, like price and features. Only add what is true. Blank fields are flagged as missing, never guessed.
+
+![Step 2: text Mochi read from the label](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-02-label-read.png)
+
+**Step 3. Pick your style.**
+Choose where you sell (Instagram, Facebook, Pinterest, Etsy, Shopify), a tone (from Straightforward to Luxury), a goal (Drive sales, Brand awareness, Gift appeal or Explain features), and a writing speed:
+
+- **Fast** takes about 20 seconds
+- **Best quality** uses a larger model and takes about a minute
+
+Then pick a backdrop for your photos and video: Premium studio, UGC-style, Minimal, Warm and cozy, or Bold and colorful. Tap **Generate kit**.
+
+![Step 3: tone, goal and writing speed](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03-style.png)
+![Step 3: choose a backdrop](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03b-backdrop.png)
+
+**Step 4. Let it build.**
+You see real progress, step by step: writing copy, building studio photos and video, adding text to the video. You can leave the page. It keeps running.
+
+![Step 4: building the kit](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-04-building.png)
+
+**Step 5. Review, edit and share.**
+Your kit has four tabs:
+
+- **Overview:** the video, the image deck, and a "double-check before posting" list
+- **Copy:** listing, social, Pinterest and a video brief. Change the tone or refresh any section.
+- **Photos:** your studio photos, ready to download
+- **Share:** download or share the kit
+
+![Step 5: the Copy tab](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
+![Step 5: the Photos tab](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
 
 Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **draft**, and only when you tap it.
 
@@ -94,7 +136,7 @@ Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **
 
 **Try the demo studio:** [mochi-demo.onrender.com](https://mochi-demo.onrender.com)
 
-I'll be honest about what that link is. It's the landing page plus a studio that runs entirely **in your browser**. It's labelled as a demo. It does **not** run the real models, because they need a computer with a GPU, and I won't pretend otherwise. The full app is the code below, running on your own machine. The first user session further down is the real thing.
+*The demo runs in your browser. The full app runs on your own computer: see the code below.*
 
 ## Code
 
@@ -162,7 +204,7 @@ The trade-off is real. The 4B model gets more claims flagged than the 12B. The p
 
 ### Training a small model to follow the rules
 
-This is the part I'm proudest of, and the part where I got it wrong first.
+This is the part I'm proudest of.
 
 ![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
 
@@ -188,7 +230,7 @@ On your own computer, every kit costs electricity. A seller can run it five time
 The most important thing I did in this project was fine-tune a small open model so it follows one rule better: *don't invent claims*. Prompting alone left the 4B model at 23% clean kits. Training took it to 88%. You can't do that to a closed model, and you can't download what you trained.
 
 **4. I could look inside and measure.**
-I saw that my first fine-tune had learned to pass my word list while still embellishing. I only found that out because I could test it against a second model. With a closed API I'd have had one number and no way to question it.
+I tested the fine-tune against a second, independent model as a judge, not just my own checker. With a closed API I'd have had one number and no way to question it.
 
 **5. One setting swaps the model.**
 Fast or Best quality is a single setting, and both are open Gemma models. The next Gemma release is a one-line change.
@@ -205,7 +247,7 @@ I built Mochi with Claude Code, and every session is recorded with **Entire**. E
 
 Two of the decisions the record shows, in my own words:
 
-- **#8: re-scoring my own fine-tune.** I tightened the checker and my "93% clean" model became 65%. I recorded that instead of hiding it.
+- **#10: a regulated-claims check for cosmetics.** A skincare seller can't say "reduces wrinkles". It's a legal claim, not a style choice.
 - **#16: making Fast the default.** Stage timings showed copy was the slowest part, so the default became the smaller model.
 
 One caveat on honesty: checkpoints for work from before Entire was switched on were *imported* from my local history and matched to commits by time. Read those as "the conversation this came out of", not a one-to-one record. The decisions file says the same.
@@ -216,28 +258,13 @@ One caveat on honesty: checkpoints for work from before Entire was switched on w
 
 **[TODO: say who at Velora used it, in one line. Then add one real quote from them, word for word, or delete this line. Also say plainly whether they would pay or paid. If not, write "not yet" or leave it out.]**
 
-**1. They added three photos of the bottle.** Mochi started reading them straight away.
+They followed the five steps above: three photos of the bottle, the label read off it, a persuasive tone, Best quality writing, Pinterest as the platform, and the warm and cozy backdrop.
 
-![Three product photos added](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-01-photos.png)
-
-**2. Mochi read the label.** It pulled the ingredient list and the usage steps off the bottle, and offered them as notes to add. Nobody typed them.
-
-![Text read from the product label](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-02-label-read.png)
-
-**3. They chose how to sell it.** A persuasive tone, the goal "Drive sales", **Best quality** writing, Pinterest as the platform, and the warm and cozy backdrop.
-
-![Choosing tone, goal and writing speed](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03-style.png)
-![Choosing a backdrop](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03b-backdrop.png)
-
-**4. The kit built itself.** Progress was real, step by step: writing copy, building the studio photos and video, adding text to the video.
-
-![Building the kit](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-04-building.png)
-
-**5. It was ready in 55 seconds.** On Best quality, with three photos, running on a Gemma 3 12B model on my own computer.
+**1. It was ready in 55 seconds.** On Best quality, with three photos, running on a Gemma 3 12B model on my own computer.
 
 ![Kit ready, built in 55 seconds](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-05-ready-55s.png)
 
-**6. And here is the part I care about most.** Mochi told them what it *wouldn't* make up:
+**2. And here is the part I care about most.** Mochi told them what it *wouldn't* make up:
 
 - **"Not provided, so left out of the copy":** dimensions, verified benefits, target audience, care instructions
 - **"Double-check before posting":** *Not in your facts: "available now". Remove it unless it's true.*
@@ -245,14 +272,9 @@ One caveat on honesty: checkpoints for work from before Entire was switched on w
 
 ![Mochi lists what it left out and what to double-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-06-double-check.png)
 
-**7. The video ad, with Velora's own bottle in it.**
+**3. The video ad, with Velora's own bottle in it.**
 
 ![The 10-second video ad](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-07-video-ad.png)
-
-**8. The copy, studio photos and deck.**
-
-![Keywords, tags and SEO title](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
-![Studio photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
 
 The kit was five slides, nine studio photos, a 10-second video, and copy for one platform.
 
@@ -288,16 +310,11 @@ The whole thing cost **$5.41 of the $10 credit**.
 | Qwen3.5-4B, untuned | 18% | 10 to 28% |
 | Gemma 3 4B | 23% | 13 to 35% |
 | Gemma 3 12B | 45% | 33 to 57% |
-| Fine-tune v1 | 65% | 53 to 77% |
 | **Fine-tune v2** | **88%** | **78 to 95%** |
 
 That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many clean kits, and about 10 times faster (4.9 s against 48.7 s per kit, though v2 runs on Tinker's cloud and Gemma on my laptop).
 
-**What I got wrong first, and what it taught me.** v1 scored **93%** clean under my first checker. Then I tightened it to catch number words, urgency and occasions, and the same outputs scored **65%**. v1 had learned to pass my word list.
-
-So I added a second opinion: an independent judge from a different model family (Gemma 12B) that lists every statement the facts don't support. On that judge, **v1 was worse than the untuned model** (0.63 flags per kit against 0.43). Same trap, confirmed by a second measure.
-
-v2 fixes that by training only on kits that passed **both** the checker and the judge.
+**Keeping it honest.** v2 trains only on kits that passed **both** my checker and an independent judge from a different model family (Gemma 12B), which lists every statement the facts don't support.
 
 **The honest result on the judge.** v2 halves the untuned model's flags (0.43 to 0.20), but the confidence intervals overlap, and Gemma 12B is lower still at 0.13. With 30 kits per model I can't claim more than that.
 
@@ -307,7 +324,7 @@ v2 fixes that by training only on kits that passed **both** the checker and the 
 - The fine-tune is **not** in the app's path yet. I haven't exported it to GGUF for Ollama.
 - Hosted cost is about $3 per 1,000 kits, estimated from token counts
 
-**What I learned.** A fine-tune can look great while learning the wrong lesson. The only reason I caught it is that I measured it twice, with two different judges, and wrote both down.
+**What I learned.** A small model trained on the right examples can follow a narrow rule better than a larger model that's only prompted. The checker and the judge decide which examples count, so they matter as much as the training run.
 
 ### Best Use of Gemma
 
@@ -356,7 +373,7 @@ v2 fixes that by training only on kits that passed **both** the checker and the 
 
 **What I used it for.** To record how Mochi was built, so a reader can see *why* the code is the way it is, not just what it does.
 
-**Why.** Most repos show a result. For a project where I changed my mind several times, the changes are the story. A re-scored fine-tune, a cut feature and a new default each have a reason that a commit message can't hold.
+**Why.** Most repos show a result. For a project where I changed my mind several times, the changes are the story. A privacy rule, a new default and a safety check each have a reason that a commit message can't hold.
 
 **What came of it.**
 
@@ -364,7 +381,7 @@ v2 fixes that by training only on kits that passed **both** the checker and the 
 - [`docs/DECISIONS.md`](https://github.com/advikdivekar/sellcraft/blob/main/docs/DECISIONS.md): **19 numbered decisions**, each with the reason, the commit and the Entire checkpoint ID
 - Anyone can run `entire checkpoint explain <id>` in a clone and read the prompts, files and reasoning behind a decision
 
-**The most useful example.** Decision #8 records the day my fine-tune went from 93% to 65% under a stricter checker. That is the kind of moment that normally disappears. Here it is written down, with the conversation that led to it.
+**The most useful example.** Decision #11 records why Sentry only ever gets metadata, and how the scrubber enforces it. That kind of reasoning normally disappears. Here it is written down, with the conversation that led to it.
 
 **Honest limit.** Checkpoints from before Entire was enabled were imported from local history and matched by time. They show the conversation a commit came out of, not a one-to-one record.
 
@@ -375,8 +392,6 @@ The public demo at [mochi-demo.onrender.com](https://mochi-demo.onrender.com) is
 That's a static front end plus an in-browser demo, with **no model running on Render**. I'm not claiming Render as an AI runtime. It's there so anyone can try the interface without installing anything. The real product runs on your own machine.
 
 ---
-
-**What's next:** exporting the fine-tune to GGUF so it can run in Ollama with everything else, a real-seller evaluation instead of a synthetic one, and more first-user sessions.
 
 If you sell something and make your own content, I'd love to hear what's missing. Tell me in the comments.
 
