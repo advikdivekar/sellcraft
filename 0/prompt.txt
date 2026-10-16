@@ -1,0 +1,8 @@
+<pasted_content id="9303">
+$10 Credit for Tinker from Thinking Machines
+$10 credit for Tinker from Thinking Machines. Utilize your promo code as part of your project in any of the ongoing Hacktoberfest DEV Challenges to be eligible for weekly prizes. Use Tinker to fine-tune a model for a specific task, and demonstrate a clear improvement in performance, latency or cost compared to a baseline. Each hacker may only receive 1 promo code for Tinker.
+Needs a connected GitHub account on MyMLH. Connect it
+Challenge on DEV: Best Use of Tinker
+</pasted_content id="9303">
+
+ check
