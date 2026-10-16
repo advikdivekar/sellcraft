@@ -73,7 +73,7 @@ and fails if the marker shows up in any outgoing Sentry payload. An allow-list s
 sentence rather than invent it.]
 
 ## Try it
-<!-- Assets ready in the repo: docs/demo/mochi-demo-mobile.mp4 (70 s phone walkthrough, upload it to YouTube/DEV and embed), docs/images/landing-hero-desktop.png, landing-hero-mobile.png, landing-studio-desktop.png, app-scan-mobile.png, app-building-mobile.png, app-results-mobile.png, app-results-video-mobile.png -->
+<!-- Screenshots ready in docs/images/. The product film is kept outside the repo. -->
 Code: https://github.com/advikdivekar/sellcraft (local setup is in the README: `ollama pull gemma3:4b`, start the backend and the frontend). A public demo link of the landing page and its in-browser studio: [TODO: add after deploying `render.yaml`] · Demo mode on the landing page assembles copy in the browser from
 the facts you type and says so.
 

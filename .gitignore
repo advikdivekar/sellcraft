@@ -47,10 +47,7 @@ Screenshot*.png
 frontend/e2e-result.png
 frontend/e2e-failure.png
 
-# the finished demo videos are published; raw footage is not
-!docs/demo/*.mp4
-
-# raw media and personal material: never committed
+# personal material: never committed
 Product Images/
 Mochi Teal Ribbon Logo.png
 /*.MP4
@@ -58,6 +55,3 @@ Mochi Teal Ribbon Logo.png
 /*.MOV
 Screen Recording*
 ScreenRecording*
-video/renders/
-video/node_modules/
-video/.hyperframes/
