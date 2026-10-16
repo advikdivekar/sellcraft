@@ -125,8 +125,9 @@ Your kit has four tabs:
 - **Photos:** your studio photos, ready to download
 - **Share:** download or share the kit
 
-![Step 5: the Copy tab](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
-![Step 5: the Photos tab](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
+![Step 5: the four tabs, shown on a sample product](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/app-results-mobile.png)
+
+The full result of a real run, step by step, is in **My First User** below.
 
 Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **draft**, and only when you tap it.
 
@@ -148,7 +149,7 @@ Backend: FastAPI, SQLite, Pydantic. Frontend: Next.js 16 and React 19. 135 backe
 
 ### The big picture
 
-A request makes two lanes run **at the same time**: one for visuals and one for language. They meet at the deck and the video, which need the finished copy.
+*Diagram 1.* A request makes two lanes run **at the same time**: one for visuals and one for language. They meet at the deck and the video, which need the finished copy.
 
 ![System architecture](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/system.png)
 
@@ -156,7 +157,9 @@ The page polls the job every 1.5 seconds and shows real progress and partial cop
 
 ### Which model does which job
 
-Every model has **one job and one strict contract**.
+*Diagram 2.* Every model has **one job and one strict contract**.
+
+![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)
 
 | Model or tool | Job |
 |---|---|
@@ -174,23 +177,53 @@ Two choices worth explaining.
 
 **The checker is plain code, not a second model.** A model can talk itself into anything. A word list and a number check can't.
 
-### Photos to studio shots
+### What happens, in order
 
-![Studio imagery pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/studio.png)
+*Diagram 3.* From the moment you tap Generate to the moment you export.
 
-Measure the photo, cut out the product, clean the product's pixels, fix the tone, choose a backdrop that suits what the photo shows, then compose. If the cutout looks wrong (too little or too much of the frame), it falls back to a framed photo instead of a bad cutout.
+![Request lifecycle](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/sequence.png)
 
 ### The copy pipeline
+
+*Diagram 4.*
 
 ![Copy pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)
 
 The kit is split into small parts that run in parallel: four core parts plus one per platform. Each part's output is forced into a JSON schema. A bad call is retried once, and only the missing parts are redone. Then plain code checks for forbidden words, invented numbers and unsupported claims, and anything it finds is shown to the seller.
 
+### Reading your photos
+
+*Diagram 5.*
+
+![Photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)
+
+Up to 5 photos go in. Each one is shrunk to 768 px and read under strict rules. What comes back is only ever a **suggestion**, marked "From photo, check it". It never goes straight into your copy.
+
+### Photos to studio shots
+
+*Diagram 6.*
+
+![Studio imagery pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/studio.png)
+
+Measure the photo, cut out the product, clean the product's pixels, fix the tone, choose a backdrop that suits what the photo shows, then compose. If the cutout looks wrong (too little or too much of the frame), it falls back to a framed photo instead of a bad cutout.
+
+### The video
+
+*Diagram 7.*
+
+![Video pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/video.png)
+
+The plan has at least 4 shots. Each is rendered with FFmpeg, up to 3 at once, then joined with 0.4 s crossfades. Text cards come from your edited copy. The result is checked to be 10 seconds (plus or minus 0.5) and 1080x1920. If you edit the copy, only the text layer is re-rendered, not the whole video.
+
 ### Why it's fast
 
-![Where the time goes](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/optimisations.png)
+*Diagrams 8 and 9.* My first version was far too slow. One big generation on a laptop took 90 to 145 seconds.
 
-My first version was far too slow. One big generation on a laptop took 90 to 145 seconds. Three changes fixed most of it:
+![Timing: why the wait is short](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/pipeline.png)
+
+![Optimisations, before and after](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/optimisations.png)
+
+Three changes fixed most of it:
 
 | Change | Before | After |
 |---|---|---|
@@ -204,13 +237,29 @@ The trade-off is real. The 4B model gets more claims flagged than the 12B. The p
 
 ### Training a small model to follow the rules
 
-This is the part I'm proudest of.
+*Diagram 10.* This is the part I'm proudest of.
 
 ![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
 
-The idea: a big teacher model writes marketing kits, code and an independent judge reject any kit that breaks the rules, and only the **clean** kits are used to train a small student. The full story and numbers are in the Tinker section below.
+The idea: a big teacher model writes marketing kits, code and an independent judge reject any kit that breaks the rules, and only the **clean** kits are used to train a small student.
+
+### Did it work?
+
+*Diagram 11.* Tested on 60 held-out synthetic products the training code refuses to read.
+
+![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
+
+The full table and what it does and doesn't prove are in the Tinker section below.
+
+### What Sentry sees
+
+*Diagram 12.* Every model call is traced, and nothing a seller typed ever leaves the machine.
+
+![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
 
 ### Privacy by design
+
+*Where your data can and can't go.*
 
 ![What stays local and what can leave](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/trust.png)
 
@@ -258,7 +307,7 @@ One caveat on honesty: checkpoints for work from before Entire was switched on w
 
 **[TODO: say who at Velora used it, in one line. Then add one real quote from them, word for word, or delete this line. Also say plainly whether they would pay or paid. If not, write "not yet" or leave it out.]**
 
-They followed the five steps above: three photos of the bottle, the label read off it, a persuasive tone, Best quality writing, Pinterest as the platform, and the warm and cozy backdrop.
+They followed the five steps above (the screenshots for steps 1 to 4 are from their session): three photos of the bottle, the label read off it, a persuasive tone, Best quality writing, Pinterest as the platform, and the warm and cozy backdrop. Here is what came out, in the order it appeared.
 
 **1. It was ready in 55 seconds.** On Best quality, with three photos, running on a Gemma 3 12B model on my own computer.
 
@@ -275,6 +324,14 @@ They followed the five steps above: three photos of the bottle, the label read o
 **3. The video ad, with Velora's own bottle in it.**
 
 ![The 10-second video ad](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-07-video-ad.png)
+
+**4. The copy.** Keywords, tags and an SEO title ("Velora Sensicontrol Face Cleanser - 15 USD"), each one editable.
+
+![Keywords, tags and SEO title](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
+
+**5. The studio photos.** The bottle on a designed backdrop, in the 4:5 feed shape.
+
+![Studio photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
 
 The kit was five slides, nine studio photos, a 10-second video, and copy for one platform.
 
@@ -303,7 +360,7 @@ The whole thing cost **$5.41 of the $10 credit**.
 
 **Results** (60 held-out synthetic products, one checker):
 
-![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
+*(The evaluation diagram is in How I Built It, above.)*
 
 | Model | Clean kits | 95% CI |
 |---|---|---|
@@ -354,7 +411,7 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 
 **What Sentry sees.**
 
-![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
+*(The diagram is in How I Built It, above.)*
 
 - Each model call is a **`gen_ai.chat` span**, with the model, token counts and latency
 - Each generation job is a transaction
