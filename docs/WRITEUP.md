@@ -13,9 +13,41 @@ Tags (max 4): devchallenge, hf26challenge, opensource, ai
 
 *This is a submission for the [Hacktoberfest Open-Source AI Challenge Week 2: Side Hustle](https://dev.to/challenges/hacktoberfest-week2-2026-10-12)*
 
-## What I Built
-
 **What if your whole marketing team fit on a laptop, and finished in 55 seconds?**
+
+I used to run an ecommerce brand.
+
+In small ecommerce, marketing is everything, and it comes in two kinds.
+
+**Performance marketing** is the ads you pay for. **Organic marketing** is the posts, reels and listings you put out without paying for reach. Both run on a constant stream of fresh content. If it isn't live, you aren't selling.
+
+Every product meant listing copy stitched together from two or three AI chats, then ad copy, photo edits, images for the listing, and video ads. Every step in a different tool. Every handoff a copy and paste.
+
+It cost me in three ways:
+
+- **Time.** The gap between "I have a product" and "it's live" was where sales were lost.
+- **Cashflow.** A subscription for images, one for video, one for copy, one for editing. In a small business, tool bills quietly eat tight cashflow.
+- **Privacy.** My product details, my pricing and my workflow all sat inside other people's tools. None of it was ever private.
+
+Then I watched my mom run into the same wall.
+
+My mom is a cosmetician. She sells skincare and beauty products, and she is very good at it. Her marketing is organic: Instagram and Facebook posts and reels.
+
+But one single image post took her **3 to 4 hours**.
+
+Canva for the picture. CapCut or another editor for the video. ChatGPT or Claude for the caption, then copy, paste, "make it shorter", copy, paste again. Then the post itself, on every platform she sells on. A reel could take days.
+
+On top of that, she kept switching between ChatGPT, Claude, Higgsfield and whatever other AI tool she could find, often across several accounts to keep going. That irritated her a lot.
+
+Those are hours she should have spent with customers. Instead she was working as a part-time designer and video editor.
+
+Different business, same trap: too many tools, too much attention, and your product details sent to places you don't control.
+
+So I built **Mochi**: one product photo and a few true facts become studio photos, an image deck, a 10-second video and copy for every platform you sell on. It runs on open models on your own computer, so nothing about your product goes to anyone else's server.
+
+I built it for my mom and for sellers like me, and I tried it on a real brand to see if it works. More on that session is further down.
+
+Here it is in action:
 
 Here's the proof. A skincare brand, Velora, dropped **three photos of a face cleanser** into Mochi. This is the screen when it finished:
 
@@ -41,48 +73,9 @@ Here's the proof. A skincare brand, Velora, dropped **three photos of a face cle
 
 No agency. No stack of subscriptions. No uploading your product to someone else's server. Just open models running on one computer.
 
-Here is the problem behind that.
+## What I Built
 
-### The problem: I used to run an ecommerce brand
-
-In small ecommerce, performance marketing is everything. If your ad is not live, you are not selling.
-
-And making one ad was a slog. For every single product I had to:
-
-- Get listing copy from two or three different AI chats, then stitch it together by hand
-- Write the ad copy
-- Edit the photos
-- Generate the images for the listing
-- Make video ads
-
-Every step lived in a different tool. Every handoff was a copy and paste.
-
-It cost me in three ways:
-
-- **Time.** The slow part was never the idea. It was the gap between "I have a product" and "it's live". Every day in that gap was a lost sale.
-- **Cashflow.** A subscription for images, one for video, one for copy, one for editing. In a small business, cashflow is tight, and tool bills quietly eat it.
-- **Privacy.** My product details, my pricing and my workflow all sat inside other people's tools. None of it was ever private.
-
-### Then I watched my mom do the same thing
-
-My mom is a cosmetician. She sells skincare and beauty products.
-
-To post one Instagram reel or one Facebook post, she goes through **3 to 4 different apps**:
-
-1. Canva for the image
-2. CapCut, or another editor, for the video
-3. ChatGPT or Claude for the caption, then back and forth, copy, paste, "make it shorter", copy, paste again
-4. Then the post itself, on each platform
-
-**One single image post took her 3 to 4 hours.**
-
-Those are hours she could have spent with customers. Instead she was learning video editors and rewriting captions. She is good at selling. The tools were making her a part-time designer.
-
-That is the problem. It isn't "AI can't make content". It's that the work is split across too many tools, costs too much attention, and sends your product details to places you don't control.
-
-### What I built: one flow, on your own machine
-
-**That's Mochi.** You give it a photo and a few true facts, and it builds the whole kit. It turns that whole chain of tools, tabs and copy-pasting into three taps.
+**Mochi turns that whole chain of tools, tabs and copy-pasting into three taps.**
 
 <!-- DEV ignores relative paths, so use the raw GitHub URL once the images are pushed -->
 ![Mochi landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-hero-desktop.png)
