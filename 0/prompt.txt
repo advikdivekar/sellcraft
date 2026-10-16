@@ -1,0 +1,860 @@
+<pasted_content id="9303">
+SellCraft AI — complete project blueprint
+Tagline: One product photo. A few facts. A complete marketing kit.
+SellCraft AI is an AI-powered content creation tool for small online sellers. A seller uploads product photos, enters a few verified details, chooses a platform and creative style, and receives a complete product listing plus a short video advertisement with optional AI voiceover.
+The goal is to solve one repetitive, everyday business problem: small sellers spend too much time turning the same product information into good marketing content for different platforms.
+The project fits the Side Hustle challenge because it targets a specific customer, produces something they can use immediately, and can use an open-weight language model as a core component.
+1. Who are we building for?
+
+
+
+
+
+
+
+
+
+Primary customer: Instagram sellers
+Independent sellers of jewelry, accessories, gifts, handmade crafts, and home decor who repeatedly create product captions and promotional posts.
+
+
+
+
+
+
+
+
+
+
+
+Secondary customers: Etsy and local product businesses
+Sellers who need detailed listings, keywords, descriptions, promotional creatives, and reusable product content.
+
+
+
+The first user should be one real seller with several products to list. They can test whether the generated copy is accurate, whether the video represents the product properly, and whether the result saves them time.
+2. The complete user journey
+
+Stage 1 — Add the product
+Upload one or more product photos. Enter the product name, price, materials or ingredients, dimensions, features, benefits, and other facts. Fields should be optional where appropriate; do not invent missing information.
+
+
+
+
+Stage 2 — Choose the creative direction
+Choose Instagram, Facebook, Pinterest, Etsy, or Shopify. Select the writing tone, visual style, intended audience, and marketing objective.
+
+
+
+
+Stage 3 — Generate the content
+An open-weight language model creates platform-specific product copy and a structured video-ad brief. The video pipeline creates a 10-second MP4, and ElevenLabs optionally creates the voiceover.
+
+
+
+
+Stage 4 — Edit and export
+The seller reviews the results, edits or regenerates individual sections, previews the video, and downloads the finished assets.
+
+
+
+3. What exactly does the AI generate?
+The product should generate a complete marketing kit, not just a block of description text.
+Asset    What the seller receives
+Product title    Clear, platform-appropriate title
+Short description    Concise product pitch
+Full description    Formatted product-page copy
+Feature bullets    Facts and benefits, grounded in supplied details
+Keywords and tags    Relevant search phrases and platform tags
+Social caption    A post written for the selected platform
+Headline and CTA    A hook plus a clear call to action
+SEO fields    Search title and meta description where appropriate
+Video concept    Hook, scene sequence, motion prompt, and on-screen text
+Voiceover script    Short spoken narration for the ad
+Final video    A 10-second MP4, ideally vertical 9:16 for the first version
+Optional voiceover    Audio generated through ElevenLabs and mixed into the video
+The output changes based on the platform. An Etsy listing should not simply be an Instagram caption with different hashtags. Shopify should receive useful product-page content, while Pinterest should emphasize descriptive, searchable text.
+4. Customization is a core feature
+There should be a proper creative-controls panel.
+Platform
+Instagram
+Facebook
+Pinterest
+Etsy
+Shopify
+
+
+Writing tone
+Straightforward
+Persuasive
+Emotional
+Friendly
+Luxury
+Playful
+
+
+Visual style
+Premium studio
+UGC-style ad
+Minimalist
+Warm and cozy
+Bold and colorful
+
+
+Marketing goal
+Drive sales
+Brand awareness
+Gift appeal
+Explain features
+
+
+We should also let users change just the tone and regenerate one section without losing the existing product details or regenerating the entire video every time.
+5. The 10-second video-ad module
+This is the feature that makes SellCraft AI stand out.
+For the first MVP, use a consistent structure:
+0–2s
+
+Hook
+Grab attention with a short line or an attractive opening shot.
+
+
+2–6s
+
+Product showcase
+Show the product with generated motion or carefully animated camera movement.
+
+
+6–8s
+
+Key selling point
+Display one verified feature or benefit.
+
+
+8–10s
+
+Call to action
+Finish with the product name and a short CTA.
+
+
+
+The video system has three separate responsibilities:
+- Image-to-video generation: Use an open-weight model such as LTX-Video/LTX-2 through a suitable local or hosted inference setup. The official repository documents image-to-video support and identifies LTX-2 as its current generation of the model. 
+  
+  GitHub
+- Audio generation: ElevenLabs generates the narration from the approved script using its text-to-speech API. Keep this optional and place its API key on the backend only. 
+  
+  ElevenLabs Documentation
+  +1
+- Video assembly: FFmpeg adds subtitles, verified text overlays, transitions, and audio, then produces the final MP4. 
+  
+  ffmpeg.org
+Important: Real image-to-video generation requires suitable inference hardware or a compatible hosted inference service. If that isn't available, the app can create an animated-photo ad using the original product image. It must label this honestly as an animated-photo fallback, not pretend a video model generated it.
+6. Technical architecture
+I recommend a web application with a separate backend for model inference and media processing.
+Next.js + TypeScript frontend
+Product form, platform/tone controls, results editor, preview, downloads
+
+Python FastAPI backend
+Validation, generation jobs, API keys, file management, status reporting
+
+Ollama + open-weight LLM
+Copy and creative brief
+
+
+Video provider
+LTX-2 adapter or FFmpeg fallback
+
+
+
+ElevenLabs TTS — optional
+Narration audio, when configured
+
+Final assets
+Structured copy + optional voiceover + 10-second MP4 + download links
+
+
+Recommended implementation choices:
+Component    Choice
+Frontend    Next.js, TypeScript, Tailwind CSS, shadcn/ui
+Backend    Python, FastAPI, Pydantic
+Open-weight language model    Gemma or another suitable instruction model through Ollama
+Video generation    Modular image-to-video provider; optional LTX-2 inference
+Fallback rendering    FFmpeg with gentle motion, overlays, and export
+Voiceover    ElevenLabs API, optional
+Local database    SQLite for job metadata
+File storage    Local development storage with cleanup; configurable storage for deployment
+Testing    Pytest for backend; frontend tests for key flows
+Configuration    .env file locally, deployment secrets in the hosting platform
+Gemma is one reasonable open-weight model family to evaluate, but check the specific model's applicable terms before distribution or commercial deployment. 
+
+Google AI for Developers
++1
+
+
+
+7. What makes the open-AI part meaningful?
+The product should not be merely a frontend calling a closed AI API for every task.
+The open-weight language model should actually control the core content generation: it interprets the product facts, follows the seller's creative choices, generates platform-specific copy, and produces a structured brief for video creation. Using a model adapter also makes it possible to change models later.
+Be transparent in the README and challenge submission:
+- Which model generates the product copy.
+- Whether the model runs locally or through hosted inference.
+- Whether product photos are sent to an external video provider.
+- Whether ElevenLabs is used for narration.
+- Which components cost money and which have local fallbacks.
+Open weights do not automatically mean zero cost or unrestricted commercial licensing. Likewise, if the video provider is hosted, don't claim the entire pipeline runs offline.
+8. Scope: what to build first
+The four-day sprint should target one end-to-end workflow, not a complete SaaS platform.
+Required MVP
+- Upload a product photo and enter product facts.
+- Choose a platform, tone, visual style, and marketing objective.
+- Generate structured product copy with an open-weight model.
+- Edit and regenerate copy.
+- Generate a 10-second MP4 through an available video provider, or a clearly labelled animated-photo fallback.
+- Optionally add ElevenLabs narration.
+- Preview, download, and copy the outputs.
+- Show loading progress and useful error messages.
+- Include setup instructions and a real demonstration.
+Do not build yet: user accounts, payment processing, automatic publishing to social platforms, a custom-trained model, analytics dashboards, a full product catalog manager, or ten different video generation modes.
+Once a real seller confirms that the core workflow is useful, we can expand it.
+9. Copy-paste prompt for your coding LLM
+Use this with Cursor, Claude Code, Codex, or another coding agent. Open your project repository first and paste the prompt. It tells the agent to inspect the existing code before deciding what to change.
+Build SellCraft AI — an AI marketing studio for small product sellers
+Your role
+Act as a senior full-stack engineer, AI engineer, product designer, and pragmatic technical lead. Build a functional, polished, end-to-end MVP of the product described below.
+Do not only generate a plan, mockup, architecture diagram, or tutorial. Inspect the existing repository, implement the application, run the available checks, fix errors, and document how to run it.
+If this is an existing repository, understand its structure and preserve working functionality. Do not overwrite files blindly. If it is empty, create the project structure.
+When a model, API key, GPU, or external service is unavailable, implement a clear provider interface and an honest fallback. Do not fake successful AI generation or present placeholder media as genuine model-generated output.
+
+1. Product definition
+Product name: SellCraft AI
+Tagline: One product photo. A few facts. A complete marketing kit.
+SellCraft AI helps small online sellers turn product photographs and factual product details into ready-to-use marketing assets.
+A user uploads a product photo, enters a few facts, chooses their sales platform and creative style, and receives:
+1. A complete product listing.
+2. Platform-specific marketing copy.
+3. SEO/search metadata and relevant tags.
+4. A short advertisement concept and storyboard.
+5. A 10-second MP4 product ad.
+6. An optional AI voiceover generated with ElevenLabs.
+The target customer is a small seller on Instagram, Facebook, Pinterest, Etsy, or Shopify, especially sellers of handmade products, jewelry, accessories, gifts, home decor, and similar physical goods.
+The product must solve a narrow, practical problem: creating marketing content repeatedly for the same products takes time, and generic AI copy often ignores the seller's tone or invents product claims.
+The core promise is:
+Enter product information once and generate a complete, editable, platform-ready marketing kit.
+This MVP is an asset-generation tool. It does not automatically publish content to third-party platforms.
+2. Required technology stack
+Use this stack unless the existing repository provides a compelling reason to retain something else:
+Frontend
+- Next.js with App Router.
+- TypeScript.
+- Tailwind CSS.
+- shadcn/ui or well-designed accessible components.
+- Lucide icons.
+- Responsive desktop and mobile layout.
+Backend
+- Python.
+- FastAPI.
+- Pydantic for request and response validation.
+- SQLite for lightweight generation-job metadata.
+- Local filesystem storage for development assets.
+- Python HTTP client for external APIs.
+- FFmpeg for video assembly.
+AI providers
+- An open-weight instruction model, preferably a Gemma model, accessed through Ollama for local development.
+- A modular image-to-video provider interface. LTX-Video/LTX-2 is a candidate, but use a version and integration that are actually available and compatible with the environment.
+- Optional ElevenLabs text-to-speech API for narration.
+Do not place model inference, video rendering, or third-party API secrets in the frontend.
+Use environment variables and create an .env.example containing placeholders, not real credentials.
+Suggested configuration:
+- OLLAMA_BASE_URL
+- OLLAMA_MODEL
+- ELEVENLABS_API_KEY
+- ELEVENLABS_DEFAULT_VOICE_ID
+- VIDEO_PROVIDER
+- VIDEO_PROVIDER_URL
+- VIDEO_PROVIDER_API_KEY
+- UPLOAD_DIR
+- OUTPUT_DIR
+- DATABASE_URL
+Use sensible local development defaults where possible.
+3. Main user journey
+Implement the following complete workflow.
+Step A: Product input
+Create a polished product-input screen containing:
+- Product name — required.
+- Product image — required.
+- Short summary — optional.
+- Price and currency — optional.
+- Materials or ingredients — optional.
+- Dimensions, size, capacity, or other specifications — optional.
+- Main features — optional.
+- Verified benefits — optional.
+- Target audience — optional.
+- Brand name — optional.
+- Brand voice description — optional.
+- Care instructions or usage information — optional.
+- Claims or words that must not be used — optional.
+Allow a user to preview the uploaded image, replace it, and remove it before generation.
+Validate image types and file sizes on the backend. Support common JPEG, PNG, and WebP images. Reject invalid file types and unsafe filenames.
+Do not require every field. The model must never invent missing specifications, prices, ingredients, certifications, or guarantees.
+Step B: Creative settings
+Create clearly organized, attractive selection controls.
+Platforms
+- Instagram.
+- Facebook.
+- Pinterest.
+- Etsy.
+- Shopify.
+Allow one platform to be selected initially. Include a manageable option for generating content for all five platforms in the same request if the architecture permits it without duplicating video generation unnecessarily.
+Writing tones
+- Straightforward.
+- Persuasive.
+- Emotional.
+- Friendly and conversational.
+- Luxury or premium.
+- Playful.
+Visual styles
+- Premium studio commercial.
+- UGC-inspired social advertisement.
+- Minimal and clean.
+- Warm and cozy lifestyle.
+- Bold and colorful.
+Marketing objectives
+- Drive sales.
+- Build brand awareness.
+- Gift appeal.
+- Explain product features.
+Video settings
+- Default duration: 10 seconds.
+- Default aspect ratio: vertical 9:16.
+- Optional voiceover checkbox.
+- Voice selection if ElevenLabs is configured.
+Use actual buttons, radio controls, segmented controls, or dropdowns. Make the selected state visually clear.
+Changing a creative setting should update the generation request. Do not implement decorative controls that do nothing.
+Step C: Generate the marketing kit
+When the user clicks Generate, validate the input and start a generation job.
+Use asynchronous job status for long-running media generation. The user must not have to keep an HTTP request open while an image-to-video model runs.
+Display clear progress states, for example:
+1. Preparing product brief.
+2. Writing product copy.
+3. Creating video.
+4. Generating voiceover, if enabled.
+5. Assembling final video.
+6. Ready to download.
+Progress must reflect actual backend job states. Do not pretend a stage has completed when it has not.
+Show meaningful errors and offer retry where appropriate.
+Step D: Review and export
+Display the completed content in a polished results workspace.
+The user must be able to:
+- Preview each generated copy section.
+- Edit text directly.
+- Copy individual sections.
+- Regenerate an individual section.
+- Change the tone and regenerate copy without re-entering product facts.
+- Preview the video.
+- Download the MP4.
+- Download or copy the listing content.
+- Download the voiceover audio if generated.
+- See whether the video was generated by an image-to-video model or by the animated-photo fallback.
+Do not force users to regenerate the video when they only change a caption.
+
+4. Required copy-generation output
+Use structured JSON output from the language model wherever possible. Validate the response using Pydantic. Handle invalid JSON and missing fields gracefully.
+Generate these fields as applicable:
+- product_title
+- short_description
+- full_description
+- key_features
+- benefits
+- target_audience
+- call_to_action
+- seo_title
+- meta_description
+- keywords
+- tags
+- social_caption
+- hashtags
+- ad_headline
+- voiceover_script
+- video_hook
+- video_storyboard
+- video_generation_prompt
+- missing_information
+- claims_requiring_review
+The response should also contain platform-specific output objects when multiple platforms are requested.
+For Instagram, generate a hook, Reel caption, optional hashtags, and video on-screen text.
+For Facebook, generate primary ad text, a headline, a description, and a CTA.
+For Pinterest, generate a descriptive pin title, searchable description, and relevant keyword phrases.
+For Etsy, generate a clear product title, detailed item description, relevant tags, and product attributes that are supported by the input.
+For Shopify, generate product-page copy, feature bullets, an SEO title, and a meta description.
+Treat these as editable templates, not promises of ranking or compliance with every current platform rule.
+Copy-generation quality rules
+The model must:
+- Use supplied facts as the source of truth.
+- Never invent product properties.
+- Never invent discounts, scarcity, reviews, testimonials, awards, or customer results.
+- Not assume a product is eco-friendly, organic, handmade, hypoallergenic, certified, or medically beneficial unless confirmed.
+- Distinguish factual features from suggested marketing phrasing.
+- Adapt tone without changing product facts.
+- Keep calls to action appropriate for the selected platform and objective.
+- Flag missing information rather than filling gaps with guesses.
+Use a strong system prompt and structured generation schema.
+Keep the generation prompt organized into product facts, selected platform, tone, style, objective, and output schema so that these concerns do not become mixed together.
+
+5. Open-weight language-model integration
+Create a dedicated backend service for language-model operations.
+Use Ollama with a configurable open-weight model. Prefer a Gemma instruction model as the initial default, but allow a user or developer to change the model with configuration.
+Do not hard-code model-specific response assumptions throughout the application.
+The service should:
+- Check whether Ollama is reachable.
+- Check whether the configured model is available.
+- Generate structured content.
+- Parse and validate responses.
+- Retry or repair malformed structured output when reasonable.
+- Return understandable errors if the model is offline.
+- Avoid leaking private prompts, product data, or secrets into application logs.
+If Ollama is unavailable, show an actionable setup message. An optional deterministic demo mode may be provided to demonstrate the interface, but it must be visibly labelled as Demo Mode and must not claim to be a live model response.
+The open-weight LLM is a core part of the product, not an optional decorative chatbot. It generates the actual marketing content and the structured brief for the media pipeline.
+Keep the model provider behind a small interface so another compatible open-weight model can be substituted later.
+
+6. Video-generation subsystem
+Treat video generation as an independent backend service. Do not run heavy video inference in a Next.js request handler.
+Create a provider abstraction such as:
+- ImageToVideoProvider
+- OpenWeightImageToVideoProvider
+- AnimatedPhotoFallbackProvider
+The provider must accept:
+- An input product image.
+- A motion prompt.
+- Desired duration.
+- Desired aspect ratio.
+- An output location or job context.
+It must return a validated media path or a clear error.
+Preferred real image-to-video mode
+Support a genuine image-to-video model when an actual inference endpoint or compatible local model environment is configured.
+LTX-Video/LTX-2 can be evaluated first. Before claiming the integration works, verify the actual model version, weights, licensing terms, invocation method, hardware requirements, and output format.
+Do not invent an unofficial API contract. Implement the adapter for the real runtime or inference endpoint being used, and document its configuration.
+The motion prompt should:
+- Describe camera movement and subtle scene motion.
+- Keep the product's defining appearance as consistent as possible.
+- Avoid creating fake labels, fake logos, or invented product details.
+- Avoid changes that materially misrepresent the product.
+Do not ask the image-to-video model to render important titles or precise CTA text. Add typography during the final assembly step.
+Animated-photo fallback
+When no compatible image-to-video runtime is configured, create a legitimate 10-second MP4 from the uploaded product image using FFmpeg.
+Support:
+- Subtle zoom and pan.
+- Appropriate crop and framing.
+- A clean background or solid-color canvas when appropriate.
+- Professionally placed text overlays.
+- A hook, one verified feature, and a CTA.
+- Optional narration audio.
+- Captions/subtitles if available.
+The fallback must be visually polished, not a raw still image placed inside a video container.
+The UI and API response must clearly label this output as an animated-photo ad, not AI-generated motion footage.
+Both the real model and fallback paths should produce an actual playable MP4 file with a verified duration of approximately 10 seconds.
+Use FFprobe or equivalent validation to check the final file and fail the job if export fails.
+
+7. ElevenLabs voiceover integration
+Implement an optional ElevenLabs text-to-speech service.
+Requirements:
+- Use the official API and its documented request format.
+- Store API credentials exclusively on the backend.
+- Generate narration from the approved voiceover_script.
+- Allow the configured voice to be selected from available permitted voices.
+- Support the output audio format required for video assembly.
+- Handle authentication, rate limits, quota limits, timeouts, and API errors.
+- Make the voiceover feature optional.
+If no ElevenLabs API key is configured:
+- Keep the text script visible and editable.
+- Let the user create a silent video with subtitles or on-screen copy.
+- Display a clear message explaining that voice generation requires configuration.
+- Do not create fake narration or claim the voice was generated.
+Do not include voice cloning of a real person as part of this MVP.
+If voiceover is enabled, estimate whether the script will fit a 10-second ad. Avoid excessively long narration. Let the user edit the script and regenerate the audio if necessary.
+
+8. Final video assembly
+Use FFmpeg to assemble the final video.
+The assembly pipeline should:
+1. Receive the generated footage or animated-photo clip.
+2. Normalize duration, dimensions, frame rate, and codec as needed.
+3. Add accurate, readable text overlays.
+4. Add captions or subtitles when appropriate.
+5. Mix in the generated narration if available.
+6. Add background audio only when it is licensed or otherwise appropriate for use.
+7. Normalize audio levels.
+8. Export an MP4 with H.264 video and a widely supported audio codec when audio is present.
+9. Validate output duration and media readability.
+10. Return a downloadable asset.
+Default to vertical 9:16 output, but keep dimensions configurable.
+Do not stretch source images incorrectly. Maintain a good visual composition and avoid placing important text too close to screen edges.
+Use a real available font and robust text-rendering approach. Handle punctuation and text escaping safely in FFmpeg commands.
+Never construct shell commands unsafely from user input.
+
+9. Backend API and job management
+Implement a clean API. Names can be adapted to the repository, but the equivalent functionality is required.
+Suggested endpoints:
+- GET /api/health — basic service status.
+- GET /api/providers/status — status of configured providers without exposing secrets.
+- POST /api/generations — validate inputs and create a generation job.
+- GET /api/generations/{job_id} — return job state and available results.
+- POST /api/generations/{job_id}/regenerate-copy — regenerate selected text using updated settings.
+- POST /api/generations/{job_id}/regenerate-voiceover — regenerate narration when configured.
+- GET /api/generations/{job_id}/assets/{asset_id} — securely retrieve a generated asset.
+Use typed request and response models.
+A job should have a state such as:
+- queued
+- generating_copy
+- generating_video
+- generating_voiceover
+- assembling_video
+- completed
+- failed
+Not every stage will run for every request, so voiceover-disabled jobs should skip that stage cleanly.
+Persist enough job metadata to recover the results in local development. Do not put the generated MP4's binary contents into SQLite.
+Use IDs rather than accepting arbitrary filesystem paths from clients.
+Ensure errors are recorded in a useful, non-sensitive way.
+For a short prototype, a simple background-task mechanism with polling is acceptable, provided it can handle the selected workflow. Document the limits of that approach and keep the processing layer modular enough to move into a dedicated worker later.
+
+10. Data models
+Define explicit, validated data structures for:
+ProductInput
+Contains product details, factual specifications, uploaded image reference, and optional brand voice.
+CreativeSettings
+Contains selected platform or platforms, tone, visual style, target audience, objective, duration, aspect ratio, and voiceover preference.
+CopyOutput
+Contains platform-specific titles, descriptions, bullets, captions, tags, keywords, SEO fields, CTA, video script, prompt, and warnings.
+GenerationJob
+Contains job ID, status, timestamps, selected settings, safe error information, and references to generated assets.
+GeneratedAsset
+Contains asset ID, media type, storage reference, duration when applicable, and generation method.
+Keep schemas consistent between frontend and backend. Validate on the server even when the browser already validates.
+
+11. Frontend design requirements
+The application must look like a modern creative product, not an unstyled technical dashboard.
+Use a restrained visual system:
+- Light neutral background.
+- Dark, legible typography.
+- One strong accent color.
+- Clear spacing and hierarchy.
+- Good image previews.
+- Rounded cards used purposefully.
+- Consistent buttons and controls.
+- Responsive layout.
+- Accessible labels, focus states, contrast, and keyboard navigation.
+Avoid excessive gradients, generic AI sparkle decorations everywhere, and placeholder charts.
+Required screens
+A. Home/workspace
+- SellCraft AI branding.
+- Short statement explaining the value.
+- A visible “Create marketing kit” action.
+- A small example or sample output if useful.
+- A clear open-model/provider status area.
+B. Product setup
+- Product image upload.
+- Product information fields.
+- Platform selector.
+- Tone, visual style, objective, and voiceover controls.
+- Clear generation button.
+C. Generation progress
+- Real job status.
+- Progress steps that correspond to backend processing.
+- Retry and failure states.
+D. Results editor
+- Product listing section.
+- Platform-specific content tabs or sections.
+- Editable text.
+- Copy and regenerate actions.
+- Video preview.
+- Voiceover preview when available.
+- Download actions.
+- Clearly stated video-generation method.
+Do not make all controls tiny or squeeze the interface into one crowded form.
+
+12. Security, privacy, and correctness
+The app handles user-provided product images and business information.
+Implement:
+- File-type and size validation.
+- Safe generated filenames.
+- Protected asset retrieval.
+- Server-side secret handling.
+- Sensible request timeouts.
+- API error handling.
+- Temporary file cleanup.
+- No arbitrary filesystem access through request parameters.
+- No unsafe shell string interpolation.
+Make it clear when a hosted inference provider will receive a product image. A local text model does not mean the entire pipeline is local if image-to-video or text-to-speech is hosted.
+Do not log API keys or unnecessarily log complete product descriptions.
+Use an appropriate temporary-file and output-cleanup strategy. For deployment, account for ephemeral storage and do not assume local files automatically persist across restarts.
+
+13. Testing and quality assurance
+Add practical tests for:
+- Input validation.
+- Missing product facts.
+- Structured output validation.
+- Prompt generation.
+- Provider unavailable errors.
+- Failed video generation.
+- Optional voiceover disabled.
+- Job status transitions.
+- Invalid image upload.
+- MP4 assembly and duration validation when FFmpeg is installed.
+- Download and asset authorization behavior.
+Use mocks for unit tests. Never require live paid APIs for the default test suite.
+Add at least one end-to-end test or repeatable manual acceptance test that validates the core flow.
+The application is not complete merely because the page loads. The input, generation, results, and download workflow must work end-to-end.
+
+14. Documentation and repository deliverables
+Create:
+- README.md with a clear project overview, setup steps, architecture, provider configuration, limitations, and demo instructions.
+- .env.example with placeholders only.
+- Backend dependency file such as requirements.txt or pyproject.toml.
+- Frontend dependency files.
+- A clear directory structure.
+- Unit tests.
+- Instructions for Ollama and the selected language model.
+- Instructions for configuring ElevenLabs.
+- Instructions for enabling the real image-to-video provider.
+- A description of animated-photo fallback behavior.
+- The applicable AI model and dependency license references.
+Do not commit model weights, uploaded product files, generated videos, database files, or secrets.
+Document the distinction between open-weight model inference and commercial third-party services.
+
+15. Out of scope for this MVP
+Do not implement these unless the core workflow is already working and tested:
+- User authentication.
+- Subscriptions or payment integration.
+- Automatic publishing to social platforms.
+- A marketplace.
+- A complex multi-user product catalog.
+- Fine-tuning infrastructure.
+- Unnecessary agent frameworks.
+- Unverified claims of guaranteed SEO rankings or increased sales.
+- Many different video model integrations.
+- Fake analytics or fabricated performance results.
+The goal is a focused, real product that can be demonstrated to one actual seller.
+
+16. Definition of done
+The project is ready for demonstration when all of the following are true:
+1. A user can upload a product photo and enter product facts.
+2. A user can choose the target platform, tone, visual style, and objective.
+3. The open-weight language-model integration generates structured, editable product copy.
+4. Missing or uncertain facts are not silently invented.
+5. The user can regenerate an individual text section.
+6. A valid 10-second MP4 can be produced through a real configured video model or the explicitly labelled animated-photo fallback.
+7. ElevenLabs narration works when credentials are configured, and the app continues gracefully without it.
+8. The result page previews and downloads the assets.
+9. Errors and progress states are truthful and understandable.
+10. The app can be installed and run by following the README.
+11. Tests for the important code paths pass.
+12. No API keys or private credentials are present in the repository.
+17. Implementation instructions to you, the coding agent
+Begin by inspecting the current repository and identifying the framework, files, and any existing working features.
+Then:
+1. Write a concise implementation plan based on the actual repository.
+2. Establish the core runnable application.
+3. Implement product input and creative controls.
+4. Implement open-weight text generation and structured output validation.
+5. Implement results editing.
+6. Implement media-job orchestration and the FFmpeg fallback.
+7. Add a real image-to-video adapter for a verified configured runtime.
+8. Add ElevenLabs voice generation.
+9. Add final video assembly, preview, and downloads.
+10. Add tests, error handling, .env.example, and README documentation.
+11. Run the available build, type checks, linting, and tests. Fix errors that you can reproduce.
+12. Summarize the files changed, commands used, tests run, current limitations, and exact run instructions.
+Prioritize a working end-to-end path over architectural complexity. Make sensible engineering decisions without stopping for unnecessary clarification.
+If a feature cannot be completed because an external service, credential, GPU, or model checkpoint is unavailable, finish the remaining workflow, provide an honest fallback, document the missing configuration, and do not claim that unavailable integration was tested.
+Start by inspecting the repository, then build SellCraft AI.
+
+
+
+
+10. What I recommend you actually build first
+The prompt above describes the product's direction, but don't let the coding agent spend all its time wiring up complicated video inference before the core experience exists.
+Use this implementation order:
+1. Product form → open-weight copy generation → editable results.
+2. A real 10-second MP4 using FFmpeg, with an option to use genuine image-to-video inference where the runtime is available.
+3. ElevenLabs voiceover and final audio/video assembly.
+4. Polish the interface, test with one real seller, and record the demo.
+This gives you a runnable product early, while preserving the more impressive generative-video path.
+</pasted_content id="9303">
+
+ please read this and understand this thing and give me a UML or system designed tech doiagram for this app to verify whether we can start coding or not. give me the diagram 
+
+<pasted_content id="9303">
+Week 2 of our five Hacktoberfest DEV Challenges starts today! Running through October 18, the Hacktoberfest Open-Source AI Challenge: Week 2 gives you a full week to build.
+
+Missed Week 1: Touch Grass? No problem. Every challenge is a fresh start, so you're competing on the same footing as everyone else.
+
+This week, we'll select one overall winner and a winner in each of our 17 partner categories. See all five challenges and current partner categories on the HF26 DEV Challenge Hub.
+
+FREE PARTNER CREDITS
+
+Several partners are giving participants credits and promo codes, including Tinker, Render, Backboard, and a free .tech domain. Claim yours at hacktoberfest.com/my/promos.
+Tinker by Thinking Machines
+Render
+Backboard
+.tech Domains
+Claim your credits →
+Visit hacktoberfest.com
+Key Dates
+
+Contest start: October 12, 2026
+Submissions due: October 18, 2026
+Winners announced: Week of October 19
+Badge Rewards
+
+Hacktoberfest Challenge Completion Badge
+Hacktoberfest Challenge Completion Badge
+Hacktoberfest Challenge Winner Badge
+Hacktoberfest Challenge Winner Badge
+Find Out More
+
+Ask questions and share your ideas on the Hacktoberfest Open-Source AI Challenge: Week 2 Launch Post.
+View Launch Post 
+Challenge Prompt
+
+Side Hustle
+
+Build something with open-source AI at its core.
+
+That can mean running an open-weight model, building on an open-source agent harness or framework, running inference locally, or all three. Whatever you pick, the open pieces should be what makes your project work.
+
+In your post, tell us why open innovation matters for what you built. Does it run on a laptop with no internet? Keep someone's data off a server they don't control? Let you fine-tune, swap models, or change how your agent behaves? Cost nothing to run? Tell us where your open-based approach worked better than a closed one.
+
+This Week's Theme: Side Hustle
+
+Build something with open-weight models or open-source AI that someone would actually pay for.
+
+That can mean running an open-weight model, building on an open-source agent harness or framework, running inference locally, or all three. Whatever you pick, the open pieces should be what makes your project work.
+
+Think small, specific, and useful. The best builds here solve a real problem for a real person, whether that's a freelancer, a small business owner, a niche hobby community, or your friend who keeps complaining about the same tedious task. A few ideas to get you going:
+
+An invoice and receipt sorter for freelancers that runs locally, so client data never leaves their laptop
+A listing writer for Etsy or eBay sellers that turns a few product photos into a polished description
+A menu translator for a local restaurant that handles their specific dishes better than a generic tool
+In your post, tell us why open innovation matters for what you built. Does running your own model keep costs low enough that the business actually works? Keep your customers' data private? Let you fine-tune for a niche that a general-purpose API handles poorly? Avoid getting locked into someone else's pricing? Tell us where your open-based approach worked better than a closed one.
+
+Bonus points if you land your first user. Get it in front of someone, let them use it, and tell us how it went. Did they pay? Would they? What did they ask for next?
+Submission Template 
+Show your work. We'd love to see how you built it. Save your agent session with DevRelay and embed it in your post, or link to it. It's optional, but it helps the judges understand your process.
+JUDGING CRITERIA
+
+Writing Quality (weighted most heavily)
+Relevance to the Prompt and Theme
+Creativity
+Technical Execution
+Use of Partner Technology (optional)
+PRIZES
+
+$250 USD
++ DEV++ Membership
++ Exclusive winner badge
+Prize Categories
+
+Featured categories
+$200 for each winner
+Render
+Best Use of Render
+Use Render as your project's AI runtime, to host an agent's front end, or to run Hermes or OpenClaw.
+PRIZES
+$200 USD
++ Exclusive winner badge
+Prior Labs
+Best Use of TabPFN
+Use TabPFN, Prior Labs' tabular foundation model, to forecast, predict, classify, or spot anomalies from historical data like a CSV. Prior Labs strongly recommends the latest version, TabPFN-3.5: sign up at platform.priorlabs.ai and accept the free non-commercial license to get your API key. Prior Labs favors projects that use TabPFN inside a wider prediction agent (with or without the MCP server).
+PRIZES
+$200 USD
++ Exclusive winner badge
+Thinking Machines
+Best Use of Tinker
+Use Thinking Machines' Tinker to fine-tune a model for a specific task, and show a clear improvement in performance, latency, or cost over a baseline.
+PRIZES
+$200 USD
++ Exclusive winner badge
+QualcommArduino
+Best Use of Arduino
+Build with an Arduino UNO Q: run a model on the board, build a physical agent that senses and acts, or optimize a model for it with Qualcomm AI Hub. Open to anyone building with an UNO Q, whether you got one at an in-person Fest or have your own.
+PRIZES
+$200 USD
++ Exclusive winner badge
+DigitalOcean
+Best Use of DigitalOcean
+Build or deploy your project on DigitalOcean: host your app or agent, run an open-weight model on a GPU Droplet (1-Click Models make this quick), or build an agent on the Gradient AI Platform.
+PRIZES
+$200 USD
++ Exclusive winner badge
+Gemma
+Best Use of Gemma
+Use Gemma, Google's open-weight model, in building your project: run it locally, fine-tune it, or serve it through Google Cloud or another provider.
+PRIZES
+$200 USD
++ Exclusive winner badge
+Partner categories
+$100 for each winner
+Backboard
+Best Use of Backboard
+Build with R-CLI, Backboard's open-source terminal coding agent, compare open-weight models through a single Backboard API key, or give an open-source project's assistant memory and RAG.
+PRIZES
+$100 USD
++ Exclusive winner badge
+ElevenLabs
+Best Use of ElevenLabs
+Give an open-source agent a voice, transcribe audio for a local model, or generate narration for your demo.
+PRIZES
+$100 USD
++ Exclusive winner badge
+Entire
+Best Use of Entire
+Share the agent sessions behind your project in the write-up, or search past agent work to explain why code exists.
+PRIZES
+$100 USD
++ Exclusive winner badge
+GitHub
+Best Use of GitHub Copilot
+Build with Copilot's coding agent, the Copilot CLI, or the new Copilot app, automate your project with GitHub Actions, or review contributors' PRs with Copilot.
+PRIZES
+$100 USD
++ Exclusive winner badge
+Mastra
+Best Use of Mastra
+Orchestrate an agent over open models, add memory and tools to a chat agent, or build a workflow that triages GitHub issues.
+PRIZES
+$100 USD
++ Exclusive winner badge
+MongoDB
+Best Use of MongoDB Atlas
+Use Atlas as your data layer: Atlas Vector Search for retrieval, long-term memory for an agent, or the database behind an app built on an open-weight model.
+PRIZES
+$100 USD
++ Exclusive winner badge
+Sentry
+Best Use of Sentry Agent Tracing
+Show your agent's work: how it's set up, how it performs (latency, tokens, cost), what you found, and how you debugged it. Include traces or screenshots in your write-up.
+PRIZES
+$100 USD
++ Exclusive winner badge
+SerpApi
+Best Use of SerpApi
+Give an agent live web search, ground a RAG app in fresh results, or track news for an open-source project.
+PRIZES
+$100 USD
++ Exclusive winner badge
+.tech Domains
+Best Use of a .tech Domain
+Put your project live on a .tech domain you claimed through Hacktoberfest, and link to it in your write-up. Claim a free first-year .tech domain at hacktoberfest.com/my/promos (it renews at $29.99 a year).
+PRIZES
+$100 USD
++ Exclusive winner badge
+Temporal
+Best Use of Temporal
+Make your agent durable. Wrap it in a Temporal workflow so it survives failures, retries flaky tool calls, and picks up where it left off.
+PRIZES
+$100 USD
++ Exclusive winner badge
+Tiger Data
+Best Use of Tiger Data
+Store embeddings with pgvector, run hybrid keyword and vector search for an agent, or let an agent manage a database through Tiger MCP.
+</pasted_content id="9303">
+
+ I'm doing it for hacktober fest. give me diagram stating all parts of the entire project along with the options for each point and like everything.
