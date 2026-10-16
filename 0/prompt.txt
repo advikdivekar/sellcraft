@@ -1,0 +1,1 @@
+running ollama commands in (base) advikdivekar@Adviks-MacBook-Pro ~ % , works? or in this folder, how do i check on phone when im coding in vs on my mac, also look at the '/Users/advikdivekar/Desktop/sellcraft/Screenshot 2026-10-15 at 8.15.10 PM.jpg' screeshot and tell what to select
