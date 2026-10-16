@@ -4,11 +4,9 @@ BEFORE YOU PUBLISH (this comment does not show on DEV)
 Title idea: "I watched my mom lose 4 hours to one Instagram post. So I built Mochi."
 Tags (max 4): devchallenge, hf26challenge, opensource, ai
 
-1. Search this file for "TODO" and fix every one. They are in bold so you can't miss them.
-2. Push the images first, or none of them will show on DEV:
-   docs/images/diagrams/*.png and docs/images/velora/*.png
-3. Upload the video to YouTube (unlisted works). DEV embeds it with:  {% embed https://youtu.be/YOUR_ID %}
-4. Set a cover image (docs/images/landing-hero-desktop.png works).
+1. The images load from GitHub (raw links), so they only show once docs/images/ is pushed.
+2. Set a cover image (docs/images/landing-hero-desktop.png works).
+3. Preview in DEV's editor before publishing.
 -->
 
 *This is a submission for the [Hacktoberfest Open-Source AI Challenge Week 2: Side Hustle](https://dev.to/challenges/hacktoberfest-week2-2026-10-12)*
@@ -141,7 +139,7 @@ Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **
 
 ## Demo
 
-**Video:** **[TODO: paste the YouTube link here as `{% embed https://youtu.be/YOUR_ID %}`]**
+{% embed https://youtu.be/uvYCVlKRKbU %}
 
 ## Code
 
@@ -153,7 +151,7 @@ Backend: FastAPI, SQLite, Pydantic. Frontend: Next.js 16 and React 19. 135 backe
 
 ### The big picture
 
-*Diagram 1.* A request makes two lanes run **at the same time**: one for visuals and one for language. They meet at the deck and the video, which need the finished copy.
+A request makes two lanes run **at the same time**: one for visuals and one for language. They meet at the deck and the video, which need the finished copy.
 
 ![System architecture](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/system.png)
 
@@ -161,7 +159,7 @@ The page polls the job every 1.5 seconds and shows real progress and partial cop
 
 ### Which model does which job
 
-*Diagram 2.* Every model has **one job and one strict contract**.
+Every model has **one job and one strict contract**.
 
 ![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)
 
@@ -183,13 +181,11 @@ Two choices worth explaining.
 
 ### What happens, in order
 
-*Diagram 3.* From the moment you tap Generate to the moment you export.
+From the moment you tap Generate to the moment you export.
 
 ![Request lifecycle](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/sequence.png)
 
 ### The copy pipeline
-
-*Diagram 4.*
 
 ![Copy pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)
 
@@ -197,15 +193,11 @@ The kit is split into small parts that run in parallel: four core parts plus one
 
 ### Reading your photos
 
-*Diagram 5.*
-
 ![Photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)
 
 Up to 5 photos go in. Each one is shrunk to 768 px and read under strict rules. What comes back is only ever a **suggestion**, marked "From photo, check it". It never goes straight into your copy.
 
 ### Photos to studio shots
-
-*Diagram 6.*
 
 ![Studio imagery pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/studio.png)
 
@@ -213,15 +205,13 @@ Measure the photo, cut out the product, clean the product's pixels, fix the tone
 
 ### The video
 
-*Diagram 7.*
-
 ![Video pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/video.png)
 
 The plan has at least 4 shots. Each is rendered with FFmpeg, up to 3 at once, then joined with 0.4 s crossfades. Text cards come from your edited copy. The result is checked to be 10 seconds (plus or minus 0.5) and 1080x1920. If you edit the copy, only the text layer is re-rendered, not the whole video.
 
 ### Why it's fast
 
-*Diagrams 8 and 9.* My first version was far too slow. One big generation on a laptop took 90 to 145 seconds.
+My first version was far too slow. One big generation on a laptop took 90 to 145 seconds.
 
 ![Timing: why the wait is short](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/pipeline.png)
 
@@ -241,7 +231,7 @@ The trade-off is real. The 4B model gets more claims flagged than the 12B. The p
 
 ### Training a small model to follow the rules
 
-*Diagram 10.* This is the part I'm proudest of.
+This is the part I'm proudest of.
 
 ![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
 
@@ -249,7 +239,7 @@ The idea: a big teacher model writes marketing kits, code and an independent jud
 
 ### Did it work?
 
-*Diagram 11.* Tested on 60 held-out synthetic products the training code refuses to read.
+Tested on 60 held-out synthetic products the training code refuses to read.
 
 ![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
 
@@ -257,7 +247,7 @@ The full table and what it does and doesn't prove are in the Tinker section belo
 
 ### What Sentry sees
 
-*Diagram 12.* Every model call is traced, and nothing a seller typed ever leaves the machine.
+Every model call is traced, and nothing a seller typed ever leaves the machine.
 
 ![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
 
@@ -309,7 +299,7 @@ One caveat on honesty: checkpoints for work from before Entire was switched on w
 
 **Velora**, a skincare brand, ran its **Sensicontrol Face Cleanser** through Mochi on a phone, on **16 October 2026**. I have the screen recording. Here is what happened, taken only from what is on screen.
 
-**[TODO: say who at Velora used it, in one line. Then add one real quote from them, word for word, or delete this line. Also say plainly whether they would pay or paid. If not, write "not yet" or leave it out.]**
+I don't have a written quote from them, so I'm not putting words in their mouth. What I do have is the recording, and it shows what they actually did.
 
 They followed the five steps above (the screenshots for steps 1 to 4 are from their session): three photos of the bottle, the label read off it, a persuasive tone, Best quality writing, Pinterest as the platform, and the warm and cozy backdrop.
 
@@ -325,7 +315,11 @@ They followed the five steps above (the screenshots for steps 1 to 4 are from th
 
 The kit was five slides, nine studio photos, a 10-second video, and copy for one platform.
 
-**What I learned from watching:** **[TODO: write 2 or 3 honest lines about what you saw when they used it. Something confusing, something slow, something they liked. Only what really happened.]**
+**What I learned from watching.** All of this is from the recording:
+
+- **They changed their mind before generating.** They started with the Friendly tone, Instagram and Fast, then switched to Persuasive, Pinterest and Best quality. The choices clearly matter to people, so I'm glad nothing is locked in.
+- **They left several facts blank, and the copy respected that.** Target audience, dimensions, verified benefits and care instructions were never filled in, so Mochi left them out and said so, instead of guessing.
+- **Best quality costs time.** The form says Fast takes about 20 seconds and Best quality about a minute. They chose the slower one, and it took 55.
 
 ## Prize Categories
 
@@ -348,13 +342,13 @@ I'm entering **Tinker, Gemma, Sentry Agent Tracing and Entire**. Each section co
 
 The whole thing cost **$5.41 of the $10 credit**.
 
-*Diagram 10, the training pipeline:*
+The training pipeline:
 
 ![Fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/finetune.png)
 
 **Results** (60 held-out synthetic products, one checker):
 
-*Diagram 11, the evaluation:*
+The evaluation:
 
 ![Evaluation results](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/evaluation.png)
 
@@ -387,11 +381,11 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 2. **The photo reader.** It reads up to 5 photos and returns suggested facts, each tagged "From photo, check it"
 3. **The independent judge.** Gemma 3 12B, a different family from the Qwen teacher, reviews kits in my evaluation
 
-*Diagram 2, which model does which job:*
+Which model does which job:
 
 ![Models and their jobs](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/models.png)
 
-*Diagram 5, how Gemma reads photos. It only ever suggests; you confirm:*
+How Gemma reads photos. It only ever suggests; you confirm:
 
 ![Photo reading](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/photo-reading.png)
 
@@ -405,7 +399,7 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 - Speed is the trade-off. Fast (4B) builds a four-photo kit in about **18 s**, Best quality (12B) in about **57 s**
 - As the judge, Gemma 12B had the fewest flags of any model I tested (0.13 per kit)
 
-*Diagram 9, what the Fast default bought:*
+What the Fast default bought:
 
 ![Optimisations, before and after](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/optimisations.png)
 
@@ -419,7 +413,7 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 
 **What Sentry sees.**
 
-*Diagram 12, what Sentry sees and what it never sees:*
+What Sentry sees and what it never sees:
 
 ![What Sentry sees, and what it never sees](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/observability.png)
 
@@ -428,13 +422,13 @@ That's a 4B model, a third of Gemma 12B's size, producing nearly twice as many c
 - Each flagged claim is an issue (which rule fired, and how many)
 - Each seller report is an event. The report button sends a section name and a fixed reason code, **never free text**
 
-The flagged claims come from the copy pipeline's post-check (*Diagram 4*), so each issue is a rule the code caught, not a model's opinion:
+The flagged claims come from the copy pipeline's post-check, so each issue is a rule the code caught, not a model's opinion:
 
 ![Copy pipeline and its post-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/copy.png)
 
 **What it never sees.** An allow-list scrubber removes everything that is not on the list of allowed metadata. Product facts, copy, photos and prompts can't pass it.
 
-*Diagram 15, the trust boundary:*
+The trust boundary:
 
 ![What stays local and what can leave](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/diagrams/trust.png)
 
