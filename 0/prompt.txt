@@ -1,0 +1,1 @@
+'/Users/advikdivekar/Desktop/sellcraft/IMG_9696.PNG' some sort of error and I also want the model to extract info from the image as well and autofill info + add option to the user in their only where user can maunally add more info.
