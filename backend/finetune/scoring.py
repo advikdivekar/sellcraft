@@ -17,8 +17,29 @@ LABEL_KEYS = {"Summary": ["summary"], "Price": ["price", "cost"], "Materials / i
               "Dimensions / specs": ["dimension", "size", "spec"], "Main features": ["feature"], "Verified benefits": ["benefit"],
               "Target audience": ["audience"], "Care / usage": ["care", "usage"]}
 NUM = re.compile(r"\d+(?:[.,]\d+)?")
-NUMBER_WORDS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
-                "hundred": 100, "thousand": 1000, "dozen": 12}
+UNITS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
+TEENS = {"ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
+         "eighteen": 18, "nineteen": 19}
+TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+_U, _T = "|".join(UNITS), "|".join(TENS)
+# "twenty-four", "five hundred", "two thousand", "fifty", "a hundred" ... but not plain "one"/"two" (too common in prose: "one of")
+WORD_NUM = re.compile(rf"(?<![\w-])(?:(?P<mult>{_U}|a|one)[ -](?P<big>hundred|thousand)|(?P<tens>{_T})(?:[- ](?P<unit>{_U}))?|(?P<teen>{'|'.join(TEENS)})|(?P<bigonly>hundred|thousand|dozen))(?![\w-])", re.I)
+
+
+def word_numbers(text: str) -> set[float]:
+    """Numbers written as words, as values: 'twenty-four' -> 24, 'five hundred' -> 500, 'Fifty' -> 50."""
+    out: set[float] = set()
+    for m in WORD_NUM.finditer(text):
+        if m.group("big"):
+            base = {"a": 1, "one": 1}.get(m.group("mult").lower()) or UNITS[m.group("mult").lower()]
+            out.add(float(base * (100 if m.group("big").lower() == "hundred" else 1000)))
+        elif m.group("tens"):
+            out.add(float(TENS[m.group("tens").lower()] + (UNITS[m.group("unit").lower()] if m.group("unit") else 0)))
+        elif m.group("teen"):
+            out.add(float(TEENS[m.group("teen").lower()]))
+        else:
+            out.add({"hundred": 100.0, "thousand": 1000.0, "dozen": 12.0}[m.group("bigonly").lower()])
+    return out
 
 
 def _facts_blob(p: dict) -> str:
@@ -104,10 +125,10 @@ def score(factset: dict, data: dict | None, error: str | None = None) -> dict:
         hard.append({"code": "invented_number", "detail": m, "fields": sorted(fields)})
 
     # numbers written as words ("Fifty milligrams") slipped past the digit check once and misstated a dose
+    facts_words = word_numbers(_facts_blob(factset["product"]))
     for f_, t_ in _texts(copy, skip=("claims_requiring_review", "missing_information", "video_generation_prompt", "video_storyboard", "hashtags", "tags", "keywords")):
-        for w, v in NUMBER_WORDS.items():
-            if re.search(rf"(?<!\w){w}(?!\w)", t_.lower()) and float(v) not in allowed and not any(w in x.lower() for x in [_facts_blob(factset["product"])]):
-                hard.append({"code": "invented_number", "detail": w, "fields": [f_]})
+        for v in word_numbers(t_) - allowed - facts_words:
+            hard.append({"code": "invented_number", "detail": f"{v:g} (in words)", "fields": [f_]})
 
     if len(copy.video_hook.split()) > 8:
         soft.append({"code": "hook_too_long", "detail": str(len(copy.video_hook.split())), "fields": ["video_hook"]})

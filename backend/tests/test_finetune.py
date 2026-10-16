@@ -401,10 +401,18 @@ def test_judge_prompt_pairs_facts_with_copy_and_parses_flags():
 def test_number_words_are_checked_like_digits():
     kit = good_kit(); kit["social_caption"] = "Fifty milligrams of calm for your evening."
     sc = scoring.score(FS, kit)
-    assert any(h["code"] == "invented_number" and h["detail"] == "fifty" for h in sc["hard"])
+    assert any(h["code"] == "invented_number" and "50" in h["detail"] for h in sc["hard"])
     fs = {**FS, "product": {**FS["product"], "features": ["fifty hour burn time"]}}  # given in the facts, in words: fine
     ok = good_kit(fs); ok["social_caption"] = "Burns for fifty hours."
-    assert not any(h["detail"] == "fifty" for h in scoring.score(fs, ok)["hard"])
+    assert not any("50" in h["detail"] for h in scoring.score(fs, ok)["hard"])
+
+
+def test_compound_and_hundred_number_words_equal_their_digit_forms():
+    assert scoring.word_numbers("a set of twenty-four, five hundred mg, two thousand, thirteen, a hundred") == {24.0, 500.0, 2000.0, 13.0, 100.0}
+    assert scoring.word_numbers("one of the best, two options, an hour") == set()  # plain small words are prose, not claims
+    fs = {**FS, "product": {**FS["product"], "dimensions": "set of 24", "features": ["500 mg per capsule"]}}
+    kit = good_kit(fs); kit["social_caption"] = "A set of twenty-four with five hundred milligrams."
+    assert not any(h["code"] == "invented_number" and "in words" in h["detail"] for h in scoring.score(fs, kit)["hard"])
 
 
 @pytest.mark.parametrize("phrase", ["Available now.", "A great gift idea.", "Perfect for a birthday party."])

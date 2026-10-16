@@ -1,0 +1,485 @@
+{
+ "gemma3:4b": {
+  "n": 20,
+  "kits_with_unsupported": 0.05,
+  "flags_per_kit": 0.05,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": []
+   },
+   {
+    "id": "test-0002",
+    "flags": []
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": []
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": []
+   },
+   {
+    "id": "test-0009",
+    "flags": []
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": [
+     "offers a calming experience"
+    ]
+   }
+  ]
+ },
+ "gemma3:12b": {
+  "n": 20,
+  "kits_with_unsupported": 0.15,
+  "flags_per_kit": 0.15,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": []
+   },
+   {
+    "id": "test-0002",
+    "flags": []
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": []
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": [
+     "durable"
+    ]
+   },
+   {
+    "id": "test-0009",
+    "flags": []
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": [
+     "Add a little spice to your breakfast."
+    ]
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": [
+     "Designed for those seeking relaxation."
+    ]
+   }
+  ]
+ },
+ "Qwen/Qwen3.5-4B": {
+  "n": 20,
+  "kits_with_unsupported": 0.2,
+  "flags_per_kit": 0.25,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": [
+     "offer a practical play experience",
+     "Ideal for creative construction projects"
+    ]
+   },
+   {
+    "id": "test-0002",
+    "flags": []
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": [
+     "The perfect dinner plate for your next gathering."
+    ]
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": [
+     "durable"
+    ]
+   },
+   {
+    "id": "test-0009",
+    "flags": []
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": [
+     "verified as easy for small hands"
+    ]
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": []
+   }
+  ]
+ },
+ "tinker://5ba7b6dc-50fc-5142-8c29-c1c733f4af9a:train:0/sampler_weights/sellcraft-copy-v1": {
+  "n": 20,
+  "kits_with_unsupported": 0.35,
+  "flags_per_kit": 0.8,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": [
+     "Ideal for gift ideas."
+    ]
+   },
+   {
+    "id": "test-0002",
+    "flags": [
+     "creates a satisfying crackle when lit",
+     "creates a warm glow",
+     "ensures the scent stays fresh until you are ready to use it",
+     "is the ideal choice for filling a small room with a citrusy atmosphere",
+     "fills a small room with a fresh citrus scent"
+    ]
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": [
+     "Ideal for gifting."
+    ]
+   },
+   {
+    "id": "test-0005",
+    "flags": []
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": []
+   },
+   {
+    "id": "test-0009",
+    "flags": []
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": [
+     "Available now."
+    ]
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": []
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": [
+     "It is a straightforward addition to your play area",
+     "No complicated rules, just immediate use for imaginative stories",
+     "Great for play or display",
+     "bringing a soft texture to your playtime",
+     "Whether you are prepping for a birthday, a holiday party, or just need a new toy for a friend, this set stands on its own as a thoughtful gift",
+     "Suitable for gift giving"
+    ]
+   },
+   {
+    "id": "test-0018",
+    "flags": [
+     "It arrives in a gift box, so the moment of giving is immediate."
+    ]
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": [
+     "Fifty milligrams of calm for your evening."
+    ]
+   }
+  ]
+ },
+ "tinker://62aeeae3-2658-5da2-84f0-b1cf23e7fe4a:train:0/sampler_weights/sellcraft-copy-v2": {
+  "n": 20,
+  "kits_with_unsupported": 0.2,
+  "flags_per_kit": 0.2,
+  "rows": [
+   {
+    "id": "test-0001",
+    "flags": []
+   },
+   {
+    "id": "test-0002",
+    "flags": [
+     "built to last"
+    ]
+   },
+   {
+    "id": "test-0003",
+    "flags": []
+   },
+   {
+    "id": "test-0004",
+    "flags": []
+   },
+   {
+    "id": "test-0005",
+    "flags": []
+   },
+   {
+    "id": "test-0006",
+    "flags": []
+   },
+   {
+    "id": "test-0007",
+    "flags": []
+   },
+   {
+    "id": "test-0008",
+    "flags": [
+     "Made for you."
+    ]
+   },
+   {
+    "id": "test-0009",
+    "flags": [
+     "It is ready for use whenever you need to shield your items."
+    ]
+   },
+   {
+    "id": "test-0010",
+    "flags": []
+   },
+   {
+    "id": "test-0011",
+    "flags": []
+   },
+   {
+    "id": "test-0012",
+    "flags": []
+   },
+   {
+    "id": "test-0013",
+    "flags": []
+   },
+   {
+    "id": "test-0014",
+    "flags": [
+     "It is crafted to bring a sense of coziness to your space."
+    ]
+   },
+   {
+    "id": "test-0015",
+    "flags": []
+   },
+   {
+    "id": "test-0016",
+    "flags": []
+   },
+   {
+    "id": "test-0017",
+    "flags": []
+   },
+   {
+    "id": "test-0018",
+    "flags": []
+   },
+   {
+    "id": "test-0019",
+    "flags": []
+   },
+   {
+    "id": "test-0020",
+    "flags": []
+   }
+  ]
+ }
+}
