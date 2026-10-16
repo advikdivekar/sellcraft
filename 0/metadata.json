@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.11.5",
+  "checkpoint_id": "01M52ABST71RTFX3ZD1Z853RYC",
+  "session_id": "159a4645-4bae-4261-ac0b-464a7f4accd7",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-16T12:18:10.269436Z",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "save_step_count": 7,
+  "files_touched": [
+    "docs/WRITEUP.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-sonnet-5-5",
+  "turn_id": "c4e1a6e194dd",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 27680,
+    "cache_read_tokens": 2482687,
+    "output_tokens": 14633,
+    "api_call_count": 17
+  },
+  "session_metrics": {
+    "turn_count": 31
+  }
+}
