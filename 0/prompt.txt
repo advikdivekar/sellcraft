@@ -1,0 +1,1 @@
+dont add 2,3,4 landing folder. add rest to the writeup.md
