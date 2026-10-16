@@ -1,0 +1,508 @@
+keep running and by the time setup entire and then 
+
+<pasted_content id="b453">
+# Build SellCraft AI — A World-Class, Futuristic AI Startup Website
+
+You are a world-class creative developer, senior frontend engineer, motion designer, and product designer. Your job is to transform **SellCraft AI** into an exceptionally polished, futuristic, premium AI startup website that feels ready for a Y Combinator-backed company launch.
+
+Do not produce a generic SaaS landing page. Build an immersive digital experience with sophisticated typography, cinematic scroll interactions, spatial zoom effects, premium product visualizations, fluid transitions, and excellent attention to detail.
+
+The final website should be visually stunning, fast, responsive, accessible, and genuinely usable.
+
+## 1. Understand the product first
+
+SellCraft AI is an AI-powered content creation tool for online sellers, small businesses, handmade-product brands, Instagram stores, Etsy sellers, Shopify merchants, and other independent entrepreneurs.
+
+The user provides:
+- A product photograph.
+- A few product facts, features, materials, pricing details, or other relevant information.
+- Their target platform, such as Instagram, Facebook, Pinterest, Etsy, or Shopify.
+- Their preferred tone, such as persuasive, emotional, luxury, playful, minimal, or straightforward.
+
+SellCraft AI turns those inputs into a complete product marketing package:
+- SEO-friendly product titles.
+- Detailed product descriptions.
+- Search keywords and tags.
+- Social media captions.
+- Platform-specific copy variations.
+- Short-form video advertisement concepts, with a target duration of approximately 10 seconds.
+- Optional voiceovers and narration through an interchangeable text-to-speech integration.
+
+The core promise:
+
+**One product photo. A few details. A complete marketing package.**
+
+Design the whole website around this transformation. A visitor should understand the product within five seconds.
+
+## 2. Overall visual direction
+
+Create a premium, future-facing visual identity with the confidence and simplicity of an exceptional early-stage technology company.
+
+Use the following creative direction:
+
+- A sophisticated near-black and warm-white foundation, or a primarily warm-white canvas with deep charcoal typography.
+- One distinctive, high-energy accent color, such as electric lime, vivid chartreuse, or a carefully selected acid-green tone.
+- Beautiful typography with strong oversized headlines, tightly controlled line heights, and deliberate negative space.
+- Large editorial compositions that alternate between spacious minimalism and immersive, full-width visual moments.
+- Fine borders, subtle gradients, restrained glow effects, realistic shadows, and carefully layered depth.
+- A consistent spacing system, precise alignment, and an excellent visual hierarchy.
+- Beautiful product mockups that look like a real working product rather than decorative dashboard placeholders.
+
+Avoid excessive gradients, random neon colors, glassmorphism everywhere, rounded-card overload, generic stock photos, emoji-based feature icons, and repetitive three-column feature sections.
+
+Do not simply copy another company's website. Create an original visual identity for SellCraft AI.
+
+## 3. Cinematic hero section
+
+The first screen should feel extraordinary.
+
+Create a full-viewport, meticulously composed hero with:
+
+**Navigation**
+- SellCraft AI wordmark.
+- Product.
+- How it works.
+- Features.
+- A restrained button for signing in or getting started.
+- A mobile navigation menu that works properly.
+
+The navigation may begin transparent and transition to a lightly blurred, solid background once the visitor scrolls.
+
+**Hero headline**
+
+Use this exact headline as the initial direction:
+
+"From product photo
+to ready-to-sell."
+
+Make the typography enormous but elegant. Use intentional line breaks, tight spacing, and a subtle entrance animation. Highlight one phrase using the brand accent.
+
+Supporting copy:
+
+"Turn a single product photo into scroll-stopping ads, persuasive listings, and platform-ready content — all powered by AI."
+
+Primary CTA: "Create your first listing"
+
+Secondary CTA: "See how it works"
+
+Include a small, understated note such as "Made for the people who sell."
+
+**Hero visual**
+
+Create an immersive central composition showing the SellCraft AI transformation.
+
+A product photograph should appear as the source object. Around it, multiple beautifully designed output panels emerge naturally:
+
+- A product listing with an SEO title.
+- An Instagram caption.
+- A set of product tags.
+- A short video-ad storyboard.
+- A platform-specific preview.
+
+Use a combination of real image assets, CSS, SVG, and actual UI components. Make the composition look like real software, not a pile of generic floating cards.
+
+The photograph is the source, while the output panels represent the completed marketing package.
+
+Give the composition physical depth using layered transforms, subtle perspective, varying scales, and carefully controlled shadows.
+
+Use a tasteful pointer-responsive parallax effect on desktop, while ensuring the experience remains stable for touchscreens and reduced-motion users.
+
+The hero should be visually impressive without making the content difficult to read.
+
+## 4. Make scrolling feel cinematic
+
+This is one of the most important requirements.
+
+Implement a carefully choreographed scroll experience using tools compatible with the project's existing stack.
+
+As the visitor scrolls through the page, the website should feel as though they are moving through a carefully designed product world.
+
+### Animation sequence A: Zoom into the product
+
+Initially, the product photograph is relatively small and surrounded by the floating marketing outputs.
+
+As the visitor scrolls:
+- The source photograph smoothly scales up.
+- Surrounding output panels move outward or fade away.
+- The photograph becomes the focal point of the viewport.
+- The camera-like perspective transitions seamlessly to the next scene.
+
+Use scroll progress to control the transformation rather than triggering arbitrary animations at fixed scroll positions.
+
+The transition should feel like a smooth camera push-in, not an abrupt element enlargement.
+
+### Animation sequence B: Transform the product
+
+Continue scrolling to transform the original image into its finished listing experience.
+
+- The original photo shifts to one side.
+- Product information appears alongside it.
+- A title types or reveals itself with elegant timing.
+- Keywords and description lines appear in sequence.
+- A platform selector changes the appearance of the content preview.
+- Small status indicators communicate the transformation without pretending that a real AI generation is running.
+
+Keep every animation synchronized with the scroll position.
+
+### Animation sequence C: Zoom out into the complete marketing package
+
+As the visitor continues scrolling, smoothly pull back from the product preview.
+
+The individual outputs arrange themselves into a coherent marketing package containing copy, tags, social content, and the short video-ad concept.
+
+The wider scene should reveal how one input produces multiple useful deliverables.
+
+Use motion to communicate the product's value rather than adding animation solely for decoration.
+
+### Animation sequence D: Transition to the next section
+
+Use a fluid scale, opacity, and position transition to move from the immersive scene into a clean editorial section.
+
+The page should never feel like a collection of unrelated animation demos.
+
+Transitions must be seamless, intentional, and performant. Avoid excessive scroll hijacking. Scrolling should remain natural, and all key content must remain accessible when animation is disabled.
+
+## 5. Build a genuinely convincing interactive product demo
+
+This should be the centerpiece of the website.
+
+Create a section titled:
+
+"One product. Every channel. Ready to sell."
+
+Build an interactive, responsive product-generation interface that visitors can actually experiment with.
+
+The demo should contain:
+
+**Input area**
+- Product image upload.
+- Drag-and-drop support.
+- A sample-product button that loads a bundled demonstration image.
+- A product name or short description field.
+- Additional product details.
+- Target-platform selection.
+- Tone selection.
+- A prominent "Generate marketing package" button.
+
+**Platform options**
+- Instagram.
+- Facebook.
+- Pinterest.
+- Etsy.
+- Shopify.
+
+**Tone options**
+- Luxury.
+- Persuasive.
+- Emotional.
+- Playful.
+- Minimal.
+- Professional.
+
+**Generated output area**
+
+Display a beautifully designed, tabbed output experience featuring:
+- Product title.
+- Product description.
+- Search tags.
+- Social caption.
+- Video-ad concept.
+
+Each tab must work and display a meaningful, relevant example.
+
+Switching platforms should update the example layout and its associated sample content where appropriate. Switching tones should visibly change the sample copy when the generation logic supports it.
+
+Include working copy buttons and useful feedback when content is copied.
+
+The demo must not pretend that a backend AI call exists when it does not. If the real generation API is unavailable, provide an explicit demo mode with predefined or locally generated sample outputs.
+
+Where the project already has a working API, connect the interface to it rather than replacing actual functionality with fake results.
+
+Make the sample experience impressive enough that users can understand the value of the real product without signing up.
+
+## 6. Showcase short-form video creation
+
+Video creation is an important differentiator. Give it its own visually striking section.
+
+Headline:
+
+"Your next ad starts with a photo."
+
+Create a premium, vertical-video-inspired showcase with a realistic phone or video preview.
+
+Show a sample progression:
+
+1. The original product image.
+2. A cinematic product shot or animated scene.
+3. A short promotional hook.
+4. Product benefits appearing on screen.
+5. A polished end frame featuring the product and CTA.
+
+Make this a short, approximately 10-second video-ad concept.
+
+Use a genuine video asset if one is available in the repository. Otherwise, create an animated storyboard preview with CSS, SVG, and existing image assets. Clearly distinguish a storyboard preview from an actual generated video.
+
+Include an interactive play/pause button when using an animated preview. If an actual video asset is available, include working playback controls.
+
+Show how the same product can be packaged for different social channels.
+
+Do not build a fake video generator that claims to have rendered a downloadable video when no actual generation pipeline exists.
+
+## 7. Add a premium "one input, many outputs" visualization
+
+Create a distinctive, full-width section that visually demonstrates the SellCraft AI workflow.
+
+The source product image occupies the center of the composition.
+
+As the visitor scrolls into the section, animated paths or lines connect the source image to different outputs:
+
+- Product listing.
+- SEO keywords.
+- Instagram post.
+- Pinterest pin.
+- Video-ad concept.
+- Brand-specific caption.
+
+Reveal the output previews in a carefully choreographed sequence.
+
+The result should look like an elegant visual system rather than a flowchart or a standard feature grid.
+
+Use SVG paths, CSS transforms, scroll-linked animations, and small motion accents. Do not introduce a massive particle effect or an unnecessary 3D engine merely for visual spectacle.
+
+The visualization should explain the product without requiring lengthy explanatory text.
+
+## 8. Design the remaining landing-page sections
+
+Build a complete landing page with a clear, conversion-oriented narrative.
+
+### Section 1: Hero
+Introduce the value proposition and showcase the product.
+
+### Section 2: The transformation
+Use the cinematic zoom sequence to explain how a product photograph becomes a complete marketing package.
+
+### Section 3: Interactive studio
+Let visitors upload a sample image, select a platform and tone, and explore the generated outputs.
+
+### Section 4: Made for every selling channel
+Present Instagram, Facebook, Pinterest, Etsy, and Shopify as distinct content destinations.
+
+When a channel is selected, update a real preview component instead of merely changing a highlight.
+
+### Section 5: Video-ad studio
+Show the short-form video concept and explain how product imagery can become a promotional creative.
+
+### Section 6: Brand voice
+Show how different writing tones change the same product's marketing. Use a few polished before-and-after examples.
+
+### Section 7: How it works
+Explain the process in three concise steps:
+
+1. Upload your product.
+2. Choose your style and platform.
+3. Generate your marketing package.
+
+Use clean typography and minimal visual clutter.
+
+### Section 8: Final CTA
+Use a visually confident closing section.
+
+Headline:
+
+"Your product deserves better marketing."
+
+Supporting text:
+
+"Create better listings, stronger product stories, and campaign-ready content from the photos you already have."
+
+CTA: "Start creating"
+
+### Section 9: Footer
+Include the brand, relevant navigation links, and existing social or legal links if available. Never invent working destinations for links that have not been configured.
+
+The website should feel complete, but avoid adding unnecessary sections just to make it longer.
+
+## 9. Motion design and micro-interactions
+
+Use motion throughout the experience, but establish a consistent motion language.
+
+Implement the following where appropriate:
+
+- Smooth scroll-triggered reveals.
+- Scroll-linked zoom-in and zoom-out transitions.
+- Subtle depth and perspective.
+- Staggered text entrances.
+- Carefully timed image reveals.
+- Gentle floating product-output panels.
+- Understated button hover states.
+- Smooth tab and platform transitions.
+- Subtle cursor-responsive movement on large desktop compositions.
+- Animated connecting lines.
+- Content transitions that preserve layout stability.
+- Small feedback animations when copying content or completing an interaction.
+- Sophisticated navigation transitions.
+- Smooth modal and image-upload states.
+
+Animation principles:
+- Favor transform and opacity where possible.
+- Avoid layout thrashing and expensive continuous effects.
+- Keep motion timing consistent.
+- Do not animate every element independently.
+- Avoid constantly moving backgrounds.
+- Avoid excessive spring overshoot, bouncing, spinning, and glowing.
+- Support `prefers-reduced-motion`.
+- Ensure animations do not prevent users from reading the page or interacting with controls.
+- Disable or substantially reduce pointer and scroll-linked effects on devices where they could harm usability.
+
+The visual result should feel precise, confident, and exceptionally well executed.
+
+## 10. Typography and layout
+
+Typography is a major part of the design.
+
+Use an elegant, modern sans-serif typeface available in the project or load an appropriate web font when the project supports it.
+
+Use:
+- Dramatic display typography for the main headline.
+- Compact, purposeful headings for each section.
+- Comfortable body text.
+- Restrained uppercase labels where they add meaning.
+- Carefully controlled text widths.
+- Large amounts of intentional whitespace.
+- Consistent vertical rhythm between sections.
+
+Avoid oversized headings in every section. Establish a clear hierarchy and reserve the most dramatic typography for important moments.
+
+Use a responsive layout with fluid typography, sensible maximum widths, and well-designed mobile spacing.
+
+## 11. Technical implementation
+
+First, inspect the existing project and understand its framework, package manager, routes, components, styling approach, assets, and available backend integrations.
+
+Do not blindly replace the project's current architecture.
+
+Work with the existing stack wherever possible.
+
+If this is a fresh project, prefer the following when appropriate:
+- React with TypeScript.
+- Vite or the project's existing framework.
+- Tailwind CSS if it is already installed or appropriate.
+- Framer Motion or Motion for React for reusable interface animations.
+- GSAP with ScrollTrigger if the cinematic, scroll-linked sequences genuinely benefit from it.
+- Native CSS transforms and SVG for lightweight interactive visuals.
+
+Do not install both major animation libraries without a clear technical reason. Keep the implementation maintainable.
+
+For the hero and scrollytelling, define animation states and timelines deliberately. Avoid dozens of unrelated scroll event listeners.
+
+Use a clean component structure, for example:
+
+- `Navbar`
+- `HeroSection`
+- `ProductTransformation`
+- `InteractiveProductStudio`
+- `ChannelShowcase`
+- `VideoAdShowcase`
+- `BrandVoiceDemo`
+- `HowItWorks`
+- `FinalCTA`
+- `Footer`
+
+Create reusable components for product previews, platform selectors, tone controls, and generated-content tabs.
+
+All visible controls must do what they say.
+
+Implement working form controls, upload states, navigation, tabs, buttons, platform selection, tone selection, copy actions, and playback controls.
+
+Use semantic HTML, accessible keyboard interactions, appropriate focus states, and descriptive labels.
+
+Optimize images, lazy-load below-the-fold assets, and prevent large layout shifts.
+
+Do not add artificial delays to simulate intelligence. Do not hardcode fake metrics, fake customer testimonials, fabricated customer logos, or unverified claims.
+
+## 12. Mobile responsiveness
+
+Treat mobile as a first-class experience, not a scaled-down desktop.
+
+On mobile:
+- Preserve the visual identity and strong typography.
+- Simplify or disable expensive parallax effects.
+- Convert the floating hero scene into a readable, beautifully layered composition.
+- Adapt the cinematic zoom sequences to fit small screens.
+- Keep the product studio usable without horizontal scrolling.
+- Make tabs and selectors touch-friendly.
+- Ensure the entire product image and generated outputs remain visible.
+- Respect reduced-motion preferences.
+- Preserve the site's performance on average mobile hardware.
+
+No clipped content, overlapping controls, accidental horizontal overflow, or unnecessarily tall dead spaces.
+
+## 13. Performance and quality requirements
+
+A spectacular website that stutters or breaks on mobile is not a successful result.
+
+Prioritize:
+- Smooth animations.
+- Responsive image sizing.
+- Minimal JavaScript overhead.
+- Stable layouts.
+- Accessible color contrast.
+- Good keyboard navigation.
+- Clean browser console output.
+- Sensible component boundaries.
+- Reduced-motion support.
+- Working primary flows.
+- Reliable error and loading states.
+
+Avoid adding WebGL or a heavyweight 3D engine unless it creates a clear improvement that cannot be achieved with simpler methods.
+
+Test the actual page at desktop, tablet, and mobile widths.
+
+Verify that the key animations work, the hero renders correctly, the product-demo controls respond, copy actions work, and no section causes horizontal overflow.
+
+Fix any implementation issues discovered during testing.
+
+## 14. Design details that distinguish exceptional work
+
+Pay particular attention to details that are easy to overlook:
+
+- The transition from the hero into the first scroll section must feel intentional.
+- The scroll-zoom sequence must stay visually aligned with the viewport.
+- Floating elements should have a clear hierarchy and believable depth.
+- Text must remain readable over backgrounds and images.
+- Scroll animations should not leave content invisible if a script fails.
+- Images must have suitable crops and aspect ratios.
+- Buttons should have a consistent visual language.
+- The product UI should resemble a cohesive application, not unrelated mockup fragments.
+- Every section should provide a reason to continue scrolling.
+- The final design should look excellent even when every animation is disabled.
+
+The end result should have a memorable opening, a surprising visual journey, a convincing interactive product demo, and a clear conversion path.
+
+## 15. How to execute the task
+
+Do not stop after writing a plan or producing a design description. Implement the actual working website in the repository.
+
+Follow this process:
+
+1. Inspect the project and identify its current stack.
+2. Review existing assets and functionality.
+3. Establish the visual design system.
+4. Build the complete page structure.
+5. Implement the hero and its animations.
+6. Build and test the cinematic scrolling sequences.
+7. Implement the interactive product studio.
+8. Complete the remaining sections.
+9. Verify responsiveness, accessibility, and reduced-motion behavior.
+10. Run the project's available linting, type checks, build, and relevant tests.
+11. Fix errors and obvious visual defects.
+12. Summarize the implementation, key files changed, and any required environment variables or external services that remain unconfigured.
+
+Make reasonable design decisions independently instead of stopping to ask me about every minor detail.
+
+**Final quality bar:** The first viewport must immediately communicate a premium AI product. The scroll experience should feel cinematic. The product demo must be interactive. The design should feel intentionally art-directed, original, and ready for a serious startup launch.
+
+Do not settle for a generic template, a static screenshot, or a page consisting of a navbar, a headline, three cards, and a footer.
+
+Build something memorable for SellCraft AI.
+</pasted_content id="b453">
