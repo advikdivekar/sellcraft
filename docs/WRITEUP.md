@@ -141,6 +141,64 @@ Nothing posts on its own. The only thing Mochi can send anywhere is a Shopify **
 
 {% embed https://youtu.be/uvYCVlKRKbU %}
 
+### Every page, screenshot by screenshot
+
+**Landing page**
+
+![Landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-hero-desktop.png)
+
+**Landing page on a phone**
+
+![Landing page on a phone](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-hero-mobile.png)
+
+**Studio on the landing page**
+
+![Studio on the landing page](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/landing-studio-desktop.png)
+
+**1. Add photos**
+
+![1. Add photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-01-photos.png)
+
+**2. Text Mochi read from the label**
+
+![2. Text Mochi read from the label](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-02-label-read.png)
+
+**3. Tone, goal and writing speed**
+
+![3. Tone, goal and writing speed](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03-style.png)
+
+**3. Choose a backdrop**
+
+![3. Choose a backdrop](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-03b-backdrop.png)
+
+**4. Building the kit**
+
+![4. Building the kit](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-04-building.png)
+
+**5. Kit ready in 55 seconds**
+
+![5. Kit ready in 55 seconds](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-05-ready-55s.png)
+
+**Studio photos**
+
+![Studio photos](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-09-studio-photos.png)
+
+**Image deck**
+
+![Image deck](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-10-deck.png)
+
+**Video ad**
+
+![Video ad](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-07-video-ad.png)
+
+**Keywords, tags and SEO title**
+
+![Keywords, tags and SEO title](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-08-copy.png)
+
+**What to double-check**
+
+![What to double-check](https://raw.githubusercontent.com/advikdivekar/sellcraft/main/docs/images/velora/velora-06-double-check.png)
+
 ## Code
 
 {% embed https://github.com/advikdivekar/sellcraft %}
