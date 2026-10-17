@@ -1,0 +1,31 @@
+nice product video, is this with higgsfield? one guy commented, what to say to them?
+
+---
+
+shorter message.
+
+---
+
+dont say no gen ai video, say what we are doing
+
+---
+
+<pasted_content id="50ae">
+This lines up with what I've seen running small client-side tools myself: the product data genuinely never leaves the machine, and that's a real win. The part I'd add is that local execution moves the trust boundary rather than removing it — the thing you now have to trust is the model files and the dependency tree you pulled down to run them. A tampered model checkpoint or a compromised transitive package runs with the same access to those product photos as the pipeline itself.
+
+None of that contradicts your claim — the photos stay off other people's servers, full stop. It's just that "runs on your own computer" quietly swaps "trust their server" for "trust your supply chain", and that second one is the part most local-first pitches skip. Curious whether you pin model hashes or lock dependency versions for exactly this reason.
+</pasted_content id="50ae">
+
+ is this a compliment or what?
+
+---
+
+give me note that i must write him in short
+
+---
+
+in simple understanding
+
+---
+
+so are we doing good or bad thing and pin the backend deps
