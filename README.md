@@ -84,7 +84,7 @@ ollama pull gemma3:4b          # or gemma3:12b if you have the RAM
 
 # 2. backend
 cd backend
-uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt   # or python3.12 -m venv + pip
+uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.lock   # exact tested versions (requirements.txt holds the loose ranges)
 cp ../.env.example .env        # then edit
 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
 
